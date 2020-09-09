@@ -6,6 +6,7 @@ import { RenderPipeline } from './RenderPipeline';
 import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
 import { CameraController } from './CameraController';
+import { OrthographicCamera } from 'three';
 
 export class MainVisualScene extends ORE.BaseScene {
 
@@ -68,13 +69,8 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.world = new MainVisualWorld( this.scene, this.commonUniforms );
 
-		let light = new THREE.DirectionalLight();
-		light.position.set( 0, 2, 3 );
-		light.intensity = 2.0;
-		this.scene.add( light );
-
-		this.camera.near = 1.0;
-		this.camera.far = 100.0;
+		this.camera.near = 0.1;
+		this.camera.far = 1000.0;
 		this.camera.updateProjectionMatrix();
 
 		this.commonUniforms.camNear.value = this.camera.near;
@@ -91,7 +87,6 @@ export class MainVisualScene extends ORE.BaseScene {
 
 			this.cameraController.update( deltaTime );
 
-			// this.camera.getWorldPosition( this.commonUniforms.camPosition.value );
 			this.commonUniforms.camPosition.value.copy( this.camera.position );
 			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
 			this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );

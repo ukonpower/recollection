@@ -15,9 +15,13 @@ uniform mat4 camProjectionInverseMatrix;
 uniform float camNear;
 uniform float camFar;
 
-#define LOOP 10
-
 $constants
+
+#define MAT_MAIN 1.0
+#define MAT_REFLECT 2.0
+
+#define U(z,w) (mix(z,w,step(w.x,z.x)))
+
 
 float readDepth( sampler2D depthSampler, vec2 coord ) {
 	float fragCoordZ = texture2D( depthSampler, coord ).x;
@@ -35,52 +39,75 @@ float sphere( vec3 p ) {
 
 float sdBox( vec3 p, vec3 b )
 {
-  vec3 q = abs(p) - b;
-  return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+
+	vec3 q = abs(p) - b;
+
+	return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+  
 }
 
-float D( vec3 p ) {
+vec2 D( vec3 p ) {
 
-	return sdBox( p, vec3( 0.5 ) );
+	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -1.0, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
+	vec2 refPlane = vec2( sdBox( p, vec3( 10.0, 0.01, 10.0 ) ), MAT_REFLECT );
+
+	return U( mainObj, refPlane );
 
 }
-vec3 N( vec3 pos )
-{
+
+vec3 N( vec3 pos ){
+
     float ep = 0.0001;
+
     return normalize( vec3(
-            D( pos ) - D( vec3( pos.x - ep, pos.y, pos.z ) ),
-            D( pos ) - D( vec3( pos.x, pos.y - ep, pos.z ) ),
-            D( pos ) - D( vec3( pos.x, pos.y, pos.z - ep ) )
-        ) );
+		D( pos ).x - D( vec3( pos.x - ep, pos.y, pos.z ) ).x,
+		D( pos ).x - D( vec3( pos.x, pos.y - ep, pos.z ) ).x,
+		D( pos ).x - D( vec3( pos.x, pos.y, pos.z - ep ) ).x
+	) );
+	
 }
 
+vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal ) {
 
-void main( void ) {
+	if( distRes.y == MAT_MAIN ) {
+
+		return vec4( 1.0, 0.0, 0.0, 1.0 );
+
+	} else if( distRes.y == MAT_REFLECT ) {
+
+		rayPos += normal * 0.01;
+		rayDir = vec4( reflect( rayDir.xyz, normal ), 1.0 );
+
+		return vec4( 0.0 );
+		
+	}
+
+	return vec4( 1.0 );
+
+}
+
+vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	vec3 normal;
-	vec4 c;
+	vec2 distRes = vec2( 0.0 );
 
-	vec2 uv = ( gl_FragCoord.xy / resolution ) * 2.0 - 1.0;
-	vec4 ray = camWorldMatrix * camProjectionInverseMatrix * vec4( uv, 1.0, 1.0 );
-	vec3 p = camPosition;
-	vec3 dir = ray.xyz;
-
-	float l = 0.;
+	vec4 raymarchCol = vec4( 0.0 );
 
 	for( int i = 0; i < 64; i++ ) {
 
-		l = D( p );
-		p += l * dir;
+		distRes = D( rayPos );
+		rayPos += distRes.x * rayDir.xyz;
 
-		if( l < 0.01 ) {
+		if( distRes.x < 0.01 ) {
 
-			c.w = 1.0;
+			normal = N( rayPos );
+			raymarchCol = material( rayPos, rayDir, distRes, normal );
 
-			normal = N( p );
+			if( raymarchCol.w == 1.0 ) {
 
-			c  = vec4( normal, 1.0 );
-
-			break;
+				break;
+				
+			}
 			
 		}
 		
@@ -90,12 +117,23 @@ void main( void ) {
 	sceneDepth = camNear + sceneDepth * ( camFar - camNear );
 
 	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
+	vec3 col = mix( sceneCol, raymarchCol.xyz, step( length( rayPos - camPosition ) - sceneDepth, 0.0 ) + rayDir.w * raymarchCol.w );
+	// vec3 col = c.xyz;
 
-	// vec3 res = mix( sceneCol, c.xyz, step( sceneDepth - p.z, 0.0 ) );
-	vec3 res = mix( sceneCol, c.xyz, step( length( p - camPosition ) - sceneDepth, 0.0 ) );
+	return vec4( col, 1.0 );
 
-	gl_FragColor = vec4( res, 1.0 );
+}
 
-	// gl_FragColor = vec4( smoothstep( 0.99, 1.0, vUv.x ) );
-	
+void main( void ) {
+
+	vec2 uv = ( gl_FragCoord.xy / resolution ) * 2.0 - 1.0;
+	vec4 ray = camWorldMatrix * camProjectionInverseMatrix * vec4( uv, 1.0, 1.0 );
+
+	vec3 rayPos = camPosition;
+	vec4 rayDir = vec4( ray.xyz, 1.0 );
+
+	vec4 c = trace( rayPos, rayDir );
+
+	gl_FragColor = c;
+
 }

@@ -266,30 +266,30 @@ export class RenderPipeline {
 		this.inputTextures.sceneDepthTex.value = this.sceneRenderTarget.depthTexture;
 
 		//raymarch
-		this.raymarch.render( this.sceneRenderTarget.texture );
+		this.raymarch.render( this.sceneRenderTarget.texture, true );
 		this.inputTextures.sceneTex.value = this.raymarch.getResultTexture();
 
 		//smaa
-		// this.smaa.render( this.inputTextures.sceneTex.value, true );
-		// this.inputTextures.sceneTex.value = this.smaa.getResultTexture();
+		this.smaa.render( this.inputTextures.sceneTex.value, true );
+		this.inputTextures.sceneTex.value = this.smaa.getResultTexture();
 
-		// //render birightness part
-		// this.bright.render( this.inputTextures.sceneTex.value, true );
+		//render birightness part
+		this.bright.render( this.inputTextures.sceneTex.value, true );
 
-		// //render blur
-		// let tex = this.bright.getResultTexture();
-		// for ( let i = 0; i < this.renderCount; i ++ ) {
+		//render blur
+		let tex = this.bright.getResultTexture();
+		for ( let i = 0; i < this.renderCount; i ++ ) {
 
-		// 	this.commonUniforms.count.value = i;
+			this.commonUniforms.count.value = i;
 
-		// 	this.blur[ i ].render( tex, true );
-		// 	tex = this.blur[ i ].getResultTexture();
-		// 	this.inputTextures.blurTex.value[ i ] = tex;
+			this.blur[ i ].render( tex, true );
+			tex = this.blur[ i ].getResultTexture();
+			this.inputTextures.blurTex.value[ i ] = tex;
 
-		// }
+		}
 
-		// //composition bloom
-		// this.composite.render( this.inputTextures.sceneTex.value );
+		//composition bloom
+		this.composite.render( this.inputTextures.sceneTex.value );
 
 	}
 
