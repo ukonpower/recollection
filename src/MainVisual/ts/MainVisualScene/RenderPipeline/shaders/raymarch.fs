@@ -48,7 +48,7 @@ float sdBox( vec3 p, vec3 b )
 
 vec2 D( vec3 p ) {
 
-	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -1.0, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
+	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -0.7, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
 	vec2 refPlane = vec2( sdBox( p, vec3( 10.0, 0.01, 10.0 ) ), MAT_REFLECT );
 
 	return U( mainObj, refPlane );
@@ -71,7 +71,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal )
 
 	if( distRes.y == MAT_MAIN ) {
 
-		return vec4( 1.0, 0.0, 0.0, 1.0 );
+		return vec4( (normal * 0.5 + 0.5) * 0.8, 1.0 * 0.2 );
 
 	} else if( distRes.y == MAT_REFLECT ) {
 
@@ -117,7 +117,12 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	sceneDepth = camNear + sceneDepth * ( camFar - camNear );
 
 	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
-	vec3 col = mix( sceneCol, raymarchCol.xyz, step( length( rayPos - camPosition ) - sceneDepth, 0.0 ) + rayDir.w * raymarchCol.w );
+
+	float selector = step( length( rayPos - camPosition ) - sceneDepth, 0.0 );
+	selector += rayDir.w * raymarchCol.w;
+	selector = clamp( selector, 0.0, 1.0 );
+	
+	vec3 col = mix( sceneCol, raymarchCol.xyz, selector );
 	// vec3 col = c.xyz;
 
 	return vec4( col, 1.0 );
