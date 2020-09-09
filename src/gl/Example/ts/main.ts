@@ -3,7 +3,7 @@ import { Example1Scene } from './ExampleScene/';
 
 class APP {
 
-	private canvas: any;
+	private canvas: HTMLCanvasElement;
 	private controller: ORE.Controller;
 	private scene: Example1Scene;
 
@@ -13,7 +13,7 @@ class APP {
 
 		this.controller = new ORE.Controller( {
 			canvas: this.canvas,
-			retina: true
+			retina: true,
 		} );
 
 		this.scene = new Example1Scene();
