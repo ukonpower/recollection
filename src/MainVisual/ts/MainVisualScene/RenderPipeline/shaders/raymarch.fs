@@ -57,16 +57,17 @@ vec3 N( vec3 pos )
 
 void main( void ) {
 
-	vec2 uv = ( gl_FragCoord.xy / resolution ) * 2.0 - 1.0;
 	vec3 normal;
 	vec4 c;
 
-	vec4 ray = camWorldMatrix * camProjectionInverseMatrix * vec4( uv, 1., 1.0 );
+	vec2 uv = ( gl_FragCoord.xy / resolution ) * 2.0 - 1.0;
+	vec4 ray = camWorldMatrix * camProjectionInverseMatrix * vec4( uv, 1.0, 1.0 );
 	vec3 p = camPosition;
 	vec3 dir = ray.xyz;
+
 	float l = 0.;
 
-	for( int i = 0; i < 32; i++ ) {
+	for( int i = 0; i < 64; i++ ) {
 
 		l = D( p );
 		p += l * dir;
@@ -88,7 +89,12 @@ void main( void ) {
 	float sceneDepth = readDepth( sceneDepthTex, vUv );
 	sceneDepth = camNear + sceneDepth * ( camFar - camNear );
 
-	gl_FragColor = c * 0.5 + texture2D( backbuffer, vUv ) * 0.5;
+	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
+
+	// vec3 res = mix( sceneCol, c.xyz, step( sceneDepth - p.z, 0.0 ) );
+	vec3 res = mix( sceneCol, c.xyz, step( length( p - camPosition ) - sceneDepth, 0.0 ) );
+
+	gl_FragColor = vec4( res, 1.0 );
 
 	// gl_FragColor = vec4( smoothstep( 0.99, 1.0, vUv.x ) );
 	

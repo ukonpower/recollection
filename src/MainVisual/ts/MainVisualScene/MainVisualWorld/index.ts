@@ -20,8 +20,8 @@ export class MainVisualWorld {
 		}, parentUniforms );
 
 		// let box = new THREE.Mesh( new THREE.SphereGeometry( 1.0, 50.0, 50.0 ), new THREE.MeshStandardMaterial() );
-		let box = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshStandardMaterial() );
-		this.scene.add( box );
+		// let box = new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1 ), new THREE.MeshStandardMaterial() );
+		// this.scene.add( box );
 
 		// let ground = this.scene.getObjectByName( 'Ground' ) as THREE.Mesh;
 		// ground.material = new THREE.ShaderMaterial( {
