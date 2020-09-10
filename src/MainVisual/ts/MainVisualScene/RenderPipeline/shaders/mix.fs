@@ -21,7 +21,7 @@ void main( void ) {
 	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
 	
 	float sceneDepth = readDepth( sceneDepthTex, vUv );
-	sceneDepth = camNear + sceneDepth * ( camFar - camNear );
+	// sceneDepth = camNear + sceneDepth * ( camFar - camNear );
 
 	float rayDepth = raymarchCol.w;
 
@@ -33,7 +33,7 @@ void main( void ) {
 
 	rayDepth *= 2.0;
 
-	float selector = step( rayDepth * camFar - sceneDepth, 0.0 );
+	float selector = step( rayDepth - sceneDepth, 0.0 );
 	selector = clamp( selector, 0.0, 1.0 );
 	
 	vec3 col = mix( sceneCol, raymarchCol.xyz, selector );

@@ -13,6 +13,7 @@ export class ReflectionPlane extends THREE.Mesh {
 
 	private commonUniforms: ORE.Uniforms;
 	private refRenderTarget: THREE.WebGLRenderTarget;
+	private refDepthTex: THREE.DepthTexture;
 	private resolutionRatio: number;
 
 	private blurTexture: BlurTexture;
@@ -23,6 +24,9 @@ export class ReflectionPlane extends THREE.Mesh {
 
 		let uni = ORE.UniformsLib.CopyUniforms( {
 			reflectionTex: {
+				value: null
+			},
+			reflectionDepthTex: {
 				value: null
 			},
 			winResolution: {
@@ -56,7 +60,12 @@ export class ReflectionPlane extends THREE.Mesh {
 
 	protected init() {
 
-		this.refRenderTarget = new THREE.WebGLRenderTarget( window.innerWidth * this.resolutionRatio, window.innerHeight * this.resolutionRatio );
+		this.refDepthTex = new THREE.DepthTexture( window.innerWidth * this.resolutionRatio, window.innerHeight * this.resolutionRatio );
+		this.refRenderTarget = new THREE.WebGLRenderTarget( window.innerWidth * this.resolutionRatio, window.innerHeight * this.resolutionRatio, {
+			depthBuffer: true,
+			depthTexture: this.refDepthTex
+		} );
+
 		this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
 		let n = new THREE.Vector3( 0, 0, 1 );
@@ -104,8 +113,6 @@ export class ReflectionPlane extends THREE.Mesh {
 
 			this.blurTexture.udpateTexture( 1.0, this.refRenderTarget.texture );
 			this.commonUniforms.reflectionTex.value = this.blurTexture.texture.value;
-
-			// this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
 			renderer.setRenderTarget( currentRenderTarget );
 

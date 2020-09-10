@@ -5,6 +5,7 @@ import basicVert from './shaders/basic.vs';
 import basicFrag from './shaders/basic.fs';
 import { ReflectionPlane } from '../ReflectionPlane';
 import { AssetManager } from '../MainVisualManager/AssetManager';
+import { platform } from 'os';
 
 export class MainVisualWorld {
 
@@ -32,10 +33,16 @@ export class MainVisualWorld {
 		let groundModel = this.scene.getObjectByName( 'GroundModel' );
 		groundModel.visible = false;
 
-		let light = new THREE.DirectionalLight();
-		light.position.set( 0, 2, 3 );
-		light.intensity = 2.0;
-		this.scene.add( light );
+		// let light = new THREE.DirectionalLight();
+		// light.position.set( 0, 2, 3 );
+		// light.intensity = 2.0;
+		// this.scene.add( light );
+
+		let pLight = new THREE.PointLight();
+		pLight.distance = 10.0;
+		pLight.position.set( 0, 1, 0 );
+		pLight.intensity = 2.0;
+		this.scene.add( pLight );
 
 		this.refPlane = new ReflectionPlane( this.assetManager, this.renderer, new THREE.Vector2( 100, 100 ), 0.3, this.commonUniforms );
 		this.refPlane.rotation.x = - Math.PI / 2;

@@ -41,7 +41,7 @@ float sdBox( vec3 p, vec3 b )
 
 vec2 D( vec3 p ) {
 
-	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -0.7, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
+	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -1.0, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
 	vec2 refPlane = vec2( sdBox( p, vec3( 10.0, 0.01, 10.0 ) ), MAT_REFLECT );
 
 	return U( mainObj, refPlane );
