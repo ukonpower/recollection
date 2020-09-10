@@ -45,7 +45,7 @@ export class MainVisualWorld {
 		this.refPlane.rotation.x = - Math.PI / 2;
 		this.scene.add( this.refPlane );
 
-		this.trails = new Trails( this.renderer, 50, 100 );
+		this.trails = new Trails( this.renderer, 50, 100, this.commonUniforms );
 		this.scene.add( this.trails );
 		// this.particle = new Particle( this.renderer, this.commonUniforms );
 		// this.particle.position.y = 1.0;

@@ -140,8 +140,8 @@ export class Trails extends THREE.Object3D {
 
 		let pos = new Float32Array( posArray );
 		let normal = new Float32Array( normalArray );
-		let indices = new Uint32Array( indexArray );
 		let uvx = new Float32Array( uvXArray );
+		let indices = new Uint16Array( indexArray );
 
 		geo.setAttribute( 'position', new THREE.BufferAttribute( pos, 3 ) );
 		geo.setAttribute( 'uvx', new THREE.BufferAttribute( uvx, 1 ) );
@@ -195,8 +195,8 @@ export class Trails extends THREE.Object3D {
 		this.kernels.velocity.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
 		this.gCon.compute( this.kernels.velocity, this.datas.velocity );
 
-		this.kernels.velocity.uniforms.dataPos.value = this.datas.position.buffer.texture;
-		this.kernels.velocity.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
+		this.kernels.position.uniforms.dataPos.value = this.datas.position.buffer.texture;
+		this.kernels.position.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
 		this.gCon.compute( this.kernels.position, this.datas.position );
 
 		this.meshUniforms.dataPos.value = this.datas.position.buffer.texture;
