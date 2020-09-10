@@ -1,4 +1,3 @@
-#include <packing>
 
 varying vec2 vUv;
 varying vec3 vNormal;
@@ -11,6 +10,7 @@ uniform float time;
 
 uniform vec3 camPosition;
 uniform mat4 camWorldMatrix;
+uniform mat4 camProjectionMatrix;
 uniform mat4 camProjectionInverseMatrix;
 uniform float camNear;
 uniform float camFar;
@@ -21,13 +21,6 @@ $constants
 #define MAT_REFLECT 2.0
 
 #define U(z,w) (mix(z,w,step(w.x,z.x)))
-
-
-float readDepth( sampler2D depthSampler, vec2 coord ) {
-	float fragCoordZ = texture2D( depthSampler, coord ).x;
-	float viewZ = perspectiveDepthToViewZ( fragCoordZ, camNear, camFar );
-	return viewZToOrthographicDepth( viewZ, camNear, camFar );
-}
 
 float sphere( vec3 p ) {
 
@@ -71,18 +64,18 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal )
 
 	if( distRes.y == MAT_MAIN ) {
 
-		return vec4( (normal * 0.5 + 0.5) * 0.8, 1.0 * 0.2 );
+		return vec4( (normal * 0.5 + 0.5) * 0.8, 1.0 );
 
 	} else if( distRes.y == MAT_REFLECT ) {
 
-		rayPos += normal * 0.01;
+		rayPos += normal * 0.1;
 		rayDir = vec4( reflect( rayDir.xyz, normal ), 1.0 );
 
 		return vec4( 0.0 );
 		
 	}
 
-	return vec4( 1.0 );
+	// return vec4( 1.0 );
 
 }
 
@@ -92,10 +85,12 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec2 distRes = vec2( 0.0 );
 
 	vec4 raymarchCol = vec4( 0.0 );
+	float depth = 0.0;
 
-	for( int i = 0; i < 64; i++ ) {
+	for( int i = 0; i < 128; i++ ) {
 
 		distRes = D( rayPos );
+		depth += distRes.x;
 		rayPos += distRes.x * rayDir.xyz;
 
 		if( distRes.x < 0.01 ) {
@@ -113,19 +108,22 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 		
 	}
 
-	float sceneDepth = readDepth( sceneDepthTex, vUv );
-	sceneDepth = camNear + sceneDepth * ( camFar - camNear );
+	if( raymarchCol.w != 1.0 ) {
 
-	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
+		depth = 1000.0;
+		
+	}
 
-	float selector = step( length( rayPos - camPosition ) - sceneDepth, 0.0 );
-	selector += rayDir.w * raymarchCol.w;
-	selector = clamp( selector, 0.0, 1.0 );
-	
-	vec3 col = mix( sceneCol, raymarchCol.xyz, selector );
-	// vec3 col = c.xyz;
+	depth = ( depth - camNear ) / ( camFar - camNear );
+	depth *= 0.5;
 
-	return vec4( col, 1.0 );
+	if( rayDir.w == 1.0 ) {
+
+		depth += 0.5;
+
+	}
+
+	return vec4( raymarchCol.xyz, depth );
 
 }
 

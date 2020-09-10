@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import * as ORE from 'ore-three-ts';
 
 import raymarchFrag from './shaders/raymarch.fs';
+import mixFrag from './shaders/mix.fs';
 import bright from './shaders/bloom_bright.fs';
 import blur from './shaders/bloom_blur.fs';
 import composite from './shaders/bloom_composite.fs';
@@ -20,6 +21,7 @@ export class RenderPipeline {
 
 	//ORE.PostProcessings
 	protected bright: ORE.PostProcessing;
+	protected mix: ORE.PostProcessing;
 	protected raymarch: ORE.PostProcessing;
 	protected blur: ORE.PostProcessing[] = [];
 	protected composite: ORE.PostProcessing;
@@ -69,6 +71,9 @@ export class RenderPipeline {
 
 		this.inputTextures = {
 			sceneTex: {
+				value: null
+			},
+			raymarchTex: {
 				value: null
 			},
 			sceneDepthTex: {
@@ -123,11 +128,28 @@ export class RenderPipeline {
 		let raymarchParam: ORE.PPParam[] = [ {
 			fragmentShader: raymarchFrag,
 			uniforms: ORE.UniformsLib.CopyUniforms( {
-				sceneDepthTex: this.inputTextures.sceneDepthTex
 			}, this.commonUniforms ),
 		} ];
 
 		this.raymarch = new ORE.PostProcessing( this.renderer, raymarchParam, null, {
+			type: THREE.FloatType,
+			depthBuffer: false,
+			stencilBuffer: false,
+			generateMipmaps: false
+		} );
+
+		/*------------------------
+			mix
+		------------------------*/
+
+		let mixParam: ORE.PPParam[] = [ {
+			fragmentShader: mixFrag,
+			uniforms: ORE.UniformsLib.CopyUniforms( {
+				sceneDepthTex: this.inputTextures.sceneDepthTex
+			}, this.commonUniforms ),
+		} ];
+
+		this.mix = new ORE.PostProcessing( this.renderer, mixParam, null, {
 			depthBuffer: false,
 			stencilBuffer: false,
 			generateMipmaps: false
@@ -261,12 +283,15 @@ export class RenderPipeline {
 		//render main scene
 		this.renderer.setRenderTarget( this.sceneRenderTarget );
 		this.renderer.render( scene, camera );
-
 		this.inputTextures.sceneDepthTex.value = this.sceneRenderTarget.depthTexture;
 
 		//raymarch
 		this.raymarch.render( this.sceneRenderTarget.texture, true );
-		this.inputTextures.sceneTex.value = this.raymarch.getResultTexture();
+		this.commonUniforms.raymarchTex.value = this.inputTextures.raymarchTex.value = this.raymarch.getResultTexture();
+
+		//mix
+		this.mix.render( this.sceneRenderTarget.texture, true );
+		this.inputTextures.sceneTex.value = this.mix.getResultTexture();
 
 		//smaa
 		this.smaa.render( this.inputTextures.sceneTex.value, true );

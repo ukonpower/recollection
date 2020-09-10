@@ -44,7 +44,7 @@ export class ReflectionPlane extends THREE.Mesh {
 
 		this.commonUniforms = uni;
 
-		this.blurTexture = new BlurTexture( renderer, new THREE.Vector2( 512, 512 ) );
+		this.blurTexture = new BlurTexture( renderer, new THREE.Vector2( 512, 512 ), uni );
 
 		this.mat = mat;
 		this.resolutionRatio = resolutionRatio;

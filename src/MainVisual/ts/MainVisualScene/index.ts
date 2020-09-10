@@ -41,9 +41,15 @@ export class MainVisualScene extends ORE.BaseScene {
 			camWorldMatrix: {
 				value: null
 			},
+			camProjectionMatrix: {
+				value: new THREE.Matrix4()
+			},
 			camProjectionInverseMatrix: {
 				value: new THREE.Matrix4()
-			}
+			},
+			raymarchTex: {
+				value: null
+			},
 		};
 
 	}
@@ -77,6 +83,7 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
 
+		this.scene.add( this.camera );
 		this.camera.position.set( 10, 3, 10 );
 
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ) );
@@ -94,9 +101,20 @@ export class MainVisualScene extends ORE.BaseScene {
 			// this.cameraController.update( deltaTime );
 			this.orbitControls.update();
 
+			this.camera.updateMatrix();
+
+
+			this.camera.updateMatrixWorld( true );
+			this.camera.matrixAutoUpdate = true;
+
 			this.commonUniforms.camPosition.value.copy( this.camera.position );
 			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
+			this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
 			this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
+
+			// console.log( this.commonUniforms.camModelViewMatrix.value.elements );
+
+
 
 			this.renderPipeline.render( this.scene, this.camera );
 
