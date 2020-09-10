@@ -55,7 +55,9 @@ export class AssetManager extends ORE.EventDispatcher {
 		this.preLoadTexturesInfo = [];
 
 		this.mustLoadTexturesInfo = [
-			// { path: this.basePath + '/scene/img/kv-main.png', name: 'kvMain', param: {} },
+			{ path: this.basePath + '/scene/img/ground-roughness.jpg', name: 'groundRoughness', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
+			{ path: this.basePath + '/scene/img/ground-color.jpg', name: 'groundColor', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
+			{ path: this.basePath + '/scene/img/ground-normal.jpg', name: 'groundNormal', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 		];
 
 		this.subLoadTexturesInfo = [];

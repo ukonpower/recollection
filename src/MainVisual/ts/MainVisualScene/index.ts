@@ -6,12 +6,13 @@ import { RenderPipeline } from './RenderPipeline';
 import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
 import { CameraController } from './CameraController';
-import { OrthographicCamera } from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class MainVisualScene extends ORE.BaseScene {
 
 	private commonUniforms: ORE.Uniforms;
 	private cameraController: CameraController;
+	private orbitControls: OrbitControls;
 
 	private renderPipeline: RenderPipeline;
 
@@ -67,7 +68,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.scene.add( this.gManager.assetManager.gltfScene );
 
-		this.world = new MainVisualWorld( this.scene, this.commonUniforms );
+		this.world = new MainVisualWorld( this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
@@ -75,7 +76,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
+
+		this.camera.position.set( 10, 3, 10 );
+
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ) );
+
+		this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
 
 		this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
 
@@ -85,7 +91,8 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			this.cameraController.update( deltaTime );
+			// this.cameraController.update( deltaTime );
+			this.orbitControls.update();
 
 			this.commonUniforms.camPosition.value.copy( this.camera.position );
 			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
@@ -118,6 +125,8 @@ export class MainVisualScene extends ORE.BaseScene {
 		if ( this.gManager.assetManager.isLoaded ) {
 
 			this.renderPipeline.resize( args.windowPixelSize );
+
+			this.world.resize( args );
 
 			this.cameraController.resize( args );
 

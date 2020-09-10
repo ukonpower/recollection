@@ -260,7 +260,6 @@ export class RenderPipeline {
 
 		//render main scene
 		this.renderer.setRenderTarget( this.sceneRenderTarget );
-		this.renderer.clearDepth();
 		this.renderer.render( scene, camera );
 
 		this.inputTextures.sceneDepthTex.value = this.sceneRenderTarget.depthTexture;
