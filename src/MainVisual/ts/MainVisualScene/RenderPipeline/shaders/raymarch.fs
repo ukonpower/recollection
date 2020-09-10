@@ -39,10 +39,42 @@ float sdBox( vec3 p, vec3 b )
   
 }
 
+$rotate
+
+vec3 mainFold( vec3 p ) {
+
+	for( int i = 0; i < 5; i ++ ) {
+
+		p.xz *= rotate( time );
+
+		p.x -= 0.1 * cos( time );
+
+		p = abs( p );
+
+		p.yz *= rotate( 0.5 );
+		
+	}
+
+	return p;
+	
+}
+
+vec2 MainObjDist( vec3 p ) {
+
+	p.y -= 1.5;
+
+	p = mainFold( p );
+
+	float d = sdBox( p, vec3( 0.5 ) );
+
+	return vec2( d, MAT_MAIN );
+	
+}
+
 vec2 D( vec3 p ) {
 
-	vec2 mainObj = vec2( sdBox( p + vec3( 0.0, -1.0, 0.0 ), vec3( 0.5 ) ), MAT_MAIN );
-	vec2 refPlane = vec2( sdBox( p, vec3( 10.0, 0.01, 10.0 ) ), MAT_REFLECT );
+	vec2 mainObj = MainObjDist( p );
+	vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
 
 	return U( mainObj, refPlane );
 
@@ -87,7 +119,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	for( int i = 0; i < 128; i++ ) {
+	for( int i = 0; i < 64; i++ ) {
 
 		distRes = D( rayPos );
 		depth += distRes.x;

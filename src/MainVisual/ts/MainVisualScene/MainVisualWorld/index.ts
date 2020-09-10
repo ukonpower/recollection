@@ -44,7 +44,7 @@ export class MainVisualWorld {
 		pLight.intensity = 2.0;
 		this.scene.add( pLight );
 
-		this.refPlane = new ReflectionPlane( this.assetManager, this.renderer, new THREE.Vector2( 100, 100 ), 0.3, this.commonUniforms );
+		this.refPlane = new ReflectionPlane( this.assetManager, this.renderer, new THREE.Vector2( 1000, 1000 ), 0.3, this.commonUniforms );
 		this.refPlane.rotation.x = - Math.PI / 2;
 		this.scene.add( this.refPlane );
 

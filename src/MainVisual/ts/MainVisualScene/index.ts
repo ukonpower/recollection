@@ -12,7 +12,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private commonUniforms: ORE.Uniforms;
 	private cameraController: CameraController;
-	private orbitControls: OrbitControls;
+	// private orbitControls: OrbitControls;
 
 	private renderPipeline: RenderPipeline;
 
@@ -88,7 +88,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ) );
 
-		this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
+		// this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
 
 		this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
 
@@ -96,10 +96,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	public animate( deltaTime: number ) {
 
+		this.commonUniforms.time.value = this.time;
+
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			// this.cameraController.update( deltaTime );
-			this.orbitControls.update();
+			this.cameraController.update( deltaTime );
+			// this.orbitControls.update();
 
 			this.camera.updateMatrix();
 

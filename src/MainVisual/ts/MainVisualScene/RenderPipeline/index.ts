@@ -95,7 +95,7 @@ export class RenderPipeline {
 		this.loadTextures();
 
 		this.renderCount = renderCount;
-		this.brightness = 0.5;
+		this.brightness = 0.2;
 		this.blurRange = 1.5;
 		this.threshold = 0.3;
 
