@@ -101,22 +101,13 @@ export class MainVisualScene extends ORE.BaseScene {
 		if ( this.gManager.assetManager.isLoaded ) {
 
 			this.cameraController.update( deltaTime );
-			// this.orbitControls.update();
-
-			this.camera.updateMatrix();
-
-
-			this.camera.updateMatrixWorld( true );
-			this.camera.matrixAutoUpdate = true;
 
 			this.commonUniforms.camPosition.value.copy( this.camera.position );
 			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
 			this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
 			this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
 
-			// console.log( this.commonUniforms.camModelViewMatrix.value.elements );
-
-
+			this.world.update( deltaTime );
 
 			this.renderPipeline.render( this.scene, this.camera );
 

@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import * as ORE from 'ore-three-ts';
+import * as ORE from '@ore-three-ts';
 
 import raymarchFrag from './shaders/raymarch.fs';
 import mixFrag from './shaders/mix.fs';
