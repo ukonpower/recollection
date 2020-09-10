@@ -119,7 +119,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	if( rayDir.w == 1.0 ) {
 
-		depth += 0.5;
+		depth += 0.5 * raymarchCol.w;
 
 	}
 
