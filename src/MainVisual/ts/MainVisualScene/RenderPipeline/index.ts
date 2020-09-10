@@ -95,7 +95,7 @@ export class RenderPipeline {
 		this.loadTextures();
 
 		this.renderCount = renderCount;
-		this.brightness = 0.2;
+		this.brightness = 0.5;
 		this.blurRange = 1.5;
 		this.threshold = 0.3;
 
@@ -320,6 +320,8 @@ export class RenderPipeline {
 	public resize( mainSceneRenderRes: THREE.Vector2 ) {
 
 		this.sceneRenderTarget.setSize( mainSceneRenderRes.x, mainSceneRenderRes.y );
+
+		this.mix.resize( mainSceneRenderRes );
 		this.raymarch.resize( mainSceneRenderRes );
 		this.smaa.resize( mainSceneRenderRes );
 

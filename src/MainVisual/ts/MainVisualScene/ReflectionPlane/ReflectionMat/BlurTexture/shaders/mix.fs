@@ -20,7 +20,7 @@ void main( void ) {
 	vec4 sceneCol = texture2D( backbuffer, vUv );
 	vec4 raymarchCol = texture2D( raymarchTex, vec2( vUv.x, 1.0 - vUv.y ) );
 
-	float reflectionDepth = readDepth( reflectionDepthTex,  );
+	float reflectionDepth = readDepth( reflectionDepthTex, vUv );
 
 	float selector = 0.0;
 
@@ -28,12 +28,12 @@ void main( void ) {
 
 		selector = 1.0;
 
-		selector *= 1.0 -step( (raymarchCol.w - 0.5 ) * 2.0 - reflectionDepth, 0.0 );
+		selector *= step( (raymarchCol.w - 0.5 ) * 2.0 - reflectionDepth, 0.0 );
 
 	}
 
 	vec3 col = mix( sceneCol.xyz, raymarchCol.xyz, selector );
 	
-	gl_FragColor = vec4( reflectionDepth );
+	gl_FragColor = vec4( col, 1.0 );
 
 }

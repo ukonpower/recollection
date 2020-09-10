@@ -66,6 +66,7 @@ export class ReflectionPlane extends THREE.Mesh {
 			depthTexture: this.refDepthTex
 		} );
 
+		this.commonUniforms.reflectionDepthTex.value = this.refDepthTex;
 		this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
 		let n = new THREE.Vector3( 0, 0, 1 );
@@ -130,6 +131,7 @@ export class ReflectionPlane extends THREE.Mesh {
 	public resize( windowResolution: THREE.Vector2 ) {
 
 		this.refRenderTarget.setSize( windowResolution.x * this.resolutionRatio, windowResolution.y * this.resolutionRatio );
+
 		this.commonUniforms.winResolution.value.copy( windowResolution );
 
 	}

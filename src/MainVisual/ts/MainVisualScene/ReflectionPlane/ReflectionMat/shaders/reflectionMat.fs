@@ -339,7 +339,7 @@ void main() {
 	refUV.y = 1.0 - refUV.y;
 
 	vec3 ref = texture2D( reflectionTex, refUV + vec2( ntex.x ) * 0.08 ).xyz;
-	outgoingLight = mix( outgoingLight, ref, 0.6);
+	outgoingLight = mix( outgoingLight, ref, 0.4 );
 
 	#ifdef TRANSPARENCY
 		diffuseColor.a *= saturate( 1. - transparency + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );

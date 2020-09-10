@@ -75,7 +75,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal )
 		
 	}
 
-	// return vec4( 1.0 );
+	return vec4( 1.0 );
 
 }
 
@@ -123,6 +123,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	}
 
+	// return vec4( vec3( rayDir.w ), depth );
 	return vec4( raymarchCol.xyz, depth );
 
 }
@@ -133,7 +134,7 @@ void main( void ) {
 	vec4 ray = camWorldMatrix * camProjectionInverseMatrix * vec4( uv, 1.0, 1.0 );
 
 	vec3 rayPos = camPosition;
-	vec4 rayDir = vec4( ray.xyz, 1.0 );
+	vec4 rayDir = vec4( ray.xyz, 0.0 );
 
 	vec4 c = trace( rayPos, rayDir );
 
