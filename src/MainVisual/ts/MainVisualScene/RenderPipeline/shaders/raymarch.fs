@@ -46,7 +46,7 @@ float phase1( vec3 p ) {
 	
 }
 
-float phase2( vec3 p  ) {
+float phase2( vec3 p ) {
 
 	float t = time * 0.3;
 
@@ -58,7 +58,38 @@ float phase2( vec3 p  ) {
 
 		p.x -= 0.2 * move;
 		
-		p.xy *= rotate( t );
+		p.xz *= rotate( t );
+
+		for( int i = 0; i < 5; i ++ ) {
+			
+			p.xy *= rotate( t );
+
+		}
+
+		p.x = abs( p.x );
+
+		// p *= 1.1;
+		p.yz *= rotate( 0.5 );
+		
+	}
+
+	return sdSphere( p, 0.5 - move * 0.2 );
+}
+
+float phase3( vec3 p  ) {
+
+	float t = time * 0.3;
+
+	float move = cos( t );
+
+	for( int i = 0; i < 5; i ++ ) {
+
+		p.xz *= rotate( t );
+
+		p.x -= 0.2 * move;
+		
+		p.xz *= rotate( t );
+		p.xz *= rotate( t );
 
 		for( int i = 0; i < 5; i ++ ) {
 			
@@ -77,16 +108,20 @@ float phase2( vec3 p  ) {
 
 }
 
-float phase3( vec3 p  ) {
+float phase4( vec3 p  ) {
 
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
 
-	for (int i = 0; i < 5; i++) {
-		p.zy = abs(p.zy);
-		p.xy *= rotate(time * 0.23 + length( p ) * 3.0 );
-		p.xz = abs(p.xz);
-		p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
+	if( sdBox( p, vec3( 0.6 ) ) < 0.5 ) {
+		
+		for (int i = 0; i < 7; i++) {
+			p.zy = abs(p.zy);
+			p.xy *= rotate(time * 0.23 + length( p ) * 3.5 );
+			p.xz = abs(p.xz);
+			p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
+		}
+
 	}
 
 	return sdBox( p, vec3( 0.6 ) );
@@ -116,15 +151,15 @@ vec2 MainObjDist( vec3 p ) {
 
 		} else if( phase <= 3.0 ) {
 
-			d = phase2( p );
+			d = mix( phase2( p ), phase3( p ), phase - 2.0 );
 
 		} else if( phase <= 4.0 ) {
 
-			d = mix( phase2( p ), phase3( p ), phase - 3.0 );
+			d = mix( phase3( p ), phase4( p ), phase - 3.0 );
 
 		} else if( phase <= 5.0 ) {
 
-			d = mix( phase3( p ), phase1( p ), phase - 4.0 );
+			d = mix( phase4( p ), phase1( p ), phase - 4.0 );
 
 		}
 
@@ -181,7 +216,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 		vec3 normal2 = N( rayPos, 0.01 );
 
 		vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0 ) );
-		// vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0 ) + 1.0 );
+		// vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), 1.0 );
 
 		return vec4( c, 1.0 );
 
