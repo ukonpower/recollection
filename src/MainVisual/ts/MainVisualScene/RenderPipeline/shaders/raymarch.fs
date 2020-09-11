@@ -137,33 +137,25 @@ vec2 MainObjDist( vec3 p ) {
 
 	p.y -= 1.2;
 
-	if( false ) {
+	if( phase <= 1.0 ) {
 
-		d = phase2( p );
+		d = phase1( p );
+		
+	} else if( phase <= 2.0 ) {
 
-	} else {
+		d = mix( phase1( p ), phase2( p ), phase - 1.0 );
 
-		if( phase <= 1.0 ) {
+	} else if( phase <= 3.0 ) {
 
-			d = phase1( p );
-			
-		} else if( phase <= 2.0 ) {
+		d = ( phase == 3.0 ) ? phase3( p ) : mix( phase2( p ), phase3( p ), phase - 2.0 );
 
-			d = mix( phase1( p ), phase2( p ), phase - 1.0 );
+	} else if( phase <= 4.0 ) {
 
-		} else if( phase <= 3.0 ) {
+		d = mix( phase3( p ), phase4( p ), phase - 3.0 );
 
-			d = mix( phase2( p ), phase3( p ), phase - 2.0 );
+	} else if( phase <= 5.0 ) {
 
-		} else if( phase <= 4.0 ) {
-
-			d = mix( phase3( p ), phase4( p ), phase - 3.0 );
-
-		} else if( phase <= 5.0 ) {
-
-			d = mix( phase4( p ), phase1( p ), phase - 4.0 );
-
-		}
+		d = mix( phase4( p ), phase1( p ), phase - 4.0 );
 
 	}
 
