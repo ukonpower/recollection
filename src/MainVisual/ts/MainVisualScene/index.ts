@@ -183,13 +183,16 @@ export class MainVisualScene extends ORE.BaseScene {
 		/*------------------------
 			End
 		------------------------*/
+
+		this.animator.animate( 'dustVisibility', 0.0, 5.0 );
+
 		setTimeout( () => {
 
 			this.animator.animate( 'hideTrails', 1.0, 1.0 );
 
 		}, 1000 );
 
-		await this.setPhase( 5, 1.0, 4 );
+		await this.setPhase( 5, 2.5, 4 );
 
 		this.animator.animate( 'movieVisibility', 0.0, 5, () => {
 

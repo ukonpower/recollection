@@ -58,7 +58,7 @@ float phase2( vec3 p  ) {
 
 		p.x -= 0.2 * move;
 		
-		p.xz *= rotate( t );
+		p.xy *= rotate( t );
 
 		for( int i = 0; i < 5; i ++ ) {
 			
@@ -82,33 +82,17 @@ float phase3( vec3 p  ) {
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
 
-	for (int i = 0; i < 10; i++) {
+	for (int i = 0; i < 5; i++) {
 		p.zy = abs(p.zy);
-		p.xy *= rotate(time * 0.23);
+		p.xy *= rotate(time * 0.23 + length( p ) * 3.0 );
 		p.xz = abs(p.xz);
-		p.xz *= rotate(time * 0.3);
+		p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
 	}
 
 	return sdBox( p, vec3( 0.6 ) );
 
 }
 
-
-float phase4( vec3 p  ) {
-
-	p.xy *= rotate(time * 0.5);
-	p.xz *= rotate(time * 0.5);
-
-	for (int i = 0; i < 10; i++) {
-		p.zy = abs(p.zy);
-		p.xy *= rotate(time * 0.23);
-		p.xz = abs(p.xz);
-		p.xz *= rotate(time * 0.3);
-	}
-
-	return sdBox( p, vec3( 0.6 ) );
-
-}
 
 vec2 MainObjDist( vec3 p ) {
 
@@ -140,7 +124,7 @@ vec2 MainObjDist( vec3 p ) {
 
 		} else if( phase <= 5.0 ) {
 
-			d = mix( phase4( p ), phase1( p ), phase - 4.0 );
+			d = mix( phase3( p ), phase1( p ), phase - 4.0 );
 
 		}
 
@@ -196,7 +180,8 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 
 		vec3 normal2 = N( rayPos, 0.01 );
 
-		vec3 c = mix( matMain( normal ) ,matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0  ) );
+		vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0 ) );
+		// vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0 ) + 1.0 );
 
 		return vec4( c, 1.0 );
 
