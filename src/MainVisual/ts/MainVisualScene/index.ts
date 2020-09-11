@@ -148,7 +148,7 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.animator.setValue( 'dustVisibility', 0 );
 		this.animator.setValue( 'hideTrails', 0 );
 		this.animator.setValue( 'trailVisibility', 0 );
-		this.animator.setValue( 'movieVisibility', 1.0, );
+		this.animator.setValue( 'movieVisibility', 0.0, );
 
 	}
 
