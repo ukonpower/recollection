@@ -151,7 +151,7 @@ vec2 MainObjDist( vec3 p ) {
 
 	} else if( phase <= 4.0 ) {
 
-		d = mix( phase3( p ), phase4( p ), phase - 3.0 );
+		d = ( phase == 4.0 ) ? phase4( p ) : mix( phase3( p ), phase4( p ), phase - 3.0 );
 
 	} else if( phase <= 5.0 ) {
 
