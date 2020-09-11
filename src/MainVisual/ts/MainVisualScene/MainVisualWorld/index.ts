@@ -39,7 +39,7 @@ export class MainVisualWorld {
 
 		let pLight = new THREE.PointLight();
 		pLight.distance = 10.0;
-		pLight.position.set( 0, 1, 0 );
+		pLight.position.set( 0, 1.5, 0 );
 		pLight.intensity = 2.0;
 		this.scene.add( pLight );
 

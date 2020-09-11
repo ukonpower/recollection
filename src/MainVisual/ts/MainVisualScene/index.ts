@@ -115,18 +115,24 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private initTimeline() {
 
+		this.initParams();
+
 		this.initPhaseTimeline();
 		this.initCameraTimeline();
 
 	}
 
-	private async initPhaseTimeline() {
+	private initParams() {
 
 		this.world.dust.visible = false;
 		this.animator.setValue( 'dustVisibility', 0 );
-
 		this.world.trails.visible = false;
 		this.animator.setValue( 'trailVisibility', 0 );
+		this.animator.setValue( 'movieVisibility', 0.0, );
+
+	}
+
+	private async initPhaseTimeline() {
 
 		/*------------------------
 			Phase1
@@ -144,14 +150,14 @@ export class MainVisualScene extends ORE.BaseScene {
 		------------------------*/
 		this.world.dust.visible = true;
 		this.animator.animate( 'dustVisibility', 1, 1 );
-		await this.setPhase( 3, 20 );
+		await this.setPhase( 3, 15 );
 
 		/*------------------------
 			Phase4
 		------------------------*/
 		this.world.trails.visible = true;
 		this.animator.animate( 'trailVisibility', 1, 1 );
-		await this.setPhase( 4, 20 );
+		await this.setPhase( 4, 25 );
 
 
 		/*------------------------
@@ -189,7 +195,6 @@ export class MainVisualScene extends ORE.BaseScene {
 		ep.set( - 5, 2, 10 );
 		await this.doCameraAnimate( sp, ep, 6 );
 
-
 		/*------------------------
 			Phase2
 		------------------------*/
@@ -201,46 +206,39 @@ export class MainVisualScene extends ORE.BaseScene {
 		ep.set( 10, 5, 10 );
 		await this.doCameraAnimate( sp, ep, 7 );
 
-
 		/*------------------------
 			Phase3
 		------------------------*/
-		sp.set( 0, 1, 20 );
-		ep.set( 0, 3, 10 );
+		sp.set( - 4, 2, 10 );
+		ep.set( 4, 1, 10 );
 		await this.doCameraAnimate( sp, ep, 5 );
 
-		sp.set( - 10, 2, - 10 );
-		ep.set( - 10, 2, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
-
-
-		sp.set( 0, 1, 20 );
-		ep.set( 0, 3, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
-
-		sp.set( - 10, 2, - 10 );
-		ep.set( - 10, 2, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
+		sp.set( 1, 5, 4 );
+		ep.set( 1, 1, 10 );
+		await this.doCameraAnimate( sp, ep, 10 );
 
 		/*------------------------
 			Phase4
 		------------------------*/
-		sp.set( - 10, 2, - 10 );
-		ep.set( - 10, 2, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
-
-		sp.set( - 10, 2, - 10 );
-		ep.set( - 10, 2, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
-
 		sp.set( 0, 1, 20 );
 		ep.set( 0, 3, 10 );
 		await this.doCameraAnimate( sp, ep, 5 );
 
-		sp.set( - 10, 2, - 10 );
-		ep.set( - 10, 2, 10 );
+		sp.set( - 4, 7, 0 );
+		ep.set( - 4, 7, 10 );
 		await this.doCameraAnimate( sp, ep, 5 );
 
+		sp.set( 0, 5, 10 );
+		ep.set( 0, 1, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( - 10, 3, - 8 );
+		ep.set( - 10, 3, 8 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( 10, 2, - 10 );
+		ep.set( 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
 
 		/*------------------------
 			End
