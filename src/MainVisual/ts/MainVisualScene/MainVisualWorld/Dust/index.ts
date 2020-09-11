@@ -18,7 +18,7 @@ export class Dust extends THREE.Object3D {
 
 		super();
 
-		this.num = 50;
+		this.num = 80;
 		this.range = new THREE.Vector3( 20, 8, 20 );
 
 		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
@@ -33,8 +33,8 @@ export class Dust extends THREE.Object3D {
 
 	private createInstancedMesh() {
 
-		let scale = 0.3;
-		let originGeo = new THREE.BoxBufferGeometry( scale, scale, scale );
+		let scale = 0.2;
+		let originGeo = new THREE.SphereBufferGeometry( scale, 20, 20 );
 
 		let geo = new THREE.InstancedBufferGeometry();
 		geo.setAttribute( 'position', originGeo.getAttribute( 'position' ) );

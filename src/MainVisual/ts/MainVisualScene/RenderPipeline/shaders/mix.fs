@@ -18,7 +18,7 @@ float readDepth( sampler2D depthSampler, vec2 coord ) {
 void main( void ) {
 
 	vec4 raymarchCol = texture2D( raymarchTex, vUv );
-	vec3 sceneCol = texture2D( backbuffer, vUv ).xyz;
+	vec4 sceneCol = texture2D( backbuffer, vUv );
 	
 	float sceneDepth = readDepth( sceneDepthTex, vUv );
 	// sceneDepth = camNear + sceneDepth * ( camFar - camNear );
@@ -36,7 +36,7 @@ void main( void ) {
 	float selector = step( rayDepth - sceneDepth, 0.0 );
 	selector = clamp( selector, 0.0, 1.0 );
 	
-	vec3 col = mix( sceneCol, raymarchCol.xyz, selector );
+	vec3 col = mix( sceneCol.xyz, raymarchCol.xyz, selector );
 
 	gl_FragColor = vec4( col, 1.0 );
 

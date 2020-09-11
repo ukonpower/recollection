@@ -23,7 +23,7 @@ void main() {
     vec3 vec = normalize(nPos - pos);
     float rotX = atan2(vec.y,vec.z);
 
-    p.xy *= smoothstep( 0.0, 0.1, sin( uvx * PI) ) * (sin(uvy * 100.0) * 1.0 + 0.1);
+    p.xy *= smoothstep( 0.0, 0.4, sin( uvx * PI) ) * (sin(uvy * 100.0) * 1.0 + 0.1);
     p.yz *= rotate(rotX);
 
     vec4 mvPosition = modelViewMatrix * vec4(p + pos, 1.0 );

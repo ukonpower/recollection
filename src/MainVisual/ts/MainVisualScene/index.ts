@@ -124,11 +124,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private initParams() {
 
-		this.world.dust.visible = false;
-		this.animator.setValue( 'dustVisibility', 0 );
+		this.world.dust.visible = true;
+		this.animator.setValue( 'dustVisibility', 1 );
 		this.world.trails.visible = false;
 		this.animator.setValue( 'trailVisibility', 0 );
-		this.animator.setValue( 'movieVisibility', 0.0, );
+
+		this.animator.setValue( 'movieVisibility', 1.0, );
 
 	}
 
