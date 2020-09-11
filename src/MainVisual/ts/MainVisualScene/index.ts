@@ -137,26 +137,30 @@ export class MainVisualScene extends ORE.BaseScene {
 		/*------------------------
 			Phase2
 		------------------------*/
-		await this.setPhase( 2, 10 );
+		await this.setPhase( 2, 15 );
 
 		/*------------------------
 			Phase3
 		------------------------*/
 		this.world.dust.visible = true;
 		this.animator.animate( 'dustVisibility', 1, 1 );
-		await this.setPhase( 3, 10 );
+		await this.setPhase( 3, 20 );
 
 		/*------------------------
 			Phase4
 		------------------------*/
 		this.world.trails.visible = true;
 		this.animator.animate( 'trailVisibility', 1, 1 );
-		await this.setPhase( 4, 10 );
+		await this.setPhase( 4, 20 );
 
+
+		/*------------------------
+			End
+		------------------------*/
 
 		this.world.trails.visible = true;
 		this.animator.animate( 'trailVisibility', 1, 1 );
-		await this.setPhase( 5, 4 );
+		await this.setPhase( 5, 5 );
 
 
 		this.animator.animate( 'movieVisibility', 0.0, 5, () => {
@@ -191,15 +195,25 @@ export class MainVisualScene extends ORE.BaseScene {
 		------------------------*/
 		sp.set( - 10, 2, - 10 );
 		ep.set( - 10, 2, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
+		await this.doCameraAnimate( sp, ep, 7 );
 
 		sp.set( 10, 5, - 10 );
 		ep.set( 10, 5, 10 );
-		await this.doCameraAnimate( sp, ep, 5 );
+		await this.doCameraAnimate( sp, ep, 7 );
+
 
 		/*------------------------
 			Phase3
 		------------------------*/
+		sp.set( 0, 1, 20 );
+		ep.set( 0, 3, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+
 		sp.set( 0, 1, 20 );
 		ep.set( 0, 3, 10 );
 		await this.doCameraAnimate( sp, ep, 5 );
@@ -218,6 +232,15 @@ export class MainVisualScene extends ORE.BaseScene {
 		sp.set( - 10, 2, - 10 );
 		ep.set( - 10, 2, 10 );
 		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( 0, 1, 20 );
+		ep.set( 0, 3, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
 
 		/*------------------------
 			End
