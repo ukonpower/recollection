@@ -56,7 +56,7 @@ float phase2( vec3 p  ) {
 
 		p.xz *= rotate( t );
 
-		p.x -= 0.4 * move;
+		p.x -= 0.2 * move;
 		
 		p.xz *= rotate( t );
 
@@ -69,7 +69,6 @@ float phase2( vec3 p  ) {
 
 		p = abs( p );
 
-		// p *= 1.1;
 		p.yz *= rotate( 0.5 );
 		
 	}
@@ -80,18 +79,34 @@ float phase2( vec3 p  ) {
 
 float phase3( vec3 p  ) {
 
-	for( int i = 0; i < 5; i ++ ) {
+	p.xy *= rotate(time * 0.5);
+	p.xz *= rotate(time * 0.5);
 
-		p.xz *= rotate( time );
-
-		p.x -= 0.1 * cos( time );
-
-		p = abs( p );
-
-		p.yz *= rotate( 0.5 );
-		
+	for (int i = 0; i < 10; i++) {
+		p.zy = abs(p.zy);
+		p.xy *= rotate(time * 0.23);
+		p.xz = abs(p.xz);
+		p.xz *= rotate(time * 0.3);
 	}
-	return sdSphere( p, 0.5 );
+
+	return sdBox( p, vec3( 0.6 ) );
+
+}
+
+
+float phase4( vec3 p  ) {
+
+	p.xy *= rotate(time * 0.5);
+	p.xz *= rotate(time * 0.5);
+
+	for (int i = 0; i < 10; i++) {
+		p.zy = abs(p.zy);
+		p.xy *= rotate(time * 0.23);
+		p.xz = abs(p.xz);
+		p.xz *= rotate(time * 0.3);
+	}
+
+	return sdBox( p, vec3( 0.6 ) );
 
 }
 
@@ -99,7 +114,7 @@ vec2 MainObjDist( vec3 p ) {
 
 	float d = 0.;
 
-	p.y -= 1.5;
+	p.y -= 1.2;
 
 	if( false ) {
 
@@ -113,7 +128,7 @@ vec2 MainObjDist( vec3 p ) {
 			
 		} else if( phase <= 2.0 ) {
 
-			d = mix( phase3( p ), phase2( p ), phase - 1.0 );
+			d = mix( phase1( p ), phase2( p ), phase - 1.0 );
 
 		} else if( phase <= 3.0 ) {
 
@@ -121,11 +136,11 @@ vec2 MainObjDist( vec3 p ) {
 
 		} else if( phase <= 4.0 ) {
 
-			d = mix( phase2( p ), phase3( p ), phase - 3.0 );
+			d = phase4( p );
 
 		} else if( phase <= 5.0 ) {
 
-			d = mix( phase2( p ), phase3( p ), phase - 3.0 );
+			d = mix( phase4( p ), phase1( p ), phase - 4.0 );
 
 		}
 
@@ -144,26 +159,44 @@ vec2 D( vec3 p ) {
 
 }
 
-vec3 N( vec3 pos ){
-
-    float ep = 0.0001;
+vec3 N( vec3 pos, float delta ){
 
     return normalize( vec3(
-		D( pos ).x - D( vec3( pos.x - ep, pos.y, pos.z ) ).x,
-		D( pos ).x - D( vec3( pos.x, pos.y - ep, pos.z ) ).x,
-		D( pos ).x - D( vec3( pos.x, pos.y, pos.z - ep ) ).x
+		D( pos ).x - D( vec3( pos.x - delta, pos.y, pos.z ) ).x,
+		D( pos ).x - D( vec3( pos.x, pos.y - delta, pos.z ) ).x,
+		D( pos ).x - D( vec3( pos.x, pos.y, pos.z - delta ) ).x
 	) );
 	
 }
 
-vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal ) {
+vec3 matEdge( vec3 normal, vec3 normal2 ) {
 
+    float diff = clamp( dot( vec3( 0.5, 0.5, 0.5 ), normal ), 0.1, 1.0 );
+
+    vec3 edge = vec3( length( normal - normal2 ) ) * 3.0;
+
+	return vec3( edge );
+	
+}
+
+vec3 matMain( vec3 normal ) {
+
+	float w = clamp(dot(vec3(0.0,1.0,0.0), normal), 0.1, 1.0);
+	w += clamp(dot(vec3(0.0,-1.0,0.0), normal), 0.1, 1.0);
+
+	return vec3( w * 0.15  + 0.55 );
+	
+}
+
+vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
+
+	vec3 normal = N( rayPos, 0.0001 );
+	
 	if( distRes.y == MAT_MAIN ) {
 
-		float w = clamp(dot(vec3(0.0,1.0,0.0), normal), 0.1, 1.0);
-		w += clamp(dot(vec3(0.0,-1.0,0.0), normal), 0.1, 1.0);
+		vec3 normal2 = N( rayPos, 0.01 );
 
-		vec3 c = vec3( w * 0.15  + 0.55 );
+		vec3 c = mix( matMain( normal ) ,matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0  ) );
 
 		return vec4( c, 1.0 );
 
@@ -182,7 +215,6 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal )
 
 vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
-	vec3 normal;
 	vec2 distRes = vec2( 0.0 );
 
 	vec4 raymarchCol = vec4( 0.0 );
@@ -196,8 +228,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 		if( distRes.x < 0.01 ) {
 
-			normal = N( rayPos );
-			raymarchCol = material( rayPos, rayDir, distRes, normal );
+			raymarchCol = material( rayPos, rayDir, distRes );
 
 			if( raymarchCol.w == 1.0 ) {
 

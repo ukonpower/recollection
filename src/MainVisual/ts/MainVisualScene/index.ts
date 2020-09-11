@@ -124,9 +124,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private initParams() {
 
-		this.world.dust.visible = true;
-		this.animator.setValue( 'dustVisibility', 1 );
+		this.animator.setValue( 'phase', 1 );
+
+		this.world.dust.visible = false;
+		this.animator.setValue( 'dustVisibility', 0 );
 		this.world.trails.visible = false;
+		this.world.trails.enabled = false;
 		this.animator.setValue( 'trailVisibility', 0 );
 
 		this.animator.setValue( 'movieVisibility', 1.0, );
@@ -157,6 +160,7 @@ export class MainVisualScene extends ORE.BaseScene {
 			Phase4
 		------------------------*/
 		this.world.trails.visible = true;
+		this.world.trails.enabled = true;
 		this.animator.animate( 'trailVisibility', 1, 1 );
 		await this.setPhase( 4, 25 );
 
@@ -322,7 +326,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
 
-		this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
+		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, this.commonUniforms );
 
 	}
 

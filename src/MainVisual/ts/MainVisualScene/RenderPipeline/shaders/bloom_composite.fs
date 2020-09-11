@@ -3,6 +3,7 @@ uniform sampler2D backbuffer;
 uniform vec2 resolution;
 
 uniform sampler2D sceneTex;
+uniform sampler2D lensTex;
 uniform sampler2D blurTex[RENDER_COUNT];
 uniform float brightness;
 uniform float time;
@@ -39,9 +40,13 @@ void main(){
 	c += texture2D(blurTex[ 1 ], vigUV ).xyz * 2.0 * brightness;
 	c += texture2D(blurTex[ 2 ], vigUV ).xyz * 4.0 * brightness;
 	c += texture2D(blurTex[ 3 ], vigUV ).xyz * 6.0 * brightness;
-	c += texture2D(blurTex[ 4 ], vigUV ).xyz * 8.0 * brightness;
+
+	vec3 blur = texture2D(blurTex[ 4 ], vigUV ).xyz * 8.0 * brightness;
+	c += blur;
 
 	c *= smoothstep( 1.5, 0.6, length( u ) );
+
+	c += texture2D( lensTex, vUv ).xyz * blur * 1.2;
 
 	c *= movieVisibility;
 

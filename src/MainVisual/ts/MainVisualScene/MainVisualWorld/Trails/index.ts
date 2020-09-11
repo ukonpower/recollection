@@ -22,6 +22,7 @@ declare interface Datas{
 
 export class Trails extends THREE.Object3D {
 
+	public enabled: boolean = false;
 	private renderer: THREE.WebGLRenderer;
 	private num: number;
 	private length: number;
@@ -82,11 +83,30 @@ export class Trails extends THREE.Object3D {
 		};
 
 		this.datas = {
-			position: this.gCon.createData(),
+			position: this.gCon.createData( this.createInitialPositionData() ),
 			velocity: this.gCon.createData(),
 		};
 
 	}
+
+	private createInitialPositionData() {
+
+    	let dataArray = [];
+
+    	for ( let i = 0; i < this.num; i ++ ) {
+
+    		for ( let j = 0; j < this.length; j ++ ) {
+
+    			dataArray.push( 15.0, 8.0, - 10.0, 0.0 );
+
+    		}
+
+    	}
+
+    	return new THREE.DataTexture( new Float32Array( dataArray ), this.length, this.num, THREE.RGBAFormat, THREE.FloatType );
+
+	}
+
 
 	private createTrails() {
 
@@ -193,16 +213,21 @@ export class Trails extends THREE.Object3D {
 
 	public update() {
 
-		this.kernels.velocity.uniforms.dataPos.value = this.datas.position.buffer.texture;
-		this.kernels.velocity.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
-		this.gCon.compute( this.kernels.velocity, this.datas.velocity );
+		if ( this.enabled ) {
 
-		this.kernels.position.uniforms.dataPos.value = this.datas.position.buffer.texture;
-		this.kernels.position.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
-		this.gCon.compute( this.kernels.position, this.datas.position );
+			this.kernels.velocity.uniforms.dataPos.value = this.datas.position.buffer.texture;
+			this.kernels.velocity.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
+			this.gCon.compute( this.kernels.velocity, this.datas.velocity );
 
-		this.meshUniforms.dataPos.value = this.datas.position.buffer.texture;
-		this.meshUniforms.dataVel.value = this.datas.velocity.buffer.texture;
+			this.kernels.position.uniforms.dataPos.value = this.datas.position.buffer.texture;
+			this.kernels.position.uniforms.dataVel.value = this.datas.velocity.buffer.texture;
+			this.gCon.compute( this.kernels.position, this.datas.position );
+
+			this.meshUniforms.dataPos.value = this.datas.position.buffer.texture;
+			this.meshUniforms.dataVel.value = this.datas.velocity.buffer.texture;
+
+		}
+
 
 	}
 

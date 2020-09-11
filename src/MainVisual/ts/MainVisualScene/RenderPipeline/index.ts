@@ -13,8 +13,11 @@ import blendingWeightCalculationVert from './shaders/smaa_blendingWeightCalculat
 import blendingWeightCalculationFrag from './shaders/smaa_blendingWeightCalculation.fs';
 import neiborhoodBlendingVert from './shaders/smaa_neiborhoodBlending.vs';
 import neiborhoodBlendingFrag from './shaders/smaa_neiborhoodBlending.fs';
+import { AssetManager } from '../MainVisualManager/AssetManager';
 
 export class RenderPipeline {
+
+	private assetManager: AssetManager;
 
 	public scene: THREE.Scene;
 	public camera: THREE.Camera
@@ -41,7 +44,9 @@ export class RenderPipeline {
 	protected bloomResolution: THREE.Vector2;
 	protected bloomResolutionRatio: number;
 
-	constructor( renderer: THREE.WebGLRenderer, parentUniforms: ORE.Uniforms, bloomResolutionRatio: number = 0.3, renderCount: number = 5 ) {
+	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, parentUniforms: ORE.Uniforms, bloomResolutionRatio: number = 0.3, renderCount: number = 5 ) {
+
+		this.assetManager = assetManager;
 
 		this.renderer = renderer;
 		this.bloomResolutionRatio = bloomResolutionRatio;
@@ -208,6 +213,7 @@ export class RenderPipeline {
 			uniforms: ORE.UniformsLib.CopyUniforms( {
 				sceneTex: this.inputTextures.sceneTex,
 				blurTex: this.inputTextures.blurTex,
+				lensTex: this.assetManager.textures.lensDirt
 			}, this.commonUniforms ),
 			defines: {
 				RENDER_COUNT: this.renderCount.toString()
@@ -280,9 +286,15 @@ export class RenderPipeline {
 
 	public render( scene: THREE.Scene, camera: THREE.Camera ) {
 
+
+		this.renderer.autoClear = true;
 		//render main scene
 		this.renderer.setRenderTarget( this.sceneRenderTarget );
+		this.renderer.clear();
 		this.renderer.render( scene, camera );
+
+		this.renderer.autoClear = false;
+
 		this.inputTextures.sceneDepthTex.value = this.sceneRenderTarget.depthTexture;
 
 		//raymarch
