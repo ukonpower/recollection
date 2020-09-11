@@ -48,7 +48,6 @@ export class MainVisualWorld {
 		this.scene.add( this.refPlane );
 
 		this.trails = new Trails( this.renderer, 50, 100, this.commonUniforms );
-		this.trails.visible = false;
 		this.scene.add( this.trails );
 
 		this.dust = new Dust( this.commonUniforms );

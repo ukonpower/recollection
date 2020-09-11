@@ -16,6 +16,7 @@ void main(void) {
 
     vec3 pos = position;
 
+	pos *= dustVisibility;
 	pos *= 1.0 - ( sin( num * 50.0 ) * 0.5 + 0.5 ) * 0.8;
 
 	pos.xz *= rotate( num * 10.0 );
@@ -31,6 +32,6 @@ void main(void) {
 
 	float alpha = smoothstep( -1.0, 1.0, sin( length( offsetPos - vec3( 0.0, 1.5, 0.0 ) ) * 0.6 - time * 2.0 ) );
 
-    vColor = vec4( vec3( 1.0 ) * alpha, dustVisibility );
+    vColor = vec4( vec3( 1.0 ) * alpha, 1.0 );
 
 }

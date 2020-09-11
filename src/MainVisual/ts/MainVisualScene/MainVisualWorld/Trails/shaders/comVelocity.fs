@@ -1,9 +1,11 @@
 uniform float time;
 uniform float seed;
+uniform float phase;
 
 uniform vec2 dataSize;
 uniform sampler2D dataPos;
 uniform sampler2D dataVel;
+uniform float hideTrails;
 
 $constants
 $atan2
@@ -24,7 +26,7 @@ void main() {
       snoise( vec4( scale * pos.xyz, 1.259 * seed * 10.0 + 0.4 * time ) )
     ) * 0.05;
 
-    vec3 gpos = pos - vec3(0.0,0.0,0.0);
+    vec3 gpos = pos - vec3(0.0, hideTrails * 20.0,0.0);
     vel += -(gpos)* length(gpos) * 0.03;
 
 	//ground

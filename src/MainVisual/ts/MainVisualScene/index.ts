@@ -83,7 +83,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.animator.add( {
 			name: 'dustVisibility',
-			initValue: 0.0
+			initValue: 0.0,
 		} );
 
 		this.animator.add( {
@@ -109,6 +109,22 @@ export class MainVisualScene extends ORE.BaseScene {
 			}
 		} );
 
+		this.animator.add( {
+			name: 'glitch',
+			initValue: 0.0,
+			easing: {
+				func: ORE.Easings.linear
+			}
+		} );
+
+		this.animator.add( {
+			name: 'hideTrails',
+			initValue: 0.0,
+			easing: {
+				func: ORE.Easings.linear
+			}
+		} );
+
 		this.animator.applyToUniforms( this.commonUniforms );
 
 	}
@@ -124,14 +140,14 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private initParams() {
 
-		this.animator.setValue( 'phase', 1 );
+		this.world.trails.initDate();
 
 		this.world.dust.visible = false;
-		this.animator.setValue( 'dustVisibility', 0 );
-		this.world.trails.visible = false;
 		this.world.trails.enabled = false;
+		this.animator.setValue( 'phase', 1 );
+		this.animator.setValue( 'dustVisibility', 0 );
+		this.animator.setValue( 'hideTrails', 0 );
 		this.animator.setValue( 'trailVisibility', 0 );
-
 		this.animator.setValue( 'movieVisibility', 1.0, );
 
 	}
@@ -142,37 +158,38 @@ export class MainVisualScene extends ORE.BaseScene {
 			Phase1
 		------------------------*/
 		this.animator.animate( 'movieVisibility', 1.0, 5 );
-		await this.setPhase( 1, 10 );
+		await this.setPhase( 1, 1, 10 );
 
 		/*------------------------
 			Phase2
 		------------------------*/
-		await this.setPhase( 2, 15 );
+		await this.setPhase( 2, 3.0, 13 );
 
 		/*------------------------
 			Phase3
 		------------------------*/
 		this.world.dust.visible = true;
-		this.animator.animate( 'dustVisibility', 1, 1 );
-		await this.setPhase( 3, 15 );
+		this.animator.animate( 'dustVisibility', 1, 8 );
+		await this.setPhase( 3, 3.0, 17 );
 
 		/*------------------------
 			Phase4
 		------------------------*/
-		this.world.trails.visible = true;
 		this.world.trails.enabled = true;
 		this.animator.animate( 'trailVisibility', 1, 1 );
-		await this.setPhase( 4, 25 );
+		await this.setPhase( 4, 3.0, 28 );
 
 
 		/*------------------------
 			End
 		------------------------*/
+		setTimeout( () => {
 
-		this.world.trails.visible = true;
-		this.animator.animate( 'trailVisibility', 1, 1 );
-		await this.setPhase( 5, 5 );
+			this.animator.animate( 'hideTrails', 1.0, 1.0 );
 
+		}, 1000 );
+
+		await this.setPhase( 5, 1.0, 4 );
 
 		this.animator.animate( 'movieVisibility', 0.0, 5, () => {
 
@@ -250,14 +267,14 @@ export class MainVisualScene extends ORE.BaseScene {
 		------------------------*/
 		sp.set( 0, 2, 5 );
 		ep.set( 0, 2, 20 );
-		await this.doCameraAnimate( sp, ep, 10 );
+		await this.doCameraAnimate( sp, ep, 12 );
 
 	}
 
 
-	private setPhase( phase: number, duration: number ) {
+	private setPhase( phase: number, phaseChangeDuration: number, duration: number ) {
 
-		this.animator.animate( 'phase', phase, 1 );
+		this.animator.animate( 'phase', phase, phaseChangeDuration );
 
 		let promise = new Promise( ( resolve ) => {
 

@@ -5,9 +5,12 @@ uniform vec2 resolution;
 uniform sampler2D sceneTex;
 uniform sampler2D lensTex;
 uniform sampler2D blurTex[RENDER_COUNT];
+uniform sampler2D noiseTex;
 uniform float brightness;
 uniform float time;
 uniform float movieVisibility;
+
+uniform float glitch;
 
 $random
 
@@ -22,9 +25,24 @@ void main(){
 	
 	uv -= u* 0.03;
 	
+	float n;
+	float n2;
+
+	if( glitch > 0.0 ) {
+		
+		n = texture2D( noiseTex, vec2( time * 0.6, vUv.y * 0.1 ) ).x - 0.5;
+		n = sign( n ) * step( abs( n ), 0.2 );
+
+		n2 = texture2D( noiseTex, vec2( time * 0.5, vUv.y * 0.7 + time) ).x - 0.3;
+		n += sign( n2 ) * floor( n2 * 10.0) / 10.0 * 2.0;
+
+		uv = uv + vec2( n * 0.04 * glitch, n2 * 0.3 * glitch );
+
+	}
+	
 	for( float i = 1.0;  i <= 5.0; i += 1.0 ) {
-        vig *= 1.0 + i * 0.03;
-        c.x += texture2D(sceneTex, uv + vig * 1.0  ).x;
+        vig *= 1.0 + i * 0.03 + glitch * 0.2;
+        c.x += texture2D(sceneTex, uv + vig * 1.0 + vec2(n2 * 0.06, n * 0.01)  ).x;
         c.y += texture2D(sceneTex, uv + vig * 1.3  ).y;
         c.z += texture2D(sceneTex, uv + vig * 1.5  ).z;
 
@@ -46,6 +64,8 @@ void main(){
 
 	c *= smoothstep( 1.5, 0.6, length( u ) );
 
+	c += max( 0., n * 0.08 + smoothstep( 0.4, 0.45, n2 ) * 0.6 );
+	
 	c += texture2D( lensTex, vUv ).xyz * blur * 1.2;
 
 	c *= movieVisibility;

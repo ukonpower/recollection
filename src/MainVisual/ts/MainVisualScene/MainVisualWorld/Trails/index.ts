@@ -82,6 +82,28 @@ export class Trails extends THREE.Object3D {
 			velocity: velKernel,
 		};
 
+		this.initDate();
+
+	}
+
+	public initDate() {
+
+		if ( this.datas ) {
+
+			if ( this.datas.position.buffer ) {
+
+				this.datas.position.buffer.dispose();
+
+			}
+
+			if ( this.datas.velocity.buffer ) {
+
+				this.datas.velocity.buffer.dispose();
+
+			}
+
+		}
+
 		this.datas = {
 			position: this.gCon.createData( this.createInitialPositionData() ),
 			velocity: this.gCon.createData(),

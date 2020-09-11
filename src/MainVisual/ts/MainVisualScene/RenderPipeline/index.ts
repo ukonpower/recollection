@@ -213,7 +213,8 @@ export class RenderPipeline {
 			uniforms: ORE.UniformsLib.CopyUniforms( {
 				sceneTex: this.inputTextures.sceneTex,
 				blurTex: this.inputTextures.blurTex,
-				lensTex: this.assetManager.textures.lensDirt
+				lensTex: this.assetManager.textures.lensDirt,
+				noiseTex: this.assetManager.textures.noise
 			}, this.commonUniforms ),
 			defines: {
 				RENDER_COUNT: this.renderCount.toString()
