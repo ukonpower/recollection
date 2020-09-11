@@ -8,6 +8,7 @@ import { ReflectionPlane } from '../ReflectionPlane';
 import { AssetManager } from '../MainVisualManager/AssetManager';
 import { Particle } from './Particle';
 import { Trails } from './Trails';
+import { Dust } from './Dust';
 
 export class MainVisualWorld {
 
@@ -17,9 +18,10 @@ export class MainVisualWorld {
 	private assetManager: AssetManager;s
 	private renderer: THREE.WebGLRenderer;
 
-	private refPlane: ReflectionPlane;
-	private particle: Particle;
-	private trails: Trails;
+	public refPlane: ReflectionPlane;
+	public particle: Particle;
+	public dust: Dust;
+	public trails: Trails;
 
 	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -46,12 +48,16 @@ export class MainVisualWorld {
 		this.scene.add( this.refPlane );
 
 		this.trails = new Trails( this.renderer, 50, 100, this.commonUniforms );
+		this.trails.visible = false;
 		this.scene.add( this.trails );
+
+		this.dust = new Dust( this.commonUniforms );
+		this.dust.visible = false;
+		this.scene.add( this.dust );
+
 		// this.particle = new Particle( this.renderer, this.commonUniforms );
 		// this.particle.position.y = 1.0;
 		// this.scene.add( this.particle );
-
-
 
 	}
 

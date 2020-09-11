@@ -1,4 +1,5 @@
 varying vec3 vViewPosition;
+varying vec3 vNormal;
 attribute float uvx;
 attribute float uvy;
 
@@ -22,13 +23,14 @@ void main() {
     vec3 vec = normalize(nPos - pos);
     float rotX = atan2(vec.y,vec.z);
 
-    p.xy *= sin(uvx * PI) * (sin(uvy * PI) * 1.0 + 0.1);
+    p.xy *= smoothstep( 0.0, 0.1, sin( uvx * PI) ) * (sin(uvy * 100.0) * 1.0 + 0.1);
     p.yz *= rotate(rotX);
 
     vec4 mvPosition = modelViewMatrix * vec4(p + pos, 1.0 );
     gl_Position = projectionMatrix * mvPosition;
 
     vViewPosition = -mvPosition.xyz;
+	vNormal = normal;
 }
 
 

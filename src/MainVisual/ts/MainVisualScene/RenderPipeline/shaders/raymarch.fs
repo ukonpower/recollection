@@ -15,6 +15,8 @@ uniform mat4 camProjectionInverseMatrix;
 uniform float camNear;
 uniform float camFar;
 
+uniform float phase;
+
 $constants
 
 #define MAT_MAIN 1.0
@@ -22,12 +24,9 @@ $constants
 
 #define U(z,w) (mix(z,w,step(w.x,z.x)))
 
-float sphere( vec3 p ) {
-
-	float r = 1.1;
-
-	return length( p ) - r;
-	
+float sdSphere( vec3 p, float s )
+{
+  return length(p)-s;
 }
 
 float sdBox( vec3 p, vec3 b )
@@ -63,9 +62,10 @@ vec2 MainObjDist( vec3 p ) {
 
 	p.y -= 1.5;
 
-	p = mainFold( p );
+	// p = mainFold( p );
 
-	float d = sdBox( p, vec3( 0.5 ) );
+	float d = sdSphere( p, 0.5 );
+
 
 	return vec2( d, MAT_MAIN );
 	
@@ -96,7 +96,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, vec3 normal )
 
 	if( distRes.y == MAT_MAIN ) {
 
-		return vec4( (normal * 0.5 + 0.5) * 0.8, 1.0 );
+		return vec4( vec3( 0.6 ), 1.0 );
 
 	} else if( distRes.y == MAT_REFLECT ) {
 

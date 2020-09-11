@@ -6,6 +6,7 @@ uniform sampler2D sceneTex;
 uniform sampler2D blurTex[RENDER_COUNT];
 uniform float brightness;
 uniform float time;
+uniform float movieVisibility;
 
 $random
 
@@ -41,6 +42,8 @@ void main(){
 	c += texture2D(blurTex[ 4 ], vigUV ).xyz * 8.0 * brightness;
 
 	c *= smoothstep( 1.5, 0.6, length( u ) );
+
+	c *= movieVisibility;
 
 	gl_FragColor = vec4( c, 1.0 );
 

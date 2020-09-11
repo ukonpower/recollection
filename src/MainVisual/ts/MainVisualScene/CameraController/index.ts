@@ -3,6 +3,8 @@ import * as ORE from '@ore-three-ts';
 
 export class CameraController {
 
+	private animator: ORE.Animator;
+
 	private commonUniforms: ORE.Uniforms;
 	private camera: THREE.PerspectiveCamera
 	private cameraBasePos: THREE.Vector3;
@@ -13,11 +15,13 @@ export class CameraController {
 
 	private hoverElm: HTMLCanvasElement;
 
-	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D, parentUniforms?: ORE.Uniforms ) {
+	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D, animator: ORE.Animator, parentUniforms?: ORE.Uniforms ) {
 
 		this.camera = obj;
 		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
 		this.cameraTargetPos = data.getObjectByName( 'Camera_Target' ).getWorldPosition( new THREE.Vector3() );
+
+		this.animator = animator;
 
 		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
 		}, parentUniforms );
@@ -49,7 +53,8 @@ export class CameraController {
 		this.cursorPosDelay.add( diff );
 
 		let weight = 1.0;
-		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * weight, this.cameraBasePos.y + this.cursorPosDelay.y * weight, this.cameraBasePos.z );
+		this.camera.position.copy( this.animator.get( 'CameraPosition' ) );
+		// this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * weight, this.cameraBasePos.y + this.cursorPosDelay.y * weight, this.cameraBasePos.z );
 
 		if ( this.cameraTargetPos ) {
 
@@ -67,7 +72,7 @@ export class CameraController {
 		let dist = Math.cos( blenderAng / 180 * Math.PI / 2 ) * ( blenderWidth / 2 ) / Math.sin( blenderAng / 180 * Math.PI / 2 );
 		let fov = Math.atan2( blenderHeight / 2, dist ) * 180 / Math.PI * 2;
 
-		this.camera.fov = fov;
+		this.camera.fov = fov * 1.0;
 		this.camera.updateProjectionMatrix();
 
 	}

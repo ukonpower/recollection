@@ -5,6 +5,7 @@ import comPosition from './shaders/comPosition.fs';
 import comVelocity from './shaders/comVelocity.fs';
 
 import trailsVert from './shaders/trails.vs';
+import trailsFrag from './shaders/trails.fs';
 
 import { GPUComputationRenderer } from 'three/examples/jsm/misc/GPUComputationRenderer';
 
@@ -169,8 +170,7 @@ export class Trails extends THREE.Object3D {
 
 		let standard = THREE.ShaderLib.standard;
 		this.meshUniforms = THREE.UniformsUtils.merge( [ standard.uniforms, customUni ] );
-
-		customUni = ORE.UniformsLib.CopyUniforms( customUni, this.commonUniforms );
+		this.meshUniforms = ORE.UniformsLib.CopyUniforms( this.meshUniforms, this.commonUniforms );
 
 		this.meshUniforms.roughness.value = 0.5;
 		this.meshUniforms.metalness.value = 0.3;
@@ -178,13 +178,15 @@ export class Trails extends THREE.Object3D {
 		let mat = new THREE.ShaderMaterial( {
 			uniforms: this.meshUniforms,
 			vertexShader: trailsVert,
-			fragmentShader: standard.fragmentShader,
+			fragmentShader: trailsFrag,
 			lights: true,
 			flatShading: true,
-			side: THREE.BackSide
+			side: THREE.BackSide,
+			transparent: true
 		} );
 
 		let mesh = new THREE.Mesh( geo, mat );
+		mesh.frustumCulled = false;
 		this.add( mesh );
 
 	}

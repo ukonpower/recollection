@@ -7,8 +7,11 @@ import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
 import { CameraController } from './CameraController';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { timeStamp } from 'console';
 
 export class MainVisualScene extends ORE.BaseScene {
+
+	private animator: ORE.Animator;
 
 	private commonUniforms: ORE.Uniforms;
 	private cameraController: CameraController;
@@ -61,11 +64,218 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.gManager = new MainVisualManager( {
 			onMustAssetsLoaded: () => {
 
+				this.initAnimator();
+
 				this.initScene();
+
+				this.initTimeline();
 
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
 			}
+		} );
+
+	}
+
+	private initAnimator() {
+
+		this.animator = this.gManager.animator;
+
+		this.animator.add( {
+			name: 'dustVisibility',
+			initValue: 0.0
+		} );
+
+		this.animator.add( {
+			name: 'trailVisibility',
+			initValue: 0.0
+		} );
+
+		this.animator.add( {
+			name: 'phase',
+			initValue: 1.0
+		} );
+
+		this.animator.add( {
+			name: 'movieVisibility',
+			initValue: 0,
+		} );
+
+		this.animator.add( {
+			name: 'CameraPosition',
+			initValue: new THREE.Vector3( 0, 0, 0 ),
+			easing: {
+				func: ORE.Easings.linear
+			}
+		} );
+
+		this.animator.applyToUniforms( this.commonUniforms );
+
+	}
+
+	private initTimeline() {
+
+		this.initPhaseTimeline();
+		this.initCameraTimeline();
+
+	}
+
+	private async initPhaseTimeline() {
+
+		this.world.dust.visible = false;
+		this.animator.setValue( 'dustVisibility', 0 );
+
+		this.world.trails.visible = false;
+		this.animator.setValue( 'trailVisibility', 0 );
+
+		/*------------------------
+			Phase1
+		------------------------*/
+		this.animator.animate( 'movieVisibility', 1.0, 5 );
+		await this.setPhase( 1, 10 );
+
+		/*------------------------
+			Phase2
+		------------------------*/
+		await this.setPhase( 2, 10 );
+
+		/*------------------------
+			Phase3
+		------------------------*/
+		this.world.dust.visible = true;
+		this.animator.animate( 'dustVisibility', 1, 1 );
+		await this.setPhase( 3, 10 );
+
+		/*------------------------
+			Phase4
+		------------------------*/
+		this.world.trails.visible = true;
+		this.animator.animate( 'trailVisibility', 1, 1 );
+		await this.setPhase( 4, 10 );
+
+
+		this.world.trails.visible = true;
+		this.animator.animate( 'trailVisibility', 1, 1 );
+		await this.setPhase( 5, 4 );
+
+
+		this.animator.animate( 'movieVisibility', 0.0, 5, () => {
+
+			this.initTimeline();
+
+		} );
+
+
+	}
+
+	private async initCameraTimeline() {
+
+		let sp = new THREE.Vector3();
+		let ep = new THREE.Vector3();
+
+		/*------------------------
+			Phase1 10s
+		------------------------*/
+
+		sp.set( 0, 2, 5 );
+		ep.set( 0, 2, 15 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( 5, 2, 10 );
+		ep.set( - 5, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 6 );
+
+
+		/*------------------------
+			Phase2
+		------------------------*/
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( 10, 5, - 10 );
+		ep.set( 10, 5, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		/*------------------------
+			Phase3
+		------------------------*/
+		sp.set( 0, 1, 20 );
+		ep.set( 0, 3, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		/*------------------------
+			Phase4
+		------------------------*/
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		sp.set( - 10, 2, - 10 );
+		ep.set( - 10, 2, 10 );
+		await this.doCameraAnimate( sp, ep, 5 );
+
+		/*------------------------
+			End
+		------------------------*/
+		sp.set( 0, 2, 5 );
+		ep.set( 0, 2, 20 );
+		await this.doCameraAnimate( sp, ep, 10 );
+
+	}
+
+
+	private setPhase( phase: number, duration: number ) {
+
+		this.animator.animate( 'phase', phase, 1 );
+
+		let promise = new Promise( ( resolve ) => {
+
+			setTimeout( () => {
+
+				resolve();
+
+			}, duration * 1000 );
+
+		} );
+
+		return promise;
+
+	}
+
+	private doCameraAnimate( sp: THREE.Vector3, ep: THREE.Vector3, dur: number, callBack?: Function ) {
+
+		let promise = new Promise( ( resolve ) => {
+
+			this.animator.setValue( 'CameraPosition', sp );
+			this.animator.animate( 'CameraPosition', ep, dur, () => {
+
+				resolve();
+
+			} );
+
+		} );
+
+		return promise;
+
+	}
+
+	private cameraFreedomMove() {
+
+		let p = new THREE.Vector3(
+			( Math.random() - 0.5 ) * 10,
+			( Math.random() - 0.0 ) * 10,
+			( Math.random() - 0.0 ) * 10 + 0.5,
+		);
+
+		this.animator.animate( 'CameraPosition', p, 3, () => {
+
+			this.cameraFreedomMove();
+
 		} );
 
 	}
@@ -86,7 +296,7 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.scene.add( this.camera );
 		this.camera.position.set( 10, 3, 10 );
 
-		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ) );
+		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ), this.gManager.animator, this.commonUniforms );
 
 		this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
 
@@ -98,10 +308,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.commonUniforms.time.value = this.time;
 
+		this.gManager.update( deltaTime );
+
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			// this.cameraController.update( deltaTime );
-			this.orbitControls.update();
+			this.cameraController.update( deltaTime );
+			// this.orbitControls.update();
 
 			this.commonUniforms.camPosition.value.copy( this.camera.position );
 			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
