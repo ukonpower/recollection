@@ -34,6 +34,23 @@ export class MainVisualWorld {
 
 		}, parentUniforms );
 
+		this.assetManager.gltfScene.traverse( ( obj: THREE.Mesh ) => {
+
+			let mat = new THREE.MeshStandardMaterial( {
+				roughness: 0.8,
+				color: new THREE.Color( "#333" )
+			} );
+
+			if ( obj.isMesh ) {
+
+				obj.material = mat;
+
+			}
+
+		} );
+
+		this.scene.add( this.assetManager.gltfScene );
+
 		let groundModel = this.scene.getObjectByName( 'GroundModel' );
 		groundModel.visible = false;
 

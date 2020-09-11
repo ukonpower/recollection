@@ -163,14 +163,14 @@ export class MainVisualScene extends ORE.BaseScene {
 		/*------------------------
 			Phase2
 		------------------------*/
-		await this.setPhase( 2, 3.0, 13 );
+		await this.setPhase( 2, 3.0, 13.5 );
 
 		/*------------------------
 			Phase3
 		------------------------*/
 		this.world.dust.visible = true;
 		this.animator.animate( 'dustVisibility', 1, 8 );
-		await this.setPhase( 3, 3.0, 17 );
+		await this.setPhase( 3, 3.0, 16.5 );
 
 		/*------------------------
 			Phase4
@@ -324,8 +324,6 @@ export class MainVisualScene extends ORE.BaseScene {
 	}
 
 	private initScene() {
-
-		this.scene.add( this.gManager.assetManager.gltfScene );
 
 		this.world = new MainVisualWorld( this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 
