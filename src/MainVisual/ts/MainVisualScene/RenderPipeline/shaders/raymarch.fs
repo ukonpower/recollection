@@ -52,16 +52,18 @@ float phase2( vec3 p ) {
 
 	float move = cos( t );
 
-	for( int i = 0; i < 5; i ++ ) {
+	for( int i = 0; i < 6; i ++ ) {
 
 		p.xz *= rotate( t );
 
-		p.x -= 0.2 * move;
+		p.x -= 0.1 * move;
+		p = abs( p ) - 0.01;
 		
-		p.xz *= rotate( t );
+		p.xy *= rotate( t );
 
 		for( int i = 0; i < 5; i ++ ) {
 			
+ 			// p.x = abs( p.x );
 			p.xy *= rotate( t );
 
 		}
