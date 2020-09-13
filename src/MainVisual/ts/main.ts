@@ -53,8 +53,9 @@ class APP {
 
 	private initORE() {
 
+		let canvas = document.querySelector( "#canvas" ) as HTMLCanvasElement;
 		this.controller = new ORE.Controller( {
-			canvas: document.querySelector( "#canvas" ) as HTMLCanvasElement,
+			canvas: canvas,
 			retina: true
 		} );
 
