@@ -1,8 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import raymarchFrag from './shaders/raymarch.fs';
-import mixFrag from './shaders/mix.fs';
 import bright from './shaders/bloom_bright.fs';
 import blur from './shaders/bloom_blur.fs';
 import composite from './shaders/bloom_composite.fs';
@@ -24,8 +22,6 @@ export class RenderPipeline {
 
 	//ORE.PostProcessings
 	protected bright: ORE.PostProcessing;
-	protected mix: ORE.PostProcessing;
-	protected raymarch: ORE.PostProcessing;
 	protected blur: ORE.PostProcessing[] = [];
 	protected composite: ORE.PostProcessing;
 	protected smaa: ORE.PostProcessing;
@@ -127,40 +123,6 @@ export class RenderPipeline {
 	protected init() {
 
 		/*------------------------
-			raymarch
-		------------------------*/
-
-		let raymarchParam: ORE.PPParam[] = [ {
-			fragmentShader: raymarchFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
-			}, this.commonUniforms ),
-		} ];
-
-		this.raymarch = new ORE.PostProcessing( this.renderer, raymarchParam, null, {
-			type: THREE.FloatType,
-			depthBuffer: false,
-			stencilBuffer: false,
-			generateMipmaps: false
-		} );
-
-		/*------------------------
-			mix
-		------------------------*/
-
-		let mixParam: ORE.PPParam[] = [ {
-			fragmentShader: mixFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
-				sceneDepthTex: this.inputTextures.sceneDepthTex
-			}, this.commonUniforms ),
-		} ];
-
-		this.mix = new ORE.PostProcessing( this.renderer, mixParam, null, {
-			depthBuffer: false,
-			stencilBuffer: false,
-			generateMipmaps: false
-		} );
-
-		/*------------------------
 			bright
 		------------------------*/
 
@@ -227,13 +189,7 @@ export class RenderPipeline {
 			generateMipmaps: false
 		} );
 
-		this.sceneDepthTexture = new THREE.DepthTexture( 1000, 1000, THREE.FloatType );
-		this.sceneRenderTarget = this.composite.createRenderTarget( {
-			depthBuffer: true,
-			depthTexture: this.sceneDepthTexture
-		} );
-
-
+		this.sceneRenderTarget = this.composite.createRenderTarget();
 		/*------------------------
 			SMAA
 		------------------------*/
@@ -287,24 +243,14 @@ export class RenderPipeline {
 
 	public render( scene: THREE.Scene, camera: THREE.Camera ) {
 
-
 		this.renderer.autoClear = true;
 		//render main scene
 		this.renderer.setRenderTarget( this.sceneRenderTarget );
 		this.renderer.clear();
 		this.renderer.render( scene, camera );
+		this.inputTextures.sceneTex.value = this.sceneRenderTarget.texture;
 
 		this.renderer.autoClear = false;
-
-		this.inputTextures.sceneDepthTex.value = this.sceneRenderTarget.depthTexture;
-
-		//raymarch
-		this.raymarch.render( this.sceneRenderTarget.texture, true );
-		this.commonUniforms.raymarchTex.value = this.inputTextures.raymarchTex.value = this.raymarch.getResultTexture();
-
-		//mix
-		this.mix.render( this.sceneRenderTarget.texture, true );
-		this.inputTextures.sceneTex.value = this.mix.getResultTexture();
 
 		//smaa
 		this.smaa.render( this.inputTextures.sceneTex.value, true );
@@ -333,9 +279,6 @@ export class RenderPipeline {
 	public resize( mainSceneRenderRes: THREE.Vector2 ) {
 
 		this.sceneRenderTarget.setSize( mainSceneRenderRes.x, mainSceneRenderRes.y );
-
-		this.mix.resize( mainSceneRenderRes );
-		this.raymarch.resize( mainSceneRenderRes );
 		this.smaa.resize( mainSceneRenderRes );
 
 		this.bloomResolution = mainSceneRenderRes.clone().multiplyScalar( this.bloomResolutionRatio );

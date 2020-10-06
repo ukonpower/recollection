@@ -53,8 +53,7 @@ export class CameraController {
 		this.cursorPosDelay.add( diff );
 
 		let weight = 1.0;
-		this.camera.position.copy( this.animator.get( 'CameraPosition' ) );
-		// this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * weight, this.cameraBasePos.y + this.cursorPosDelay.y * weight, this.cameraBasePos.z );
+		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * weight, this.cameraBasePos.y + this.cursorPosDelay.y * weight, this.cameraBasePos.z );
 
 		if ( this.cameraTargetPos ) {
 

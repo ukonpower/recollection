@@ -1,8 +1,4 @@
-float easeInOutQuad( float t ) {
 
-	return t < 0.5 ? 2.0 * t * t : -1.0 + ( 4.0 - 2.0 * t ) * t;
-
-}
 
 float easeInQuart( float t ) {
 
@@ -13,6 +9,12 @@ float easeInQuart( float t ) {
 float easeOutQuart( float t ) {
 
 	return 1.0 - ( --t ) * t * t * t ;
+
+}
+
+float easeInOutQuad( float t ) {
+
+	return t < 0.5 ? 2.0 * t * t : -1.0 + ( 4.0 - 2.0 * t ) * t;
 
 }
 
@@ -33,3 +35,8 @@ float sigmoid( float x ) {
 	return ( 1.0 + ( 1.0 - e1 ) / ( 1.0 + e1 ) * ( 1.0 + e2 ) / ( 1.0 - e2 ) ) / 2.0;
 
 }
+
+#pragma glslify: export (sigmoid)
+#pragma glslify: export (easeOutQuart)
+#pragma glslify: export (easeInOutQuad)
+#pragma glslify: export (easeInOutQuart)

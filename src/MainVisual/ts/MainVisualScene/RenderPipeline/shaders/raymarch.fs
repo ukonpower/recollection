@@ -17,7 +17,7 @@ uniform float camFar;
 
 uniform float phase;
 
-$constants
+#pragma glslify: import( './constants.glsl' )
 
 #define MAT_MAIN 1.0
 #define MAT_REFLECT 2.0
