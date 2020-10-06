@@ -28,6 +28,7 @@ export class MainVisualWorld {
 		this.scene.add( this.assetManager.gltfScene );
 
 		let light = new THREE.PointLight();
+		light.position.set( 1, 1, 1 );
 		this.scene.add( light );
 
 	}

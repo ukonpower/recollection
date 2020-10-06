@@ -98,8 +98,6 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ), this.gManager.animator, this.commonUniforms );
 
-		this.orbitControls = new OrbitControls( this.camera, this.renderer.domElement );
-
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, this.commonUniforms );
 
 	}
@@ -113,7 +111,6 @@ export class MainVisualScene extends ORE.BaseScene {
 		if ( this.gManager.assetManager.isLoaded ) {
 
 			this.cameraController.update( deltaTime );
-			// this.orbitControls.update();
 
 			this.world.update( deltaTime );
 

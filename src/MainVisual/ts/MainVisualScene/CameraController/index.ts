@@ -15,12 +15,16 @@ export class CameraController {
 
 	private hoverElm: HTMLCanvasElement;
 
+	private baseCamera: THREE.PerspectiveCamera;
+	
 	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D, animator: ORE.Animator, parentUniforms?: ORE.Uniforms ) {
 
 		this.camera = obj;
 		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
 		this.cameraTargetPos = data.getObjectByName( 'Camera_Target' ).getWorldPosition( new THREE.Vector3() );
 
+		this.baseCamera = data.getObjectByName( 'Camera' ).children[0] as THREE.PerspectiveCamera;
+		
 		this.animator = animator;
 
 		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
@@ -72,6 +76,7 @@ export class CameraController {
 		let fov = Math.atan2( blenderHeight / 2, dist ) * 180 / Math.PI * 2;
 
 		this.camera.fov = fov * 1.0;
+		this.camera.fov = this.baseCamera.fov
 		this.camera.updateProjectionMatrix();
 
 	}

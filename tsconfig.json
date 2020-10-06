@@ -1,19 +1,25 @@
 {
-  "compilerOptions": {
-    "sourceMap": true,
-    "target": "es5",
-    "module": "es2015",
-    "moduleResolution": "node",
-    "lib": [
-      "es2017",
-      "dom"
-    ],
-	"typeRoots": ["node_modules/@types"],
-	"rootDir": "./",
-	"baseUrl": ".",
-	"paths": {
-		"@ore-three-ts" : ["./src/common/ts/ore-three-ts/src"],
-	}
-  },
-  "include": ["./src/"]
+	"compilerOptions": {
+		"sourceMap": true,
+		"target": "es5",
+		"module": "es2015",
+		"moduleResolution": "node",
+		"lib": [
+			"es2017",
+			"dom"
+		],
+		"typeRoots": ["node_modules/@types"],
+		"rootDir": "./src/",
+		"baseUrl": ".",
+		"paths": {
+			"@ore-three-ts" : ["./src/common/ts/ore-three-ts/src"],
+		}
+	},
+  	"include": [
+		"./src/"
+	],
+	"exclude": [
+		"node_modules"
+	]
+
 }

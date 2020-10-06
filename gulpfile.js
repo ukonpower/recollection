@@ -106,7 +106,7 @@ function buildAllGLs( cb ) {
 		}
 		
 		conf.output.filename = '[name]/js/main.js';
-
+		
 		//webpack
 		webpackStream( conf, webpack )
 			.pipe( gulp.dest( distGLDir ) )
@@ -152,36 +152,18 @@ function copyFiles( cb ) {
 
 }
 
-// function cleanFiles( cb ) {
-
-// 	del([
-
-// 		distDir
-		
-// 	],{
-
-// 		force: true,
-
-// 	}).then( ( paths ) => {
-
-// 		cb();
-
-// 	});
-
-// }
+let webpackConfDev = _.cloneDeep( require( './webpack.config' ) );
 
 function webpackDev( cb ) {
 
-	let conf = _.cloneDeep( require( './webpack.config' ) );
-	conf.entry.main = srcDir + '/ts/main.ts';
-	conf.output.filename = 'main.js';
-	conf.mode = options.P ? 'production' : webpackMode;
+	webpackConfDev.entry.main = srcDir + '/ts/main.ts';
+	webpackConfDev.output.filename = 'main.js';
+	webpackConfDev.mode = options.P ? 'production' : webpackMode;
 	
-	
-	webpackStream( conf, webpack )
+	webpackStream( webpackConfDev, webpack )
 		.on( 'error', function() { this.emit( 'end' ) } )
 		.pipe( gulp.dest( distDir + "/js/" ) )
-		.on( 'end', function() {  browserSync.reload(); cb(); } );
+		.on( 'end', function() { browserSync.reload(); cb(); } );
 
 }
 
