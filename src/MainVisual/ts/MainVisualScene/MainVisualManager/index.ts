@@ -15,19 +15,31 @@ export class MainVisualManager {
 
 		this.animator = new ORE.Animator();
 		this.assetManager = new AssetManager();
-
 		this.eRay = new EasyRaycaster();
 
-		param.onPreAssetsLoaded && this.assetManager.addEventListener( 'preAssetsLoaded', param.onPreAssetsLoaded );
-		param.onMustAssetsLoaded && this.assetManager.addEventListener( 'mustAssetsLoaded', param.onMustAssetsLoaded );
-		param.onSubAssetsLoaded && this.assetManager.addEventListener( 'subAssetsLoaded', param.onSubAssetsLoaded );
+		this.assetManager.addEventListener( 'preAssetsLoaded', () => {
+
+			param.onPreAssetsLoaded && param.onPreAssetsLoaded();
+
+		} );
+
+		this.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+
+			param.onMustAssetsLoaded && param.onMustAssetsLoaded();
+
+		} );
+
+		this.assetManager.addEventListener( 'subAssetsLoaded', () => {
+
+			param.onSubAssetsLoaded && param.onSubAssetsLoaded();
+
+		} );
 
 		setTimeout( () => {
 
 			this.assetManager.load();
 
 		}, 0 );
-
 
 	}
 

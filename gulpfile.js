@@ -1,27 +1,31 @@
 const gulp = require( 'gulp' );
-const gulpIf = require( 'gulp-if' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
 const plumber = require( 'gulp-plumber' );
 const sass = require( 'gulp-sass' );
 const cssmin = require( 'gulp-cssmin' );
-const minimist = require( 'minimist' );
+
 const webpackStream = require( 'webpack-stream' );
 const webpack = require( 'webpack' );
+
+const minimist = require( 'minimist' );
 const browserSync = require( 'browser-sync' );
 const eslint = require( 'gulp-eslint' );
 const del = require( 'del' );
 const fs = require( 'fs' );
 
+const _ = require( 'lodash' );
+
 const options = minimist( process.argv.slice( 2 ), {
 	default: {
-		name: null,
+		gl: null,
 		P: false,
 	}
 });
 
 const srcPath = './src';
 const publicPath = './public';
+var webpackMode = 'development';
 
 function isFixed( file ) {
 
@@ -57,14 +61,14 @@ function esLint( cb ) {
 const glDir = srcPath + '/gl/';
 const distGLDir =  publicPath + '/gl/';
 
-function buildAllGLs( cb ){
+function buildAllGLs( cb ) {
 
 	fs.readdir( glDir, ( err, files ) => {
 
 		if ( err ) throw err;
 
-		let conf = require( './webpack/buildAllGL.config' );
-		conf.mode = options.P ? 'production' : 'development';
+		let conf = _.cloneDeep( require( './webpack.config' ) );
+		conf.mode = options.P ? 'production' : webpackMode;
 
 		for ( let i = 0; i < files.length; i++ ) {
 
@@ -97,7 +101,6 @@ function buildAllGLs( cb ){
 
 			//copy files
 			gulp.src( glDir + files[i] + '/assets/**/*' ).pipe( gulp.dest( distGLItemDir + '/assets/' ) );
-
 			gulp.src( glItemDir + '/' + files[i] + '.jpg', { allowEmpty: true } ).pipe( gulp.dest( distGLItemDir) );
 			
 		}
@@ -113,7 +116,7 @@ function buildAllGLs( cb ){
 
 }
 
-function cleanAllFiles( cb ){
+function cleanAllFiles( cb ) {
 
 	del([
 
@@ -138,7 +141,7 @@ function cleanAllFiles( cb ){
 let srcDir = '';
 let distDir = '';
 
-function copyFiles( cb ){
+function copyFiles( cb ) {
 
 	gulp.src( srcDir + '/assets/**/*' ).pipe( gulp.dest( distDir + '/assets/' ) );
 	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( distDir ) );
@@ -149,38 +152,40 @@ function copyFiles( cb ){
 
 }
 
-function cleanDevFiles( cb ){
+// function cleanFiles( cb ) {
 
-	del([
+// 	del([
 
-		distDir
+// 		distDir
 		
-	],{
+// 	],{
 
-		force: true,
+// 		force: true,
 
-	}).then( ( paths ) => {
+// 	}).then( ( paths ) => {
 
-		cb();
+// 		cb();
 
-	});
+// 	});
 
-}
+// }
 
-function webpackDev(){
+function webpackDev( cb ) {
 
-	let conf = require( './webpack/dev.config' );
+	let conf = _.cloneDeep( require( './webpack.config' ) );
 	conf.entry.main = srcDir + '/ts/main.ts';
 	conf.output.filename = 'main.js';
-	conf.mode = options.P ? 'production' : 'development';
+	conf.mode = options.P ? 'production' : webpackMode;
 	
-	return webpackStream( conf, webpack )
+	
+	webpackStream( conf, webpack )
 		.on( 'error', function() { this.emit( 'end' ) } )
 		.pipe( gulp.dest( distDir + "/js/" ) )
-		.on( 'end', browserSync.reload );
+		.on( 'end', function() {  browserSync.reload(); cb(); } );
+
 }
 
-function pugDev(){
+function pugDev() {
 
 	let title = options.name || 'Recollection';
 	
@@ -197,7 +202,7 @@ function pugDev(){
 	
 }
 
-function sassDev(){
+function sassDev() {
 
 	return gulp.src( srcDir + "/scss/style.scss" )
 		.pipe( plumber() )
@@ -209,7 +214,7 @@ function sassDev(){
 
 }
 
-function brSync(){
+function brSync() {
 
 	browserSync.init({
 		server: {
@@ -221,7 +226,7 @@ function brSync(){
 
 }
 
-function watch(){
+function watch() {
 
 	gulp.watch( srcDir + '/ts/**/*', gulp.series( webpackDev ) );
 	gulp.watch( srcDir + '/pug/**/*', gulp.series( pugDev ) );
@@ -235,7 +240,7 @@ function watch(){
 
 }
 
-function setDevGLPath( cb ){
+function setPathGL( cb ) {
 	
 	srcDir = srcPath + '/gl/' + options.name;
 	distDir = publicPath + '/gl/' + options.name + '/public';
@@ -243,7 +248,7 @@ function setDevGLPath( cb ){
 	cb();
 }
 
-function setDevMainVisualPath( cb ){
+function setPathMainVisual( cb ) {
 
 	srcDir = srcPath + '/MainVisual';
 	distDir = publicPath;
@@ -252,24 +257,37 @@ function setDevMainVisualPath( cb ){
 
 }
 
-let develop = gulp.series( 
-	copyFiles,
-	gulp.parallel( pugDev, webpackDev, sassDev ),
-	gulp.parallel( brSync, watch ),
-);
+function setModeDevelopment( cb ) {
+
+	webpackMode = 'development';
+
+	cb();
+	
+}
+
+function setModeProduction( cb ) {
+
+	webpackMode = 'production';
+
+	cb();
+	
+}
 
 let build = gulp.series( 
 	copyFiles,
 	gulp.parallel( pugDev, webpackDev, sassDev ),
 );
 
+let develop = gulp.series( 
+	build,
+	gulp.parallel( brSync, watch ),
+);
 
-//build topVisual
-exports.default = gulp.series( cleanAllFiles, buildAllGLs, setDevMainVisualPath, develop );
+exports.build	= gulp.series( cleanAllFiles, setModeProduction, buildAllGLs, setPathMainVisual, build );
+exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, buildAllGLs, setPathMainVisual, develop );
 
-//build GLs
-exports.gl = gulp.series( setDevGLPath, cleanDevFiles, develop );
+exports.top	= gulp.series( cleanAllFiles, setPathMainVisual, setModeDevelopment, develop );
+exports.gl	= gulp.series( cleanAllFiles, setPathGL, setModeDevelopment, develop );
 
 exports.lint = gulp.series( esLint );
 
-exports.build = gulp.series( cleanAllFiles, buildAllGLs, setDevMainVisualPath, build );

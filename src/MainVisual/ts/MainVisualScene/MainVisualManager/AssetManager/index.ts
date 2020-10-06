@@ -2,27 +2,31 @@ import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { callbackify } from 'util';
+import { VideoTextureCreator } from './VideoTextureCreator';
+
+declare interface TextureParam {
+	mapping?: THREE.Mapping;
+	wrapS?: THREE.Wrapping;
+	wrapT?: THREE.Wrapping;
+	magFilter?: THREE.TextureFilter;
+	minFilter?: THREE.TextureFilter;
+	format?: THREE.PixelFormat;
+	type?: THREE.TextureDataType;
+	anisotropy?: number;
+	encoding?: THREE.TextureEncoding;
+}
 
 declare interface TextureInfo {
 	path: string;
 	name: string;
-	param?: {
-		mapping?: THREE.Mapping,
-		wrapS?: THREE.Wrapping,
-		wrapT?: THREE.Wrapping,
-		magFilter?: THREE.TextureFilter,
-		minFilter?: THREE.TextureFilter,
-		format?: THREE.PixelFormat,
-		type?: THREE.TextureDataType,
-		anisotropy?: number,
-		encoding?: THREE.TextureEncoding
-	}
+	param?: TextureParam;
+	isVideoTexutre?: boolean;
+	videoSubImgPath?: string;
 }
 
 export class AssetManager extends ORE.EventDispatcher {
 
-	private basePath ='./assets';
+	private basePath = './assets';
 
 	public preLoadingManager: THREE.LoadingManager;
 	public mustLoadingManager: THREE.LoadingManager;
@@ -32,13 +36,16 @@ export class AssetManager extends ORE.EventDispatcher {
 	public mustAssetsLoaded: boolean = false;
 	public subAssetsLoaded: boolean = false;
 
-	private gltfPath: string;
+	private gltfPath: string = '';
 	private preLoadTexturesInfo: TextureInfo[];
 	private mustLoadTexturesInfo: TextureInfo[];
 	private subLoadTexturesInfo: TextureInfo[];
 
 	public gltfScene: THREE.Group;
 	public textures: ORE.Uniforms = {};
+
+	private videoTexture1: VideoTextureCreator;
+	private videoTexture2: VideoTextureCreator;
 
 	public get isLoaded() {
 
@@ -75,7 +82,7 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.preAssetsLoaded = true;
 
-				this.dispatchEvent( new CustomEvent( 'preAssetsLoaded' ) );
+				this.dispatchEvent( { type: 'preAssetsLoaded' } );
 
 			}
 		);
@@ -85,10 +92,7 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.mustAssetsLoaded = true;
 
-				this.dispatchEvent( new CustomEvent( 'mustAssetsLoaded' ) );
-
-			},
-			( url: string, loadedNum, totalNum ) => {
+				this.dispatchEvent( { type: 'mustAssetsLoaded' } );
 
 			}
 		);
@@ -98,7 +102,7 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.subAssetsLoaded = true;
 
-				this.dispatchEvent( new CustomEvent( 'subAssetsLoaded' ) );
+				this.dispatchEvent( { type: 'subAssetsLoaded' } );
 
 			}
 		);
@@ -121,7 +125,11 @@ export class AssetManager extends ORE.EventDispatcher {
 
 	private loadPreAssets( callback?: Function ) {
 
-		callback && this.addEventListener( 'preAssetsLoaded', callback );
+		callback && this.addEventListener( 'preAssetsLoaded', () => {
+
+			callback();
+
+		} );
 
 		if ( this.preLoadTexturesInfo.length > 0 ) {
 
@@ -129,7 +137,9 @@ export class AssetManager extends ORE.EventDispatcher {
 
 		} else {
 
-			this.dispatchEvent( new CustomEvent( 'preAssetsLoaded' ) );
+			this.preAssetsLoaded = true;
+
+			this.dispatchEvent( { type: 'preAssetsLoaded' } );
 
 		}
 
@@ -138,21 +148,31 @@ export class AssetManager extends ORE.EventDispatcher {
 
 	private loadMustAssets( callback?: Function ) {
 
-		callback && this.addEventListener( 'mustAssetsLoaded', callback );
+		callback && this.addEventListener( 'mustAssetsLoaded', () => {
+
+			callback();
+
+		} );
 
 		if ( this.mustLoadTexturesInfo.length > 0 || this.gltfPath != '' ) {
 
 			this.loadTex( this.mustLoadTexturesInfo, this.mustLoadingManager );
 
-			new GLTFLoader( this.mustLoadingManager ).load( this.gltfPath, ( gltf ) => {
+			if ( this.gltfPath != '' ) {
 
-				this.gltfScene = gltf.scene;
+				new GLTFLoader( this.mustLoadingManager ).load( this.gltfPath, ( gltf ) => {
 
-			} );
+					this.gltfScene = gltf.scene;
+
+				} );
+
+			}
 
 		} else {
 
-			this.dispatchEvent( new CustomEvent( 'mustAssetsLoaded' ) );
+			this.mustAssetsLoaded = true;
+
+			this.dispatchEvent( { type: 'mustAssetsLoaded' } );
 
 		}
 
@@ -160,7 +180,11 @@ export class AssetManager extends ORE.EventDispatcher {
 
 	private loadSubAssets( callback?: Function ) {
 
-		callback && this.addEventListener( 'subAssetsLoaded', callback );
+		callback && this.addEventListener( 'subAssetsLoaded', () => {
+
+			callback();
+
+		} );
 
 		if ( this.subLoadTexturesInfo.length > 0 ) {
 
@@ -168,7 +192,9 @@ export class AssetManager extends ORE.EventDispatcher {
 
 		} else {
 
-			this.dispatchEvent( new CustomEvent( 'subAssetsLoaded' ) );
+			this.subAssetsLoaded = true;
+
+			this.dispatchEvent( { type: 'subAssetsLoaded' } );
 
 		}
 
@@ -182,26 +208,48 @@ export class AssetManager extends ORE.EventDispatcher {
 
 			this.textures[ info.name ] = { value: null };
 
-			let loader = new THREE.TextureLoader( manager );
-			loader.crossOrigin = 'use-credentials';
+			if ( info.isVideoTexutre ) {
 
-			loader.load( info.path, ( tex ) => {
+				let creator = new VideoTextureCreator( info.path, info.videoSubImgPath );
+				creator.addEventListener( 'texturecreated', ( e ) => {
 
-				if ( info.param ) {
+					this.applyParam( e.detail.texture, info.param );
 
-					let keys = Object.keys( info.param );
+					this.textures[ info.name ].value = e.detail.texture;
 
-					for ( let i = 0; i < keys.length; i ++ ) {
+				} );
 
-						tex[ keys[ i ] ] = info.param[ keys[ i ] ];
+			} else {
 
-					}
+				let loader = new THREE.TextureLoader( manager );
+				loader.crossOrigin = 'use-credentials';
 
-				}
+				loader.load( info.path, ( tex ) => {
 
-				this.textures[ info.name ].value = tex;
+					this.applyParam( tex, info.param );
 
-			} );
+					this.textures[ info.name ].value = tex;
+
+				} );
+
+			}
+
+
+		}
+
+	}
+
+	private applyParam( tex: THREE.Texture, param?: TextureParam ) {
+
+		if ( param ) {
+
+			let keys = Object.keys( param );
+
+			for ( let i = 0; i < keys.length; i ++ ) {
+
+				tex[ keys[ i ] ] = param[ keys[ i ] ];
+
+			}
 
 		}
 
