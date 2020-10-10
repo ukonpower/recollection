@@ -49,9 +49,6 @@ export class MainVisualScene extends ORE.BaseScene {
 			camProjectionInverseMatrix: {
 				value: new THREE.Matrix4()
 			},
-			raymarchTex: {
-				value: null
-			},
 		};
 
 	}
@@ -98,7 +95,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ), this.gManager.animator, this.commonUniforms );
 
-		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, this.commonUniforms );
+		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
 	}
 

@@ -2,8 +2,7 @@
 varying vec2 vUv;
 varying vec4 vOffset[3];
 
-uniform sampler2D backbuffer;
-uniform vec2 resolution;
+uniform sampler2D sceneTex;
 
 vec2 SMAAColorEdgeDetectionPS(vec2 texcoord, vec4 offset[3], sampler2D colorTex) {
     // Calculate the threshold:
@@ -60,5 +59,5 @@ vec2 SMAAColorEdgeDetectionPS(vec2 texcoord, vec4 offset[3], sampler2D colorTex)
 }
 
 void main(void) {
-    gl_FragColor = vec4(SMAAColorEdgeDetectionPS(vUv, vOffset, backbuffer), 0.0, 0.0);
+    gl_FragColor = vec4(SMAAColorEdgeDetectionPS(vUv, vOffset, sceneTex), 0.0, 0.0);
 }

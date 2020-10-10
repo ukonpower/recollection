@@ -59,5 +59,4 @@ vec4 SMAANeighborhoodBlendingPS(vec2 texcoord, vec4 offset, sampler2D colorTex, 
 
 void main(void) {
     gl_FragColor = SMAANeighborhoodBlendingPS(vUv, vOffset, sceneTex, backbuffer);
-    // gl_FragColor = texture2D(sceneTex, vUv);
 }

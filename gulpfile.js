@@ -109,6 +109,7 @@ function buildAllGLs( cb ) {
 		
 		//webpack
 		webpackStream( conf, webpack )
+			.on( 'error', function() { this.emit( 'end' ) } )
 			.pipe( gulp.dest( distGLDir ) )
 			.on( 'end', cb )
 
