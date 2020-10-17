@@ -31,10 +31,6 @@ export class MainVisualWorld {
 		light.position.set( 1, 10, 10 );
 		this.scene.add( light );
 
-		let box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshBasicMaterial( { color: new THREE.Color( 1.0, 1.0, 1.0 ) } ) );
-		box.position.set( 0.0, 3.0, 0.0 );
-		this.scene.add( box );
-
 	}
 
 	public update( deltaTime: number ) {

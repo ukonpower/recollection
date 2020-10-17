@@ -12,8 +12,7 @@ export class CameraController {
 
 	private cursorPos: THREE.Vector2;
 	public cursorPosDelay: THREE.Vector2;
-
-	private hoverElm: HTMLCanvasElement;
+	private cameraMoveWeight: THREE.Vector2;
 
 	private baseCamera: THREE.PerspectiveCamera;
 
@@ -38,6 +37,7 @@ export class CameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
+		this.cameraMoveWeight = new THREE.Vector2( 0.3, 0.3 );
 
 	}
 
@@ -53,11 +53,11 @@ export class CameraController {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
-		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 2.0 );
+		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime );
 		this.cursorPosDelay.add( diff );
 
 		let weight = 1.0;
-		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * weight, this.cameraBasePos.y + this.cursorPosDelay.y * weight, this.cameraBasePos.z );
+		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * this.cameraMoveWeight.x, this.cameraBasePos.y + this.cursorPosDelay.y * this.cameraMoveWeight.y, this.cameraBasePos.z );
 
 		if ( this.cameraTargetPos ) {
 

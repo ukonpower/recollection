@@ -256,9 +256,6 @@ export class RenderPipeline {
 
 		}
 
-		console.log( compositeRenderTargets );
-
-
 		this.compositePP = new PostProcessing( this.renderer, {
 			fragmentShader: composite,
 			uniforms: ORE.UniformsLib.CopyUniforms( {
