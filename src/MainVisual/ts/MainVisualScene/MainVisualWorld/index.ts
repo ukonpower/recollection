@@ -6,6 +6,8 @@ import basicFrag from './shaders/basic.fs';
 
 import { AssetManager } from '../MainVisualManager/AssetManager';
 
+import { Contents } from './Contents';
+
 export class MainVisualWorld {
 
 	private commonUniforms: ORE.Uniforms;
@@ -13,6 +15,8 @@ export class MainVisualWorld {
 
 	private assetManager: AssetManager;s
 	private renderer: THREE.WebGLRenderer;
+
+	private contents: Contents;
 
 	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -27,9 +31,13 @@ export class MainVisualWorld {
 
 		this.scene.add( this.assetManager.gltfScene );
 
-		let light = new THREE.PointLight();
-		light.position.set( 1, 10, 10 );
-		this.scene.add( light );
+		this.init();
+
+	}
+
+	private init() {
+
+		this.contents = new Contents( this.scene, this.commonUniforms );
 
 	}
 

@@ -20,7 +20,7 @@ export class CameraController {
 
 		this.camera = obj;
 		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
-		this.cameraTargetPos = data.getObjectByName( 'Camera_Target' ).getWorldPosition( new THREE.Vector3() );
+		this.cameraTargetPos = data.getObjectByName( 'CameraTarget' ).getWorldPosition( new THREE.Vector3() );
 
 		this.baseCamera = data.getObjectByName( 'Camera' ).children[ 0 ] as THREE.PerspectiveCamera;
 

@@ -93,7 +93,7 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.scene.add( this.camera );
 		this.camera.position.set( 0, 3, 10 );
 
-		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'Camera_Datas' ), this.gManager.animator, this.commonUniforms );
+		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraDatas' ), this.gManager.animator, this.commonUniforms );
 
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
