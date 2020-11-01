@@ -1,10 +1,8 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import basicVert from './shaders/basic.vs';
-import basicFrag from './shaders/basic.fs';
-
 import { AssetManager } from '../MainVisualManager/AssetManager';
+import { Background } from './Background';
 
 import { Contents } from './Contents';
 
@@ -17,6 +15,7 @@ export class MainVisualWorld {
 	private renderer: THREE.WebGLRenderer;
 
 	private contents: Contents;
+	private background: Background;
 
 	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -37,7 +36,14 @@ export class MainVisualWorld {
 
 	private init() {
 
+		this.background = new Background( this.commonUniforms );
+		this.scene.add( this.background );
+
 		this.contents = new Contents( this.scene, this.commonUniforms );
+
+		let light = new THREE.DirectionalLight();
+		light.position.set( 1.0, 1.0, 1.0 );
+		this.scene.add( light );
 
 	}
 

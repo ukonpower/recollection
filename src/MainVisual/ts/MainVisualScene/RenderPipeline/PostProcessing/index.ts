@@ -2,12 +2,11 @@ import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
 import passThrowVert from './shaders/passThrow.vs';
-import { Material, Mesh } from 'three';
 
 type InputRenderTarget = { [key:string]: { value: THREE.WebGLRenderTarget }};
 
 export interface PPParam extends THREE.ShaderMaterialParameters{
-	inputRenderTargets?: InputRenderTarget
+	inputRenderTargets?: string
 }
 
 export class PostProcessing {
@@ -17,12 +16,11 @@ export class PostProcessing {
 	private camera: THREE.OrthographicCamera;
 	private screen: THREE.Mesh;
 
-	public effects: {
+	public effect: {
 		material: THREE.ShaderMaterial,
-		inputRenderTargets: InputRenderTarget | InputRenderTarget[]
-	}[]
+	};
 
-	constructor( renderer: THREE.WebGLRenderer, ...materials: PPParam[] ) {
+	constructor( renderer: THREE.WebGLRenderer, material: PPParam ) {
 
 		this.renderer = renderer;
 		this.scene = new THREE.Scene();
@@ -31,84 +29,77 @@ export class PostProcessing {
 		this.screen = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2, 2 ) );
 		this.scene.add( this.screen );
 
-		this.createMaterials( materials );
+		this.createMaterials( material );
 
 	}
 
-	private createMaterials( params: PPParam[] ) {
+	private createMaterials( params: PPParam ) {
 
-		this.effects = [];
+		this.effect;
 
-		for ( let i = 0; i < params.length; i ++ ) {
+		let param = params;
+		param.vertexShader = param.vertexShader || passThrowVert;
+		param.uniforms = param.uniforms || {};
+		param.uniforms.resolution = {
+			value: new THREE.Vector2()
+		};
 
-			let param = params[ i ];
-			param.vertexShader = param.vertexShader || passThrowVert;
-			param.uniforms = param.uniforms || {};
-			param.uniforms.resolution = {
-				value: new THREE.Vector2()
-			};
+		this.effect = {
+			material: new THREE.ShaderMaterial( param ),
+			// inputRenderTargets: inputRenderTargets
+		};
 
-			let inputRenderTargets = param.inputRenderTargets;
-			delete param.inputRenderTargets;
-
-			this.effects.push( {
-				material: new THREE.ShaderMaterial( param ),
-				inputRenderTargets: inputRenderTargets
-			} );
-
-		}
 
 	}
 
-	public render( ...renderTargets: { value: THREE.WebGLRenderTarget }[] ) {
+	public render( inputRenderTargets: InputRenderTarget, renderTarget: { value: THREE.WebGLRenderTarget } ) {
 
 		let renderTargetMem = this.renderer.getRenderTarget();
 
-		for ( let i = 0; i < this.effects.length; i ++ ) {
+		let effect = this.effect;
+		let material = effect.material;
+		let uniforms = material.uniforms;
 
-			let effect = this.effects[ i ];
-			let material = effect.material;
-			let uniforms = material.uniforms;
+		if ( inputRenderTargets ) {
 
-			if ( effect.inputRenderTargets ) {
+			let keys = Object.keys( inputRenderTargets );
 
-				let keys = Object.keys( effect.inputRenderTargets );
+			for ( let j = 0; j < keys.length; j ++ ) {
 
-				for ( let j = 0; j < keys.length; j ++ ) {
+				if ( uniforms[ keys[ j ] ] ) {
 
-					if ( uniforms[ keys[ j ] ] ) {
+					uniforms[ keys[ j ] ].value = inputRenderTargets[ keys[ j ] ].value.texture;
 
-						uniforms[ keys[ j ] ].value = effect.inputRenderTargets[ keys[ j ] ].value.texture;
+				} else {
 
-					} else {
+					uniforms[ keys[ j ] ] = { value: inputRenderTargets[ keys[ j ] ].value.texture };
 
-						uniforms[ keys[ j ] ] = { value: effect.inputRenderTargets[ keys[ j ] ].value.texture };
-
-					}
+					effect.material.needsUpdate = true;
 
 				}
 
 			}
 
-			let rendertarget = renderTargets[ i ] ? renderTargets[ i ].value : null;
+		}
 
-			if ( rendertarget ) {
+		let rendertarget = renderTarget ? renderTarget.value : null;
 
-				uniforms.resolution.value.set( rendertarget.width, rendertarget.height );
+		if ( rendertarget ) {
 
-			} else {
+			uniforms.resolution.value.set( rendertarget.width, rendertarget.height );
 
-				this.renderer.getSize( uniforms.resolution.value );
+		} else {
 
-			}
-
-			this.screen.material = material;
-
-			this.renderer.setRenderTarget( rendertarget );
-
-			this.renderer.render( this.scene, this.camera );
+			this.renderer.getSize( uniforms.resolution.value );
 
 		}
+
+		this.screen.material = material;
+
+		this.renderer.setRenderTarget( rendertarget );
+
+		this.renderer.render( this.scene, this.camera );
+
 
 		this.renderer.setRenderTarget( renderTargetMem );
 

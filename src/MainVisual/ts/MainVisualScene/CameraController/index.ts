@@ -37,7 +37,7 @@ export class CameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.3, 0.3 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.7, 0.7 );
 
 	}
 
@@ -59,6 +59,9 @@ export class CameraController {
 		let weight = 1.0;
 		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * this.cameraMoveWeight.x, this.cameraBasePos.y + this.cursorPosDelay.y * this.cameraMoveWeight.y, this.cameraBasePos.z );
 
+		this.camera.position.x = Math.sin( this.commonUniforms.time.value ) * 10.0;
+		this.camera.position.z = Math.cos( this.commonUniforms.time.value ) * 10.0;
+
 		if ( this.cameraTargetPos ) {
 
 			this.camera.lookAt( this.cameraTargetPos );
@@ -69,14 +72,7 @@ export class CameraController {
 
 	public resize( resizeArgs: ORE.ResizeArgs ) {
 
-		let blenderWidth = 1920;
-		let blenderHeight = 1080;
-		let blenderAng = 39.5978;
-		let dist = Math.cos( blenderAng / 180 * Math.PI / 2 ) * ( blenderWidth / 2 ) / Math.sin( blenderAng / 180 * Math.PI / 2 );
-		let fov = Math.atan2( blenderHeight / 2, dist ) * 180 / Math.PI * 2;
-
-		this.camera.fov = fov * 1.0;
-		this.camera.fov = this.baseCamera.fov;
+		this.camera.fov = this.baseCamera.fov * 1.0;
 		this.camera.updateProjectionMatrix();
 
 	}

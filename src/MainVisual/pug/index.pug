@@ -1,11 +1,15 @@
 html(lang="en")
 	head
 		include ./_meta.pug
-		link(rel="stylesheet", href="./css/style.css")
+		link( href="https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap", rel="stylesheet" )
+		link( href="./css/style.css", rel="stylesheet" )
 		title Recollection
 	body
 		.wrapper(data-barba="wrapper")
 			.container(data-barba="container" data-barba-namespace="main")
-				.canvas-wrap
-					canvas#canvas.canvas
+				.contents
+					.header
+						.header-title Recollection
+					.canvas-wrap
+						canvas#canvas.canvas
 		script(src="js/main.js")

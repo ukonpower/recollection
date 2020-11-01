@@ -18,6 +18,7 @@ uniform float camFar;
 uniform float phase;
 
 #pragma glslify: import( './constants.glsl' )
+#pragma glslify: rotate = require( './rotate.glsl' )
 
 #define MAT_MAIN 1.0
 #define MAT_REFLECT 2.0
@@ -37,8 +38,6 @@ float sdBox( vec3 p, vec3 b )
 	return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
   
 }
-
-$rotate
 
 float phase1( vec3 p ) {
 
@@ -114,7 +113,7 @@ float phase4( vec3 p  ) {
 
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
-
+	
 	if( sdBox( p, vec3( 0.6 ) ) < 0.5 ) {
 		
 		for (int i = 0; i < 7; i++) {
@@ -135,29 +134,9 @@ vec2 MainObjDist( vec3 p ) {
 
 	float d = 0.;
 
-	p.y -= 1.2;
+	p = mod( p, 4.0 ) - 2.0;  
 
-	if( phase <= 1.0 ) {
-
-		d = phase1( p );
-		
-	} else if( phase <= 2.0 ) {
-
-		d = mix( phase1( p ), phase2( p ), phase - 1.0 );
-
-	} else if( phase <= 3.0 ) {
-
-		d = ( phase == 3.0 ) ? phase3( p ) : mix( phase2( p ), phase3( p ), phase - 2.0 );
-
-	} else if( phase <= 4.0 ) {
-
-		d = ( phase == 4.0 ) ? phase4( p ) : mix( phase3( p ), phase4( p ), phase - 3.0 );
-
-	} else if( phase <= 5.0 ) {
-
-		d = mix( phase4( p ), phase1( p ), phase - 4.0 );
-
-	}
+	d = phase1( p );
 
 	return vec2( d, MAT_MAIN );
 	
@@ -168,7 +147,8 @@ vec2 D( vec3 p ) {
 	vec2 mainObj = MainObjDist( p );
 	vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
 
-	return U( mainObj, refPlane );
+	// return U( mainObj, refPlane );
+	return mainObj;
 
 }
 
@@ -207,10 +187,10 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 	
 	if( distRes.y == MAT_MAIN ) {
 
-		vec3 normal2 = N( rayPos, 0.01 );
-
-		vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), clamp( phase - 2.0, 0.0, 1.0 ) );
-		// vec3 c = mix( matMain( normal ), matEdge( normal, normal2 ), 1.0 );
+		vec3 c;//vec3( normal * 0.5 + 0.5 );
+		c.x += sin( rayPos.z * 0.1 + time * 2.0 );
+		c.y += sin( rayPos.z * 0.1 + 0.3 + time * 2.0 );
+		c.z += sin( rayPos.z * 0.1 + 0.6 + time * 2.0 );
 
 		return vec4( c, 1.0 );
 
@@ -225,6 +205,33 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 
 	return vec4( 1.0 );
 
+}
+
+vec2 packing16( float value ) { 
+
+	float v1 = value * 255.0;
+	float r = floor(v1);
+
+	float v2 = ( v1 - r ) * 255.0;
+	float g = floor( v2 );
+
+	return vec2( r, g ) / 255.0;
+
+}
+
+vec2 packingRGB2RG( vec3 value ) {
+
+	value = clamp( value, 0.0, 1.0 );
+
+	float r = floor( value.x * 31.0 );
+	float g = floor( value.y * 31.0 );
+	float b = floor( value.z * 63.0 );
+
+	float bLO = floor( ( mod( b, 8.0 ) ) * 32.0 );
+	float bHI = floor( floor( b / 8.0 ) * 32.0 );
+
+	return vec2( r + bLO, g + bHI ) / 255.0;
+	
 }
 
 vec4 trace( vec3 rayPos, vec4 rayDir ) {
@@ -256,21 +263,14 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	if( raymarchCol.w != 1.0 ) {
 
-		depth = 1000.0;
+		depth = 99999.0;
 		
 	}
 
 	depth = ( depth - camNear ) / ( camFar - camNear );
-	depth *= 0.5;
-
-	if( rayDir.w == 1.0 ) {
-
-		depth += 0.5 * raymarchCol.w;
-
-	}
 
 	// return vec4( vec3( rayDir.w ), depth );
-	return vec4( raymarchCol.xyz, depth );
+	return vec4( packingRGB2RG( raymarchCol.xyz ), packing16( depth ) );
 
 }
 

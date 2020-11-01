@@ -1,14 +1,10 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { Thumbnails } from './Thumbnails';
-
 export class Contents {
 
 	private scene: THREE.Scene;
 	private commonUniforms: ORE.Uniforms;
-
-	private thumbnails: Thumbnails;
 
 	constructor( scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
@@ -23,8 +19,6 @@ export class Contents {
 	}
 
 	protected init() {
-
-		this.thumbnails = new Thumbnails( this.scene, this.commonUniforms );
 
 	}
 

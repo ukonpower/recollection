@@ -111,6 +111,13 @@ export class MainVisualScene extends ORE.BaseScene {
 
 			this.world.update( deltaTime );
 
+			this.commonUniforms.camNear.value = this.camera.near;
+			this.commonUniforms.camFar.value = this.camera.far;
+			this.commonUniforms.camPosition.value.copy( this.camera.position );
+			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
+			this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
+			this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
+
 			this.renderPipeline.render( this.scene, this.camera );
 
 		}
@@ -128,6 +135,12 @@ export class MainVisualScene extends ORE.BaseScene {
 			this.cameraController.updateCursor( cursorPosWindowNormalized );
 
 		}
+
+	}
+
+	public onTouchStart( cursor: ORE.Cursor, e: MouseEvent ) {
+
+		e.preventDefault();
 
 	}
 
