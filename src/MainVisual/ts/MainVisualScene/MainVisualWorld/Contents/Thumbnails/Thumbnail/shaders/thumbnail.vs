@@ -1,5 +1,6 @@
 varying vec2 vUv;
 varying vec2 vHighPrecisionZW;
+uniform vec3 camPosition;
 
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: rotate = require('./rotate.glsl' )
@@ -18,6 +19,14 @@ void main( void ) {
 	
 	vHighPrecisionZW = gl_Position.zw;
 
+	vec3 wPos = gl_Position.xyz;
+	vec3 v = wPos - camPosition * 10.0;
+
 	vUv = uv;
+	vUv -= 0.5;
+	vUv *= 0.8;
+	vUv += 0.5;
+
+	vUv += v.xy * 0.01;
 
 }

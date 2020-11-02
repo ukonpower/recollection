@@ -7,6 +7,6 @@ void main( void ) {
 	gl_Position = vec4( pos.xy, 0.9999999, 1.0 );
 
 	vUv = uv;
-	vHighPrecisionZW = gl_Position.zw;
+	vHighPrecisionZW = gl_Position.zw ;
 
 }
