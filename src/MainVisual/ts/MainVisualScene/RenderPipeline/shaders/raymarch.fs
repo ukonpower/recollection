@@ -179,7 +179,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.0 ) ) {
 
-		for( int i = 0; i < 8; i++ ) {
+		for( int i = 0; i < 16; i++ ) {
 
 			distRes = D( rayPos );
 			depth += distRes.x;

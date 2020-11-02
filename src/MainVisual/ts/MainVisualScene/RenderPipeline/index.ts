@@ -313,7 +313,7 @@ export class RenderPipeline {
 
 		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
 
-		let lowScale = 1.0 / this.renderer.getPixelRatio();
+		let lowScale = 1.0 / this.renderer.getPixelRatio() * 0.5;
 		this.renderTargets.sceneDepth.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 		this.renderTargets.raymarch.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 

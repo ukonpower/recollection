@@ -1,9 +1,8 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import gl from '@gl/gl.json';
-
 import { Thumbnails } from './Thumbnails';
+import { Titles } from './Titles';
 
 export declare interface GLContent {
 	name: string;
@@ -17,12 +16,13 @@ export class Contents {
 
 	private glLists: GLList = [];
 	private thumbnails: Thumbnails;
+	private titles: Titles;
 
 	constructor( scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
 		this.scene = scene;
 
-		this.glLists = gl;
+		this.glLists = require( '@gl/gl.json' );
 
 		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
 
@@ -35,6 +35,7 @@ export class Contents {
 	protected init() {
 
 		this.thumbnails = new Thumbnails( this.glLists, this.scene, this.commonUniforms );
+		this.titles = new Titles( this.glLists, this.scene, this.commonUniforms );
 
 	}
 

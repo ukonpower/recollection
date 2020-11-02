@@ -10,9 +10,9 @@ export class Thumbnail extends THREE.Mesh {
 
 	constructor( id: number, glLists: GLContent[], parentUniforms?: ORE.Uniforms ) {
 
-		let uni = Object.assign( parentUniforms, {
+		let uni = ORE.UniformsLib.CopyUniforms( {
 			tex: window.mainVisualManager.assetManager.textures[ glLists[ id ].name ]
-		} );
+		}, parentUniforms );
 
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: thumbnailVert,
