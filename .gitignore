@@ -4,3 +4,4 @@
 *.blend?*
 *.Identifier
 .firebase
+*.log

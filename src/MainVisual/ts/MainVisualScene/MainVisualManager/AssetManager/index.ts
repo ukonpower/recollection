@@ -3,6 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { VideoTextureCreator } from './VideoTextureCreator';
+import { GLList } from '../../MainVisualWorld/Contents';
 
 declare interface TextureParam {
 	mapping?: THREE.Mapping;
@@ -68,6 +69,18 @@ export class AssetManager extends ORE.EventDispatcher {
 			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 		];
+
+		let glList: GLList = require( '@gl/gl.json' );
+		for ( let i = 0; i < glList.length; i ++ ) {
+
+			let name = glList[ i ].name;
+
+			this.mustLoadTexturesInfo.push( {
+				path: './gl/' + name + '/' + name + '.jpg',
+				name: name
+			} );
+
+		}
 
 		this.subLoadTexturesInfo = [];
 

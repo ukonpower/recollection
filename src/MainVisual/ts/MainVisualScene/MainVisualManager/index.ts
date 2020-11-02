@@ -41,6 +41,8 @@ export class MainVisualManager {
 
 		}, 0 );
 
+		window.mainVisualManager = this;
+
 	}
 
 	public update( deltaTime: number ) {

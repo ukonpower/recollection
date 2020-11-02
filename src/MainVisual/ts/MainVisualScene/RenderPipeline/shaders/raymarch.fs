@@ -44,16 +44,16 @@ float sphereObj( vec3 p  ) {
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
 	
-	if( sdBox( p, vec3( 0.6 ) ) < 0.5 ) {
+	// if( sdBox( p, vec3( 0.6 ) ) < 0.5 ) {
 		
-		for (int i = 0; i < 7; i++) {
+		for (int i = 0; i < 5; i++) {
 			p.zy = abs(p.zy);
 			p.xy *= rotate(time * 0.23 + length( p ) * 3.5 );
 			p.xz = abs(p.xz);
 			p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
 		}
 
-	}
+	// }
 
 	return sdBox( p, vec3( 0.5 ) );
 
@@ -118,13 +118,6 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 
 		return vec4( c, 1.0 );
 
-	} else if( distRes.y == MAT_REFLECT ) {
-
-		rayPos += normal * 0.1;
-		rayDir = vec4( reflect( rayDir.xyz, normal ), 1.0 );
-
-		return vec4( 0.0 );
-		
 	}
 
 	return vec4( 1.0 );
@@ -158,6 +151,25 @@ vec2 packingRGB2RG( vec3 value ) {
 	
 }
 
+bool intersectionSphere( vec3 rayOrigin, vec3 rayDirection, vec3 pos, float radius ) {
+
+	vec3 oc = rayOrigin - pos;
+    float a = dot( rayDirection, rayDirection );
+    float b = 2.0 * dot( oc, rayDirection );
+    float c = dot( oc,oc ) - radius * radius;
+    float discriminant = b * b - 4.0 * a * c;
+	float t = ( -b - sqrt( discriminant ) ) / ( 2.0 * a );
+
+	if( discriminant > 0.0 && t > 0.00001 ) {
+
+		return true;
+		
+	}
+
+	return false;
+	
+}
+
 vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	vec2 distRes = vec2( 0.0 );
@@ -165,24 +177,28 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	for( int i = 0; i < 16; i++ ) {
+	if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.0 ) ) {
 
-		distRes = D( rayPos );
-		depth += distRes.x;
-		rayPos += distRes.x * rayDir.xyz;
+		for( int i = 0; i < 8; i++ ) {
 
-		if( distRes.x < 0.01 ) {
+			distRes = D( rayPos );
+			depth += distRes.x;
+			rayPos += distRes.x * rayDir.xyz;
 
-			raymarchCol = material( rayPos, rayDir, distRes );
+			if( distRes.x < 0.01 ) {
 
-			if( raymarchCol.w == 1.0 ) {
+				raymarchCol = material( rayPos, rayDir, distRes );
 
-				break;
+				if( raymarchCol.w == 1.0 ) {
+
+					break;
+					
+				}
 				
 			}
 			
 		}
-		
+
 	}
 
 	if( raymarchCol.w != 1.0 ) {

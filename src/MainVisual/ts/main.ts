@@ -1,6 +1,14 @@
 import barba, { IView } from '@barba/core';
 import * as ORE from '@ore-three-ts';
 import { MainVisualScene } from './MainVisualScene';
+import { MainVisualManager } from './MainVisualScene/MainVisualManager';
+
+declare global {
+	interface Window {
+		mainVisualManager: MainVisualManager;
+		isSP: boolean;
+	}
+}
 
 class APP {
 

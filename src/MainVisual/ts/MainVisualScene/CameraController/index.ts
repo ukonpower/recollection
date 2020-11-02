@@ -37,7 +37,7 @@ export class CameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.7, 0.7 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.3, 0.3 );
 
 	}
 
@@ -53,7 +53,7 @@ export class CameraController {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
-		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime );
+		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 2.0 );
 		this.cursorPosDelay.add( diff );
 
 		let weight = 1.0;

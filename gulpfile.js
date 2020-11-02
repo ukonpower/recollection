@@ -63,57 +63,55 @@ const distGLDir =  publicPath + '/gl/';
 
 function buildAllGLs( cb ) {
 
-	fs.readdir( glDir, ( err, files ) => {
+	let glList = require( './src/gl/gl.json' );
 
-		if ( err ) throw err;
+	let conf = _.cloneDeep( require( './webpack.config' ) );
+	conf.mode = options.P ? 'production' : webpackMode;
 
-		let conf = _.cloneDeep( require( './webpack.config' ) );
-		conf.mode = options.P ? 'production' : webpackMode;
+	for ( let i = 0; i < glList.length; i++ ) {
 
-		for ( let i = 0; i < files.length; i++ ) {
-
-			if( files[i] == '.DS_Store' ) continue;
-			
-			let glItemDir = glDir + files[i];
-			let distGLItemDir = distGLDir + files[i];
-
-			//set webpack entry files
-			conf.entry[files[i]] = glItemDir + '/ts/main.ts';	 
-
-			//pug
-			gulp.src([ glItemDir + '/pug/**/*.pug', '!' + glItemDir + '/pug/**/_*.pug'] )
-				.pipe(plumber())
-				.pipe(pug({
-					pretty: true,
-					locals: {
-						title: files[i],
-					}
-				}))
-				.pipe(gulp.dest( distGLItemDir ));
-
-			//sass
-			gulp.src( glItemDir + "/scss/style.scss" )
-				.pipe( plumber() )
-				.pipe( autoprefixer() )
-				.pipe( sass() )
-				.pipe( cssmin() )
-				.pipe( gulp.dest( distGLItemDir + "/css/" ) )
-
-			//copy files
-			gulp.src( glDir + files[i] + '/assets/**/*' ).pipe( gulp.dest( distGLItemDir + '/assets/' ) );
-			gulp.src( glItemDir + '/' + files[i] + '.jpg', { allowEmpty: true } ).pipe( gulp.dest( distGLItemDir) );
-			
-		}
+		let glName = glList[i].name;
 		
-		conf.output.filename = '[name]/js/main.js';
+		if( glName == '.DS_Store' ) continue;
 		
-		//webpack
-		webpackStream( conf, webpack )
-			.on( 'error', function() { this.emit( 'end' ) } )
-			.pipe( gulp.dest( distGLDir ) )
-			.on( 'end', cb )
+		let glItemDir = glDir + glName;
+		let distGLItemDir = distGLDir + glName;
 
-	});
+		//set webpack entry files
+		conf.entry[glName] = glItemDir + '/ts/main.ts';	 
+
+		//pug
+		gulp.src([ glItemDir + '/pug/**/*.pug', '!' + glItemDir + '/pug/**/_*.pug'] )
+			.pipe(plumber())
+			.pipe(pug({
+				pretty: true,
+				locals: {
+					title: glName,
+				}
+			}))
+			.pipe(gulp.dest( distGLItemDir ));
+
+		//sass
+		gulp.src( glItemDir + "/scss/style.scss" )
+			.pipe( plumber() )
+			.pipe( autoprefixer() )
+			.pipe( sass() )
+			.pipe( cssmin() )
+			.pipe( gulp.dest( distGLItemDir + "/css/" ) )
+
+		//copy files
+		gulp.src( glDir + glName + '/assets/**/*' ).pipe( gulp.dest( distGLItemDir + '/assets/' ) );
+		gulp.src( glItemDir + '/' + glName + '.jpg', { allowEmpty: true } ).pipe( gulp.dest( distGLItemDir) );
+		
+	}
+	
+	conf.output.filename = '[name]/js/main.js';
+	
+	//webpack
+	webpackStream( conf, webpack )
+		.on( 'error', function() { this.emit( 'end' ) } )
+		.pipe( gulp.dest( distGLDir ) )
+		.on( 'end', cb )
 
 }
 
@@ -269,7 +267,7 @@ let develop = gulp.series(
 exports.build	= gulp.series( cleanAllFiles, setModeProduction, buildAllGLs, setPathMainVisual, build );
 exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, buildAllGLs, setPathMainVisual, develop );
 
-exports.top	= gulp.series( cleanAllFiles, setPathMainVisual, setModeDevelopment, develop );
+exports.top	= gulp.series( setPathMainVisual, setModeDevelopment, develop );
 exports.gl	= gulp.series( cleanAllFiles, setPathGL, setModeDevelopment, develop );
 
 exports.lint = gulp.series( esLint );
