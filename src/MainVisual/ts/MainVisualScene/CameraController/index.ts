@@ -59,9 +59,6 @@ export class CameraController {
 		let weight = 1.0;
 		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * this.cameraMoveWeight.x, this.cameraBasePos.y + this.cursorPosDelay.y * this.cameraMoveWeight.y, this.cameraBasePos.z );
 
-		this.camera.position.x = Math.sin( this.commonUniforms.time.value ) * 10.0;
-		this.camera.position.z = Math.cos( this.commonUniforms.time.value ) * 10.0;
-
 		if ( this.cameraTargetPos ) {
 
 			this.camera.lookAt( this.cameraTargetPos );
@@ -72,7 +69,7 @@ export class CameraController {
 
 	public resize( resizeArgs: ORE.ResizeArgs ) {
 
-		this.camera.fov = this.baseCamera.fov * 1.0;
+		this.camera.fov = this.baseCamera.fov + resizeArgs.portraitWeight * 20.0;
 		this.camera.updateProjectionMatrix();
 
 	}

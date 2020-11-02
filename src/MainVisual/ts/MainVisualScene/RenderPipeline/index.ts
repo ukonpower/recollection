@@ -24,8 +24,7 @@ import neiborhoodBlendingVert from './shaders/smaa_neiborhoodBlending.vs';
 import neiborhoodBlendingFrag from './shaders/smaa_neiborhoodBlending.fs';
 
 //composite shader
-import composite from './shaders/bloom_composite.fs';
-import { type } from 'os';
+import compositeFrag from './shaders/composite.fs';
 
 export class RenderPipeline {
 
@@ -120,6 +119,8 @@ export class RenderPipeline {
 				} )
 			},
 		};
+
+		let blurTexs: THREE.WebGLRenderTarget[] = [];
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
@@ -290,9 +291,10 @@ export class RenderPipeline {
 		/*------------------------
 			Composite
 		------------------------*/
+		let compo = compositeFrag.replace( /RENDER_COUNT/g, this.bloomRenderCount.toString() );
 
 		this.compositePP = new PostProcessing( this.renderer, {
-			fragmentShader: composite,
+			fragmentShader: compo,
 			uniforms: ORE.UniformsLib.CopyUniforms( {
 				lensTex: this.assetManager.textures.lensDirt,
 				noiseTex: this.assetManager.textures.noise,
@@ -311,7 +313,7 @@ export class RenderPipeline {
 
 		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
 
-		let lowScale = 1.0 / this.renderer.getPixelRatio() * 0.8;
+		let lowScale = 1.0 / this.renderer.getPixelRatio();
 		this.renderTargets.sceneDepth.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 		this.renderTargets.raymarch.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 
@@ -415,13 +417,18 @@ export class RenderPipeline {
 		------------------------*/
 		let compositeInputRenderTargets = {
 			sceneTex: this.renderTargets.rt1,
+			bloomTexs: null
 		};
+
+		let bloomTexArray: THREE.Texture[] = [];
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-			compositeInputRenderTargets[ 'blurTex' + i.toString() ] = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
+			bloomTexArray.push( this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].value.texture );
 
 		}
+
+		compositeInputRenderTargets.bloomTexs = { value: bloomTexArray };
 
 		this.compositePP.render( compositeInputRenderTargets, null );
 

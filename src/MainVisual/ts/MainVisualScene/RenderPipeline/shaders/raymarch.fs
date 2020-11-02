@@ -39,77 +39,7 @@ float sdBox( vec3 p, vec3 b )
   
 }
 
-float phase1( vec3 p ) {
-
-	return sdSphere( p, 0.5 );
-	
-}
-
-float phase2( vec3 p ) {
-
-	float t = time * 0.3;
-
-	float move = cos( t );
-
-	for( int i = 0; i < 6; i ++ ) {
-
-		p.xz *= rotate( t );
-
-		p.x -= 0.1 * move;
-		p = abs( p ) - 0.01;
-		
-		p.xy *= rotate( t );
-
-		for( int i = 0; i < 5; i ++ ) {
-			
- 			// p.x = abs( p.x );
-			p.xy *= rotate( t );
-
-		}
-
-		p.x = abs( p.x );
-
-		// p *= 1.1;
-		p.yz *= rotate( 0.5 );
-		
-	}
-
-	return sdSphere( p, 0.5 - move * 0.2 );
-}
-
-float phase3( vec3 p  ) {
-
-	float t = time * 0.3;
-
-	float move = cos( t );
-
-	for( int i = 0; i < 5; i ++ ) {
-
-		p.xz *= rotate( t );
-
-		p.x -= 0.2 * move;
-		
-		p.xz *= rotate( t );
-		p.xz *= rotate( t );
-
-		for( int i = 0; i < 5; i ++ ) {
-			
-			p *= 1.01;
-			p.xy *= rotate( t );
-
-		}
-
-		p = abs( p );
-
-		p.yz *= rotate( 0.5 );
-		
-	}
-
-	return sdSphere( p, 0.5 - move * 0.1 );
-
-}
-
-float phase4( vec3 p  ) {
+float sphereObj( vec3 p  ) {
 
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
@@ -125,7 +55,7 @@ float phase4( vec3 p  ) {
 
 	}
 
-	return sdBox( p, vec3( 0.6 ) );
+	return sdBox( p, vec3( 0.5 ) );
 
 }
 
@@ -134,9 +64,7 @@ vec2 MainObjDist( vec3 p ) {
 
 	float d = 0.;
 
-	p = mod( p, 4.0 ) - 2.0;  
-
-	d = phase1( p );
+	d = sphereObj( p );
 
 	return vec2( d, MAT_MAIN );
 	
@@ -145,8 +73,7 @@ vec2 MainObjDist( vec3 p ) {
 vec2 D( vec3 p ) {
 
 	vec2 mainObj = MainObjDist( p );
-	vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
-
+	// vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
 	// return U( mainObj, refPlane );
 	return mainObj;
 
@@ -187,10 +114,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 	
 	if( distRes.y == MAT_MAIN ) {
 
-		vec3 c;//vec3( normal * 0.5 + 0.5 );
-		c.x += sin( rayPos.z * 0.1 + time * 2.0 );
-		c.y += sin( rayPos.z * 0.1 + 0.3 + time * 2.0 );
-		c.z += sin( rayPos.z * 0.1 + 0.6 + time * 2.0 );
+		vec3 c = vec3( dot( normal, normalize(vec3( 1.0, 1.0, 1.0 )) ) * 0.2  + 0.5);
 
 		return vec4( c, 1.0 );
 
@@ -241,7 +165,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	for( int i = 0; i < 32; i++ ) {
+	for( int i = 0; i < 16; i++ ) {
 
 		distRes = D( rayPos );
 		depth += distRes.x;
@@ -269,7 +193,6 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	depth = ( depth - camNear ) / ( camFar - camNear );
 
-	// return vec4( vec3( rayDir.w ), depth );
 	return vec4( packingRGB2RG( raymarchCol.xyz ), packing16( depth ) );
 
 }

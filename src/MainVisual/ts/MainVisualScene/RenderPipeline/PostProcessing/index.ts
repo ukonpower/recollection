@@ -68,11 +68,32 @@ export class PostProcessing {
 
 				if ( uniforms[ keys[ j ] ] ) {
 
-					uniforms[ keys[ j ] ].value = inputRenderTargets[ keys[ j ] ].value.texture;
+					if ( ( inputRenderTargets[ keys[ j ] ].value as any ).length !== undefined ) {
+
+						uniforms[ keys[ j ] ] = { value: inputRenderTargets[ keys[ j ] ].value };
+
+					} else {
+
+						uniforms[ keys[ j ] ].value = inputRenderTargets[ keys[ j ] ].value.texture;
+
+					}
+
 
 				} else {
 
-					uniforms[ keys[ j ] ] = { value: inputRenderTargets[ keys[ j ] ].value.texture };
+					let uni: THREE.IUniform;
+
+					if ( ( inputRenderTargets[ keys[ j ] ].value as any ).length !== undefined ) {
+
+						uni = { value: inputRenderTargets[ keys[ j ] ].value };
+
+					} else {
+
+						uni = { value: inputRenderTargets[ keys[ j ] ].value.texture };
+
+					}
+
+					uniforms[ keys[ j ] ] = uni;
 
 					effect.material.needsUpdate = true;
 
