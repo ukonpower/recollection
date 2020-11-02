@@ -1,4 +1,5 @@
 varying vec2 vUv;
+varying vec2 vHighPrecisionZW;
 
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: rotate = require('./rotate.glsl' )
@@ -14,6 +15,8 @@ void main( void ) {
 
 	vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
 	gl_Position = projectionMatrix * mvPosition;
+	
+	vHighPrecisionZW = gl_Position.zw;
 
 	vUv = uv;
 

@@ -27,12 +27,13 @@ uniform float phase;
 
 float sdSphere( vec3 p, float s )
 {
+	
   return length(p)-s;
+  
 }
 
 float sdBox( vec3 p, vec3 b )
 {
-
 	vec3 q = abs(p) - b;
 
 	return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
@@ -44,25 +45,21 @@ float sphereObj( vec3 p  ) {
 	p.xy *= rotate(time * 0.5);
 	p.xz *= rotate(time * 0.5);
 	
-	// if( sdBox( p, vec3( 0.6 ) ) < 0.5 ) {
-		
-		for (int i = 0; i < 5; i++) {
-			p.zy = abs(p.zy);
-			p.xy *= rotate(time * 0.23 + length( p ) * 3.5 );
-			p.xz = abs(p.xz);
-			p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
-		}
+	for (int i = 0; i < 5; i++) {
+		p.zy = abs(p.zy);
+		p.xy *= rotate(time * 0.23 + length( p ) * 3.5 );
+		p.xz = abs(p.xz);
+		p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
+	}
 
-	// }
-
-	return sdBox( p, vec3( 0.5 ) );
+	return sdBox( p, vec3( 0.7 ) );
 
 }
 
 
 vec2 MainObjDist( vec3 p ) {
 
-	float d = 0.;
+	float d = 0.0;
 
 	d = sphereObj( p );
 

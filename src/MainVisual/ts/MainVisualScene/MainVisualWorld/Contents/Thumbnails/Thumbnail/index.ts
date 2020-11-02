@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
+
 import { GLContent } from '../..';
+
 import thumbnailVert from './shaders/thumbnail.vs';
 import thumbnailFrag from './shaders/thumbnail.fs';
 
@@ -22,6 +24,14 @@ export class Thumbnail extends THREE.Mesh {
 		} );
 
 		super( new THREE.PlaneBufferGeometry( 1.0, 1.0 * 9 / 16, 100, 100 ), mat );
+
+		this.customDepthMaterial = new THREE.ShaderMaterial( {
+			vertexShader: thumbnailVert,
+			fragmentShader: THREE.ShaderLib.depth.fragmentShader,
+			defines: {
+				'DEPTH_PACKING': THREE.RGBADepthPacking,
+			}
+		} );
 
 		this.init();
 
