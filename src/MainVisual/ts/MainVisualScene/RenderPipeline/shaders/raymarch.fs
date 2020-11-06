@@ -5,8 +5,11 @@ varying vec3 vPosition;
 
 uniform sampler2D backbuffer;
 uniform sampler2D sceneDepthTex;
+uniform samplerCube envMap;
 uniform vec2 resolution;
 uniform float time;
+
+uniform float contentNum;
 
 uniform vec3 camPosition;
 uniform mat4 camWorldMatrix;
@@ -42,17 +45,32 @@ float sdBox( vec3 p, vec3 b )
 
 float sphereObj( vec3 p  ) {
 
-	p.xy *= rotate(time * 0.5);
-	p.xz *= rotate(time * 0.5);
+	p.xy *= rotate(time * 0.2);
+	p.xz *= rotate(time * 0.2);
 	
-	for (int i = 0; i < 5; i++) {
-		p.zy = abs(p.zy);
-		p.xy *= rotate(time * 0.23 + length( p ) * 3.5 );
-		p.xz = abs(p.xz);
-		p.xz *= rotate(time * 0.3 + + length( p ) * 0.5 );
+	
+	vec3 size = vec3(
+		0.7
+	);
+	
+	if( sdBox( p, size + 0.1 ) < 0.1 ) {
+	
+		for (int i = 0; i < 2; i++) {
+
+			p.zy = abs(p.zy);
+			p.xz *= rotate( -contentNum * 0.3 );
+
+			p.xz = abs(p.xz);
+			p.yz *= rotate( -contentNum * 1.0 + length( p ) * sin( contentNum ) * 2.0  );
+
+			p.xy = abs(p.xy);
+			p.xy *= rotate( p.x * sin( contentNum ));
+
+		}
+
 	}
 
-	return sdBox( p, vec3( 0.7 ) );
+	return sdBox( p, size );
 
 }
 
@@ -69,7 +87,10 @@ vec2 MainObjDist( vec3 p ) {
 
 vec2 D( vec3 p ) {
 
+	p.xz *= rotate( -contentNum * PI * 1.0 );
+
 	vec2 mainObj = MainObjDist( p );
+
 	// vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
 	// return U( mainObj, refPlane );
 	return mainObj;
@@ -105,13 +126,35 @@ vec3 matMain( vec3 normal ) {
 	
 }
 
+
+float GGX(vec3 normal, vec3 halfDir, float roughness) {
+    float roughness2 = roughness * roughness;
+    float dotNH = clamp(dot(normal, halfDir), 0.0, 1.0);
+    float a = (1.0 - (1.0 - roughness2) * dotNH * dotNH);
+    return roughness2 * (1.0 / PI) / (a * a);
+}
+
+float flesnel( float dVH ) {
+
+	float f0 = 0.01;
+
+	return f0 + ( 1.0 - f0 ) * pow( 1.0 - dVH, 2.0 );
+	
+}
+
 vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 
 	vec3 normal = N( rayPos, 0.0001 );
 	
 	if( distRes.y == MAT_MAIN ) {
 
-		vec3 c = vec3( dot( normal, normalize(vec3( 1.0, 1.0, 1.0 )) ) * 0.2  + 0.5);
+		vec3 v = normalize( camPosition - rayPos.xyz );
+		vec3 hv = normalize( v + normalize( vec3( 0.0, -1.0, 0.0 ) - rayPos.xyz ) );
+		float dvh = dot( v, normal );
+
+		float f = flesnel( dvh );
+		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.1 );
+		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f );
 
 		return vec4( c, 1.0 );
 
@@ -174,9 +217,9 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.0 ) ) {
+	if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.2 ) ) {
 
-		for( int i = 0; i < 8; i++ ) {
+		for( int i = 0; i < 16; i++ ) {
 
 			distRes = D( rayPos );
 			depth += distRes.x;

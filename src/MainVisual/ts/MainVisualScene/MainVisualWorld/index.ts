@@ -14,8 +14,8 @@ export class MainVisualWorld {
 	private assetManager: AssetManager;s
 	private renderer: THREE.WebGLRenderer;
 
-	private contents: Contents;
-	private background: Background;
+	public contents: Contents;
+	public background: Background;
 
 	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 

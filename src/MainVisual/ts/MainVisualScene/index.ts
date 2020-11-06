@@ -3,6 +3,7 @@ import * as THREE from 'three';
 
 import { RenderPipeline } from './RenderPipeline';
 
+import { ContentSelector } from './ContentSelector';
 import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
 import { CameraController } from './CameraController';
@@ -18,6 +19,8 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private renderPipeline: RenderPipeline;
 
+	private contentSelector: ContentSelector;
+
 	private world: MainVisualWorld;
 	private gManager: MainVisualManager;
 
@@ -29,6 +32,12 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.commonUniforms = {
 			time: {
+				value: 0
+			},
+			contentNum: {
+				value: 0
+			},
+			contentFade: {
 				value: 0
 			},
 			camNear: {
@@ -81,7 +90,6 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	private initScene() {
 
-		this.world = new MainVisualWorld( this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
@@ -93,9 +101,19 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.scene.add( this.camera );
 		this.camera.position.set( 0, 3, 10 );
 
+		this.world = new MainVisualWorld( this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraDatas' ), this.gManager.animator, this.commonUniforms );
-
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
+
+		this.initContentSelector();
+
+	}
+
+	private initContentSelector() {
+
+		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
+		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
+		} );
 
 	}
 
@@ -107,20 +125,28 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			this.cameraController.update( deltaTime );
+			this.updateCameraInfo( deltaTime );
 
-			this.world.update( deltaTime );
+			this.contentSelector.update();
 
-			this.commonUniforms.camNear.value = this.camera.near;
-			this.commonUniforms.camFar.value = this.camera.far;
-			this.commonUniforms.camPosition.value.copy( this.camera.position );
-			this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
-			this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
-			this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
+			this.world.contents.update( this.contentSelector.value );
 
 			this.renderPipeline.render( this.scene, this.camera );
 
 		}
+
+	}
+
+	private updateCameraInfo( deltaTime: number ) {
+
+		this.cameraController.update( deltaTime );
+
+		this.commonUniforms.camNear.value = this.camera.near;
+		this.commonUniforms.camFar.value = this.camera.far;
+		this.commonUniforms.camPosition.value.copy( this.camera.position );
+		this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
+		this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
+		this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
 
 	}
 
@@ -135,6 +161,27 @@ export class MainVisualScene extends ORE.BaseScene {
 			this.cameraController.updateCursor( cursorPosWindowNormalized );
 
 		}
+
+	}
+
+	public onWheel( e: WheelEvent, trackpadDelta: number ) {
+
+		e.preventDefault();
+
+		if ( ! this.gManager.assetManager.isLoaded ) return;
+
+		if ( Math.abs( trackpadDelta ) < 5.0 ) return;
+
+		if ( trackpadDelta > 0 ) {
+
+			this.contentSelector.next();
+
+		} else {
+
+			this.contentSelector.prev();
+
+		}
+
 
 	}
 

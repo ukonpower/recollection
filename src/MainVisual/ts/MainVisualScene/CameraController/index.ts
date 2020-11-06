@@ -53,7 +53,8 @@ export class CameraController {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
-		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 2.0 );
+		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 1.0 );
+		diff.multiply( diff.clone().addScalar( 1.0 ) );
 		this.cursorPosDelay.add( diff );
 
 		let weight = 1.0;

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { Thumbnails } from './Thumbnails';
+import { Thumbnail } from './Thumbnail';
 import { Titles } from './Titles';
 
 export declare interface GLContent {
@@ -14,15 +14,15 @@ export class Contents {
 	private scene: THREE.Scene;
 	private commonUniforms: ORE.Uniforms;
 
-	private glLists: GLList = [];
-	private thumbnails: Thumbnails;
+	public glList: GLList = [];
+	private thumbnails: Thumbnail;
 	private titles: Titles;
 
 	constructor( scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
 		this.scene = scene;
 
-		this.glLists = require( '@gl/gl.json' );
+		this.glList = require( '@gl/gl.json' );
 
 		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
 
@@ -34,8 +34,18 @@ export class Contents {
 
 	protected init() {
 
-		this.thumbnails = new Thumbnails( this.glLists, this.scene, this.commonUniforms );
-		this.titles = new Titles( this.glLists, this.scene, this.commonUniforms );
+		this.thumbnails = new Thumbnail( this.glList, this.scene, this.commonUniforms );
+		this.titles = new Titles( this.glList, this.scene, this.commonUniforms );
+
+	}
+
+	public update( selectorValue: number ) {
+
+		this.thumbnails.update( selectorValue );
+
+	}
+
+	public changeContent( num: number ) {
 
 	}
 

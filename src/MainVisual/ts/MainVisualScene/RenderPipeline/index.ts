@@ -156,6 +156,9 @@ export class RenderPipeline {
 			},
 			searchTex: {
 				value: null
+			},
+			envMap: {
+				value: null
 			}
 		};
 
@@ -180,6 +183,20 @@ export class RenderPipeline {
 
 		} );
 
+		let cubemapLoader = new THREE.CubeTextureLoader();
+		cubemapLoader.load( [
+			'./assets/scene/img/env/px.jpg',
+			'./assets/scene/img/env/nx.jpg',
+			'./assets/scene/img/env/py.jpg',
+			'./assets/scene/img/env/ny.jpg',
+			'./assets/scene/img/env/pz.jpg',
+			'./assets/scene/img/env/nz.jpg',
+		], ( tex ) => {
+
+			this.inputTextures.envMap.value = tex;
+
+		} );
+
 	}
 
 	private initPostProcessings() {
@@ -190,6 +207,7 @@ export class RenderPipeline {
 		this.raymarch = new PostProcessing( this.renderer, {
 			fragmentShader: raymarchFrag,
 			uniforms: ORE.UniformsLib.CopyUniforms( {
+				envMap: this.inputTextures.envMap
 			}, this.commonUniforms ),
 		} );
 
@@ -313,7 +331,7 @@ export class RenderPipeline {
 
 		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
 
-		let lowScale = 1.0 / this.renderer.getPixelRatio() * 0.5;
+		let lowScale = 1.0 / this.renderer.getPixelRatio();
 		this.renderTargets.sceneDepth.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 		this.renderTargets.raymarch.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 
