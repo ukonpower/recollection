@@ -113,6 +113,9 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
 		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
+
+			this.world.contents.changeContent( e.num );
+
 		} );
 
 	}
@@ -127,7 +130,7 @@ export class MainVisualScene extends ORE.BaseScene {
 
 			this.updateCameraInfo( deltaTime );
 
-			this.contentSelector.update();
+			this.contentSelector.update( deltaTime );
 
 			this.world.contents.update( this.contentSelector.value );
 
@@ -189,7 +192,32 @@ export class MainVisualScene extends ORE.BaseScene {
 
 		e.preventDefault();
 
+		if ( ! this.gManager.assetManager.isLoaded ) return;
+
+		this.contentSelector.catch();
+
 	}
+
+	public onTouchMove( cursor: ORE.Cursor, e: MouseEvent ) {
+
+		e.preventDefault();
+
+		if ( ! this.gManager.assetManager.isLoaded ) return;
+
+		this.contentSelector.drag( cursor.delta.x );
+
+	}
+
+	public onTouchEnd( cursor: ORE.Cursor, e: MouseEvent ) {
+
+		e.preventDefault();
+
+		if ( ! this.gManager.assetManager.isLoaded ) return;
+
+		this.contentSelector.release( cursor.delta.x );
+
+	}
+
 
 	public onResize( args: ORE.ResizeArgs ) {
 

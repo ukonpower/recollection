@@ -23,54 +23,7 @@ export class MSDFText extends THREE.Object3D {
 		this.fontName = fontName;
 
 		this.uniforms = ORE.UniformsLib.CopyUniforms( {
-			tex: {
-				value: null
-			}
 		}, parentUniforms );
-
-		this.loadAssets();
-
-	}
-
-	protected loadAssets() {
-
-		let xhr = new XMLHttpRequest();
-		xhr.open( 'GET', './assets/scene/fonts/' + this.fontName + '/' + this.fontName + '-msdf.json' );
-
-		let promise = new Promise( resolve => {
-
-			xhr.onload = () => {
-
-				let response = JSON.parse( xhr.response );
-
-				resolve();
-
-				this.fontInfo = response;
-
-				this.dispatchEvent( {
-					type: 'infoloaded'
-				} );
-
-			};
-
-			xhr.onerror = ( e ) => {
-
-				console.warn( e );
-
-			};
-
-			xhr.send();
-
-		} );
-
-		this.loader = new THREE.TextureLoader();
-		this.loader.load( './assets/scene/fonts/' + this.fontName + '/' + this.fontName + '.png', tex => {
-
-			this.uniforms.tex.value = tex;
-
-		} );
-
-		return promise;
 
 	}
 

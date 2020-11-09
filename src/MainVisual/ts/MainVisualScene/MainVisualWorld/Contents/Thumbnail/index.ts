@@ -12,8 +12,6 @@ export class Thumbnail extends THREE.Mesh {
 	private thumbnails: Thumbnail[];
 
 	private commonUniforms: ORE.Uniforms;
-	private scene: THREE.Scene;
-	private container: THREE.Object3D
 
 	constructor( glList: GLList, scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
@@ -40,10 +38,6 @@ export class Thumbnail extends THREE.Mesh {
 		} );
 
 		this.glList = glList;
-		this.scene = scene;
-
-		this.container = this.scene.getObjectByName( 'Thumbnails' );
-		this.container.add( this );
 
 		this.commonUniforms = uni;
 

@@ -15,6 +15,10 @@
 uniform sampler2D tex;
 varying vec2 vUv;
 varying vec2 vHighPrecisionZW;
+uniform float left;
+uniform float top;
+uniform float width;
+uniform float height;
 
 float median( float r, float g, float b ) {
 	
@@ -56,6 +60,10 @@ void main() {
 	vec4 col = texture2D( tex, vUv );
     float sigDist = median(col.r, col.g, col.b) - 0.5;
     float alpha = step(0.0, sigDist);
+	
+	alpha *= step( vUv.y, 1.0 - top );
+	alpha *= step( 1.0 - top - height, vUv.y );
+	
     if (alpha < 0.001) discard;
 
 }

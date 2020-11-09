@@ -31,7 +31,7 @@ void main( void ) {
 	currentUV *= 0.5;
 	currentUV += 0.5;
 
-	float m = 0.4;
+	float m = 0.7;
 	nextUV = currentUV;	
 	nextUV.x += ( -1.0 + contentFade ) * m;
 	nextUV.y -= ( -1.0 + contentFade ) * ( m * 0.3);

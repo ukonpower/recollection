@@ -3,6 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 import { Thumbnail } from './Thumbnail';
 import { Titles } from './Titles';
+import { timeStamp } from 'console';
 
 export declare interface GLContent {
 	name: string;
@@ -35,7 +36,10 @@ export class Contents {
 	protected init() {
 
 		this.thumbnails = new Thumbnail( this.glList, this.scene, this.commonUniforms );
-		this.titles = new Titles( this.glList, this.scene, this.commonUniforms );
+		this.scene.add( this.thumbnails );
+
+		this.titles = new Titles( this.glList, this.commonUniforms );
+		this.scene.add( this.titles );
 
 	}
 
@@ -46,6 +50,8 @@ export class Contents {
 	}
 
 	public changeContent( num: number ) {
+
+		this.titles.changeTitle( this.glList[ num ] );
 
 	}
 
