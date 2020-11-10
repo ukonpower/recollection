@@ -43,7 +43,7 @@ export class Title extends THREE.Object3D {
 		do {
 
 			this.animatorID = 'titleVisibility' + i.toString();
-			animateObj = this.animator.getVariableObject( this.animatorID );
+			animateObj = this.animator.getVariableObject( this.animatorID, true );
 
 			i ++;
 
