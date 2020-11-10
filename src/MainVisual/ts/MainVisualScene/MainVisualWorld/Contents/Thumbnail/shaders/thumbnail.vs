@@ -24,7 +24,6 @@ void main( void ) {
 	vHighPrecisionZW = gl_Position.zw;
 
 	vec3 wPos = gl_Position.xyz;
-	vec3 v = wPos - camPosition * 10.0;
 
 	currentUV = ((gl_Position.xy / gl_Position.w) + 1.0) / 2.0;
 	currentUV -= 0.5;
@@ -39,7 +38,8 @@ void main( void ) {
 	currentUV.x += contentFade * m;
 	currentUV.y -= contentFade * ( m * 0.3);
 
-	currentUV += v.xy * 0.02;
-	nextUV += v.xy * 0.02;
+	vec3 v = wPos - camPosition * 10.0;
+	// currentUV += v.xy * 0.02;
+	// nextUV += v.xy * 0.02;
 
 }
