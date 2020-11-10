@@ -59,10 +59,12 @@ void main() {
 
 	vec4 col = texture2D( tex, vUv );
     float sigDist = median(col.r, col.g, col.b) - 0.5;
-    float alpha = step(0.0, sigDist);
 	
+    float alpha = step(0.0, sigDist);
 	alpha *= step( vUv.y, 1.0 - top );
 	alpha *= step( 1.0 - top - height, vUv.y );
+	alpha *= step( left, vUv.x  );
+	alpha *= step( vUv.x, left + width );
 	
     if (alpha < 0.001) discard;
 

@@ -49,7 +49,7 @@ void main(){
 	}
 	#pragma unroll_loop_end
 
-	c += random( uv ) * 0.07 * c;
+	c += random( uv ) * 0.1 * c;
 
 	c *= smoothstep( -1.5, 0.5, 1.0 - length( cuv ) );
 

@@ -134,7 +134,7 @@ float GGX(vec3 normal, vec3 halfDir, float roughness) {
     return roughness2 * (1.0 / PI) / (a * a);
 }
 
-float flesnel( float dVH ) {
+float fresnel( float dVH ) {
 
 	float f0 = 0.01;
 
@@ -152,7 +152,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 		vec3 hv = normalize( v + normalize( vec3( 0.0, -1.0, 0.0 ) - rayPos.xyz ) );
 		float dvh = dot( v, normal );
 
-		float f = flesnel( dvh );
+		float f = fresnel( dvh );
 		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.1 );
 		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f );
 

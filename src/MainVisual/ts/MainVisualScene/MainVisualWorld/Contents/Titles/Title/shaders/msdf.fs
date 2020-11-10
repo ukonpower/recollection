@@ -13,13 +13,18 @@ float median( float r, float g, float b ) {
   
 void main( void ) {
 
-	vec4 col = texture2D( tex, vUv );
-    float sigDist = median(col.r, col.g, col.b) - 0.5;
-    float alpha = step(0.0, sigDist);
-	
+	vec4 fontTex = texture2D( tex, vUv );
+    float sigDist = median( fontTex.r, fontTex.g, fontTex.b ) - 0.5;
+    float alpha = step( 0.0, sigDist );
 	alpha *= step( vUv.y, 1.0 - top );
 	alpha *= step( 1.0 - top - height, vUv.y );
+	alpha *= step( left, vUv.x  );
+	alpha *= step( vUv.x, left + width );
 	
-    gl_FragColor = vec4( vec3(0.7), alpha );
+	// vec3 col = vec3( smoothstep( -1.0, 1.5, 1.0 - (vUv.x - left) / width ) );
+	vec3 col = vec3( smoothstep( 2.5, -0.8, ( (1.0 - vUv.y) - top) / height ) );
+
+	
+    gl_FragColor = vec4( col, alpha );
 
 }

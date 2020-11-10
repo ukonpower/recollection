@@ -4,13 +4,12 @@ import * as ORE from '@ore-three-ts';
 import msdfVert from './shaders/msdf.vs';
 import msdfFrag from './shaders/msdf.fs';
 import msdfDepthFrag from './shaders/msdfDepth.fs';
-import { METHODS } from 'http';
 
 type TextOrigin = 'left' | 'center' | 'right';
 
 export class Title extends THREE.Object3D {
 
-	protected titleID: string;
+	protected animatorID: string;
 
 	protected animator: ORE.Animator;
 	protected uniforms: ORE.Uniforms;
@@ -23,7 +22,7 @@ export class Title extends THREE.Object3D {
 
 		super();
 
-		this.titleID = titleID;
+		this.animatorID = '';
 		this.fontInfo = fontInfo;
 
 		this.uniforms = ORE.UniformsLib.CopyUniforms( {
@@ -37,11 +36,25 @@ export class Title extends THREE.Object3D {
 
 		this.animator = window.mainVisualManager.animator;
 
+		let animateObj: ORE.AnimatorVariable<number>;
+
+		let i = 0;
+
+		do {
+
+			this.animatorID = 'titleVisibility' + i.toString();
+			animateObj = this.animator.getVariableObject( this.animatorID );
+
+			i ++;
+
+		} while ( animateObj != null && animateObj.time != - 1 );
+
+
 		this.uniforms.visibility = this.animator.add( {
-			name: 'titleVisibility' + this.titleID.toString(),
+			name: this.animatorID,
 			initValue: 0,
 			easing: {
-				func: ORE.Easings.easeOutCubic,
+				func: ORE.Easings.linear,
 			}
 		} );
 
@@ -57,7 +70,7 @@ export class Title extends THREE.Object3D {
 
 		for ( let i = 0; i < text.length; i ++ ) {
 
-			let meshInfo = this.createTextMesh( text.charAt( i ), fontHeight );
+			let meshInfo = this.createTextMesh( i / ( text.length - 1.0 ), text.charAt( i ), fontHeight );
 			let mesh = meshInfo.mesh;
 			mesh.position.x = x;
 			this.add( mesh );
@@ -67,7 +80,7 @@ export class Title extends THREE.Object3D {
 
 		}
 
-		return this.animator.animate( 'titleVisibility' + this.titleID.toString(), 1 );
+		return this.animator.animate( this.animatorID, 1 );
 
 	}
 
@@ -99,7 +112,7 @@ export class Title extends THREE.Object3D {
 
 	}
 
-	protected createTextMesh( char: string, fontHeight: number = 1.0 ) {
+	protected createTextMesh( index: number, char: string, fontHeight: number = 1.0 ) {
 
 		let charInfo = this.getCharInfo( char );
 
@@ -130,6 +143,9 @@ export class Title extends THREE.Object3D {
 			},
 			height: {
 				value: height
+			},
+			index: {
+				value: index
 			}
 		}, this.uniforms );
 
@@ -202,7 +218,7 @@ export class Title extends THREE.Object3D {
 
 		let duration = 1.0;
 
-		return this.animator.animate( 'titleVisibility' + this.titleID.toString(), 2, duration, () => {
+		return this.animator.animate( this.animatorID, 2, duration, () => {
 
 			for ( let i = this.meshes.length - 1.0; i >= 0; i -- ) {
 
