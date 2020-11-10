@@ -50,7 +50,7 @@ float sphereObj( vec3 p  ) {
 	
 	
 	vec3 size = vec3(
-		0.7
+		0.65
 	);
 	
 	if( sdBox( p, size + 0.1 ) < 0.1 ) {
@@ -154,7 +154,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 
 		float f = fresnel( dvh );
 		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.1 );
-		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f );
+		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f ) * 2.0;
 
 		return vec4( c, 1.0 );
 

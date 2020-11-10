@@ -62,7 +62,7 @@ export class Title extends THREE.Object3D {
 
 	public setText( text: string, origin: TextOrigin = "center" ) {
 
-		let fontHeight = 0.5;
+		let fontHeight = 0.7;
 
 		// this.clearText();
 

@@ -12,7 +12,7 @@ void main( void ) {
 	float w = contentFade;
 
 	vec4 col = mix( currentCol, nextCol, w );
-	col.xyz *= 0.3;
+	col.xyz *= 0.6;
 
 	gl_FragColor = col;
 
