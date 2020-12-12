@@ -60,8 +60,8 @@ export class RenderPipeline {
 		this.bloomResolutionRatio = bloomResolutionRatio;
 		this.bloomRenderCount = bloomRenderCount;
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
-		}, parentUniforms );
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		} );
 
 		this.initRenderTargets();
 		this.initInputTextures();
@@ -206,7 +206,7 @@ export class RenderPipeline {
 		------------------------*/
 		this.raymarch = new PostProcessing( this.renderer, {
 			fragmentShader: raymarchFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( {
 				envMap: this.inputTextures.envMap
 			}, this.commonUniforms ),
 		} );
@@ -216,7 +216,7 @@ export class RenderPipeline {
 		------------------------*/
 		this.mix = new PostProcessing( this.renderer, {
 			fragmentShader: mixFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( {
 			}, this.commonUniforms ),
 		} );
 
@@ -225,7 +225,7 @@ export class RenderPipeline {
 		------------------------*/
 		this.bloomBrightPP = new PostProcessing( this.renderer, {
 			fragmentShader: bloomBrightFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( {
 				threshold: {
 					value: 0.5,
 				},
@@ -234,7 +234,7 @@ export class RenderPipeline {
 
 		this.bloomBlurPP = new PostProcessing( this.renderer, {
 			fragmentShader: bloomBlurFrag,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( {
 				backbuffer: {
 					value: null
 				},
@@ -268,7 +268,7 @@ export class RenderPipeline {
 			"SMAA_AREATEX_SELECT(sample)": "sample.rg",
 		};
 
-		this.smaaCommonUni = ORE.UniformsLib.CopyUniforms( {
+		this.smaaCommonUni = ORE.UniformsLib.mergeUniforms( {
 			SMAA_RT_METRICS: {
 				value: new THREE.Vector4()
 			}
@@ -278,7 +278,7 @@ export class RenderPipeline {
 			{
 				vertexShader: edgeDetectionVert,
 				fragmentShader: edgeDetectionFrag,
-				uniforms: ORE.UniformsLib.CopyUniforms( {
+				uniforms: ORE.UniformsLib.mergeUniforms( {
 				}, this.smaaCommonUni ),
 				defines: defines
 			}
@@ -288,7 +288,7 @@ export class RenderPipeline {
 			{
 				vertexShader: blendingWeightCalculationVert,
 				fragmentShader: blendingWeightCalculationFrag,
-				uniforms: ORE.UniformsLib.CopyUniforms( {
+				uniforms: ORE.UniformsLib.mergeUniforms( {
 					areaTex: this.inputTextures.areaTex,
 					searchTex: this.inputTextures.searchTex,
 				}, this.smaaCommonUni ),
@@ -300,7 +300,7 @@ export class RenderPipeline {
 			{
 				vertexShader: neiborhoodBlendingVert,
 				fragmentShader: neiborhoodBlendingFrag,
-				uniforms: ORE.UniformsLib.CopyUniforms( {
+				uniforms: ORE.UniformsLib.mergeUniforms( {
 				}, this.smaaCommonUni ),
 				defines: defines
 			}
@@ -313,7 +313,7 @@ export class RenderPipeline {
 
 		this.compositePP = new PostProcessing( this.renderer, {
 			fragmentShader: compo,
-			uniforms: ORE.UniformsLib.CopyUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( {
 				lensTex: this.assetManager.textures.lensDirt,
 				noiseTex: this.assetManager.textures.noise,
 				brightness: {

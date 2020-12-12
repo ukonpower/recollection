@@ -22,8 +22,8 @@ export class MSDFText extends THREE.Object3D {
 
 		this.fontName = fontName;
 
-		this.uniforms = ORE.UniformsLib.CopyUniforms( {
-		}, parentUniforms );
+		this.uniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		} );
 
 	}
 
@@ -67,7 +67,7 @@ export class MSDFText extends THREE.Object3D {
 
 		}
 
-		let uni = ORE.UniformsLib.CopyUniforms( {
+		let uni = ORE.UniformsLib.mergeUniforms( {
 			left: {
 				value: left
 			},

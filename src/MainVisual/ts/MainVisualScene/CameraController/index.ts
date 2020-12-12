@@ -26,8 +26,8 @@ export class CameraController {
 
 		this.animator = animator;
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
-		}, parentUniforms );
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		} );
 
 		this.init();
 
@@ -68,9 +68,9 @@ export class CameraController {
 
 	}
 
-	public resize( resizeArgs: ORE.ResizeArgs ) {
+	public resize( info: ORE.AspectInfo ) {
 
-		this.camera.fov = this.baseCamera.fov + resizeArgs.portraitWeight * 20.0;
+		this.camera.fov = this.baseCamera.fov + info.portraitWeight * 20.0;
 		this.camera.updateProjectionMatrix();
 
 	}

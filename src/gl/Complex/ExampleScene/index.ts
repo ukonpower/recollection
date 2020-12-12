@@ -1,15 +1,11 @@
 import * as ORE from '@ore-three-ts';
 import * as THREE from 'three';
 
-export class Example1Scene extends ORE.BaseScene {
-
-	private commonUniforms: ORE.Uniforms;
+export class ExampleScene extends ORE.BaseLayer {
 
 	constructor() {
 
 		super();
-
-		this.name = "MainScene";
 
 		this.commonUniforms = {
 			time: {
@@ -19,11 +15,9 @@ export class Example1Scene extends ORE.BaseScene {
 
 	}
 
-	onBind( gProps: ORE.GlobalProperties ) {
+	onBind( info: ORE.LayerInfo ) {
 
-		super.onBind( gProps );
-
-		this.renderer = this.gProps.renderer;
+		super.onBind( info );
 
 		this.initScene();
 
@@ -52,9 +46,9 @@ export class Example1Scene extends ORE.BaseScene {
 
 	}
 
-	public onResize( args: ORE.ResizeArgs ) {
+	public onResize() {
 
-		super.onResize( args );
+		super.onResize();
 
 	}
 

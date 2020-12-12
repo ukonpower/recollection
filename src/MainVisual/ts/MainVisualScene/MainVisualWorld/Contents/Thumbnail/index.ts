@@ -15,10 +15,10 @@ export class Thumbnail extends THREE.Mesh {
 
 	constructor( glList: GLList, scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
-		let uni = ORE.UniformsLib.CopyUniforms( {
+		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			currentTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].name ],
 			nextTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].name ]
-		}, parentUniforms );
+		} );
 
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: thumbnailVert,

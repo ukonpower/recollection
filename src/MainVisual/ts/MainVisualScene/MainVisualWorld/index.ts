@@ -26,9 +26,9 @@ export class MainVisualWorld {
 		this.renderer = renderer;
 		this.scene = scene;
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 
-		}, parentUniforms );
+		} );
 
 		this.scene.add( this.assetManager.gltfScene );
 
@@ -52,7 +52,7 @@ export class MainVisualWorld {
 
 	}
 
-	public resize( args: ORE.ResizeArgs ) {
+	public resize( layerSize: ORE.LayerSize ) {
 
 	}
 

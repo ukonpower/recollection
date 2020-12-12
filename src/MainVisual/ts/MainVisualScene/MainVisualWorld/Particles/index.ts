@@ -39,11 +39,11 @@ export class Particles extends THREE.Mesh {
 		geo.setAttribute( 'offsetPos', new THREE.InstancedBufferAttribute( new Float32Array( offsetPosArray ), 3 ) );
 		geo.setAttribute( 'num', new THREE.InstancedBufferAttribute( new Float32Array( numArray ), 1 ) );
 
-		let uni = ORE.UniformsLib.CopyUniforms( {
+		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			range: {
 				value: range
 			}
-		}, parentUniforms );
+		} );
 
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: particlesVert,

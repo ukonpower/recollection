@@ -25,8 +25,8 @@ export class Title extends THREE.Object3D {
 		this.animatorID = '';
 		this.fontInfo = fontInfo;
 
-		this.uniforms = ORE.UniformsLib.CopyUniforms( {
-		}, parentUniforms );
+		this.uniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		} );
 
 		this.initAnimator();
 
@@ -131,7 +131,7 @@ export class Title extends THREE.Object3D {
 
 		}
 
-		let uni = ORE.UniformsLib.CopyUniforms( {
+		let uni = ORE.UniformsLib.mergeUniforms( {
 			left: {
 				value: left
 			},

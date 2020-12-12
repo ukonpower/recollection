@@ -39,7 +39,7 @@ void main( void ) {
 	currentUV.y -= contentFade * ( m * 0.3);
 
 	vec3 v = wPos - camPosition * 10.0;
-	// currentUV += v.xy * 0.02;
-	// nextUV += v.xy * 0.02;
+	currentUV += v.xy * 0.01;
+	nextUV += v.xy * 0.01;
 
 }

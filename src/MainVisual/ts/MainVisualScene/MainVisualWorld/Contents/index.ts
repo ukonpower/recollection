@@ -25,9 +25,9 @@ export class Contents {
 
 		this.glList = require( '@gl/gl.json' );
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 
-		}, parentUniforms );
+		} );
 
 		this.init();
 

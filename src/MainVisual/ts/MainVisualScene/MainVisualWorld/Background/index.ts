@@ -10,9 +10,9 @@ export class Background extends THREE.Mesh {
 
 	constructor( parentUniforms?: ORE.Uniforms ) {
 
-		let uni = ORE.UniformsLib.CopyUniforms( {
+		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 
-		}, parentUniforms );
+		} );
 
 		let geo = new THREE.PlaneBufferGeometry( 2.0, 2.0 );
 		let mat = new THREE.ShaderMaterial( {

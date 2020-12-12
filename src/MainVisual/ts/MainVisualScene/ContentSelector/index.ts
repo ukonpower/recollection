@@ -27,8 +27,8 @@ export class ContentSelector extends ORE.EventDispatcher {
 
 		super();
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
-		}, parentUniforms );
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		} );
 
 		this.contentNum = contentNum;
 

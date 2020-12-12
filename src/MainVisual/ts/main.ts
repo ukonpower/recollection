@@ -62,12 +62,12 @@ class APP {
 	private initORE() {
 
 		let canvas = document.querySelector( "#canvas" ) as HTMLCanvasElement;
-		this.controller = new ORE.Controller( {
-			canvas: canvas,
-			retina: true
-		} );
+		this.controller = new ORE.Controller();
 
-		this.controller.bindScene( new MainVisualScene() );
+		this.controller.addLayer( new MainVisualScene(), {
+			name: 'MainVisual',
+			canvas: canvas
+		} );
 
 	}
 

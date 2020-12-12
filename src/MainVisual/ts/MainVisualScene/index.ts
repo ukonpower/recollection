@@ -9,11 +9,10 @@ import { MainVisualManager } from './MainVisualManager';
 import { CameraController } from './CameraController';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-export class MainVisualScene extends ORE.BaseScene {
+export class MainVisualScene extends ORE.BaseLayer {
 
 	private animator: ORE.Animator;
 
-	private commonUniforms: ORE.Uniforms;
 	private cameraController: CameraController;
 	private orbitControls: OrbitControls;
 
@@ -27,8 +26,6 @@ export class MainVisualScene extends ORE.BaseScene {
 	constructor() {
 
 		super();
-
-		this.name = "MainVisualScene";
 
 		this.commonUniforms = {
 			time: {
@@ -62,9 +59,9 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	}
 
-	onBind( gProps: ORE.GlobalProperties ) {
+	onBind( info: ORE.LayerInfo ) {
 
-		super.onBind( gProps );
+		super.onBind( info );
 
 		this.gManager = new MainVisualManager( {
 			onMustAssetsLoaded: () => {
@@ -89,7 +86,6 @@ export class MainVisualScene extends ORE.BaseScene {
 	}
 
 	private initScene() {
-
 
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
@@ -149,19 +145,17 @@ export class MainVisualScene extends ORE.BaseScene {
 		this.commonUniforms.camPosition.value.copy( this.camera.position );
 		this.commonUniforms.camWorldMatrix.value = this.camera.matrixWorld;
 		this.commonUniforms.camProjectionMatrix.value.copy( this.camera.projectionMatrix );
-		this.commonUniforms.camProjectionInverseMatrix.value.getInverse( this.camera.projectionMatrix );
+		this.commonUniforms.camProjectionInverseMatrix.value.copy( this.camera.projectionMatrix ).invert();
 
 	}
 
-	public onHover( cursor: ORE.Cursor ) {
+	public onHover( args: ORE.TouchEventArgs ) {
 
-		if ( cursor.position.x != cursor.position.x ) return;
-
-		let cursorPosWindowNormalized = cursor.getNormalizePosition( this.gProps.resizeArgs.windowSize );
+		if ( args.position.x != args.position.x ) return;
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			this.cameraController.updateCursor( cursorPosWindowNormalized );
+			this.cameraController.updateCursor( args.normalizedPosition );
 
 		}
 
@@ -188,9 +182,9 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	}
 
-	public onTouchStart( cursor: ORE.Cursor, e: MouseEvent ) {
+	public onTouchStart( args: ORE.TouchEventArgs ) {
 
-		e.preventDefault();
+		args.event?.preventDefault();
 
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
@@ -198,38 +192,38 @@ export class MainVisualScene extends ORE.BaseScene {
 
 	}
 
-	public onTouchMove( cursor: ORE.Cursor, e: MouseEvent ) {
+	public onTouchMove( args: ORE.TouchEventArgs ) {
 
-		e.preventDefault();
-
-		if ( ! this.gManager.assetManager.isLoaded ) return;
-
-		this.contentSelector.drag( cursor.delta.x );
-
-	}
-
-	public onTouchEnd( cursor: ORE.Cursor, e: MouseEvent ) {
-
-		e.preventDefault();
+		args.event?.preventDefault();
 
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
-		this.contentSelector.release( cursor.delta.x );
+		this.contentSelector.drag( args.delta.x );
+
+	}
+
+	public onTouchEnd( args: ORE.TouchEventArgs ) {
+
+		args.event?.preventDefault();
+
+		if ( ! this.gManager.assetManager.isLoaded ) return;
+
+		this.contentSelector.release( args.delta.x );
 
 	}
 
 
-	public onResize( args: ORE.ResizeArgs ) {
+	public onResize() {
 
-		super.onResize( args );
+		super.onResize();
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			this.renderPipeline.resize( args.windowPixelSize );
+			this.renderPipeline.resize( this.info.size.canvasPixelSize );
 
-			this.world.resize( args );
+			this.world.resize( this.info.size );
 
-			this.cameraController.resize( args );
+			this.cameraController.resize( this.info.aspect );
 
 		}
 

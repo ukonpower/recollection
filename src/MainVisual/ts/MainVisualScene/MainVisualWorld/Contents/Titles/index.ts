@@ -23,11 +23,11 @@ export class Titles extends THREE.Object3D {
 
 		this.glList = glList;
 
-		this.commonUniforms = ORE.UniformsLib.CopyUniforms( {
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			tex: {
 				value: null
 			}
-		}, parentUniforms );
+		} );
 
 		this.loadAssets();
 		this.initAnimator();
