@@ -16,8 +16,8 @@ export class Thumbnail extends THREE.Mesh {
 	constructor( glList: GLList, scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
-			currentTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].name ],
-			nextTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].name ]
+			currentTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].fileName ],
+			nextTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].fileName ]
 		} );
 
 		let mat = new THREE.ShaderMaterial( {
@@ -51,8 +51,8 @@ export class Thumbnail extends THREE.Mesh {
 	public update( selectorValue: number ) {
 
 		let s = Math.min( this.glList.length - 1, Math.max( 0.0, selectorValue ) );
-		this.commonUniforms.currentTex = window.mainVisualManager.assetManager.textures[ this.glList[ Math.floor( s ) ].name ];
-		this.commonUniforms.nextTex = window.mainVisualManager.assetManager.textures[ this.glList[ Math.min( Math.floor( s + 1 ), this.glList.length - 1.0 ) ].name ];
+		this.commonUniforms.currentTex = window.mainVisualManager.assetManager.textures[ this.glList[ Math.floor( s ) ].fileName ];
+		this.commonUniforms.nextTex = window.mainVisualManager.assetManager.textures[ this.glList[ Math.min( Math.floor( s + 1 ), this.glList.length - 1.0 ) ].fileName ];
 
 	}
 

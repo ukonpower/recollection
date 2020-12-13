@@ -93,9 +93,9 @@ function copyFiles( cb ) {
 
 	for (let i = 0; i < glList.length; i++) {
 		
-		let glName = glList[i].name;
+		let glName = glList[i].fileName;
 
-		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/gl/' + glList[i].name + '/' ) );
+		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/gl/' + glName + '/' ) );
 		
 	}
 		
@@ -174,7 +174,7 @@ function pugDev( cb ) {
 
 	for (let i = 0; i < glList.length; i++) {
 
-		let glName = glList[i].name;
+		let glName = glList[i].title;
 		
 		gulp.src( srcPath + '/pug/gl.pug' )
 			.pipe( plumber() )
@@ -184,7 +184,7 @@ function pugDev( cb ) {
 					glName: glName,
 				}
 			} ) )
-			.pipe( rename( (path) => { path.basename = glName }) )
+			.pipe( rename( (path) => { path.basename = glList[i].fileName }) )
 			.pipe( gulp.dest( publicPath + '/gl/' ) )
 		
 	}

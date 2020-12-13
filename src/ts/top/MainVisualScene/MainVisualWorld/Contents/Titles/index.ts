@@ -74,9 +74,9 @@ export class Titles extends THREE.Object3D {
 
 		}
 
-		this.currentTitle = new Title( glContent.name, this.fontInfo, this.commonUniforms );
+		this.currentTitle = new Title( glContent.title, this.fontInfo, this.commonUniforms );
 		this.currentTitle.position.set( 2.3, - 0.9, 0 );
-		this.currentTitle.setText( glContent.name.toUpperCase(), "right" );
+		this.currentTitle.setText( glContent.title.toUpperCase(), "right" );
 		// this.currentTitle.position.set( - 2.6, - 1.0, 0.0 );
 		// this.currentTitle.setText( glContent.name.toUpperCase(), "left" );
 		// this.currentTitle.setText( glContent.name.toUpperCase(), "left" );

@@ -1,11 +1,14 @@
 [
 	{
-		"name": "example"
+		"title": "Example",
+		"fileName": "example"
 	},
 	{
-		"name": "complex"
+		"title": "Complex",
+		"fileName": "complex"
 	},
 	{
-		"name": "flower"
+		"title": "Flower",
+		"fileName": "flower"
 	}
 ]

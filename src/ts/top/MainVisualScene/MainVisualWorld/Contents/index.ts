@@ -6,7 +6,8 @@ import { Titles } from './Titles';
 import { timeStamp } from 'console';
 
 export declare interface GLContent {
-	name: string;
+	fileName: string;
+	title: string;
 }
 export declare type GLList = GLContent[];
 

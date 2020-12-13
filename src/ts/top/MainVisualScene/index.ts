@@ -119,7 +119,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.world.contents.changeContent( e.num );
 
-			this.contentViewer.open( this.world.contents.glList[ e.num ].name );
+			this.contentViewer.open( this.world.contents.glList[ e.num ].fileName );
 
 		} );
 
