@@ -1,3 +1,5 @@
+const fancyLog = require('fancy-log');
+const supportsColor = require( 'supports-color' );
 const gulp = require( 'gulp' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
@@ -12,7 +14,6 @@ const minimist = require( 'minimist' );
 const browserSync = require( 'browser-sync' );
 const eslint = require( 'gulp-eslint' );
 const del = require( 'del' );
-const fs = require( 'fs' );
 
 const _ = require( 'lodash' );
 const { reload } = require('browser-sync');
@@ -101,11 +102,42 @@ function webpackDev( cb ) {
 	webpackConfDev.output.filename = 'main.js';
 	webpackConfDev.mode = options.P ? 'production' : webpackMode;
 	
-	webpackStream( webpackConfDev, webpack, function() {
+	webpackStream( webpackConfDev, webpack, function( err, stats ) {
+		
+		//https://github.com/shama/webpack-stream/blob/master/index.js
+		
+		if (err) {
+			return;
+		}
+
+		stats = stats || {};
+
+		var statusLog = stats.toString({
+			colors: supportsColor.stdout.hasBasic,
+			hash: false,
+			timings: false,
+			chunks: false,
+			chunkModules: false,
+			modules: false,
+			children: true,
+			version: true,
+			cached: false,
+			cachedAssets: false,
+			reasons: false,
+			source: false,
+			errorDetails: false
+		});
+		
+		if (statusLog) {
+			fancyLog(statusLog);
+		}
+
 		reload();
-	} )
+		
+	})
 		.on( 'error', function() { this.emit( 'end' ) } )
 		.pipe( gulp.dest( publicPath + "/js/" ) )
+		.on('end', function() { reload() } );
 
 	cb();
 
