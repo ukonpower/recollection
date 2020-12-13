@@ -87,7 +87,7 @@ export class Titles extends THREE.Object3D {
 	protected loadAssets() {
 
 		let xhr = new XMLHttpRequest();
-		xhr.open( 'GET', './assets/scene/fonts/' + this.fontName + '/' + this.fontName + '-msdf.json' );
+		xhr.open( 'GET', '/assets/scene/fonts/' + this.fontName + '/' + this.fontName + '-msdf.json' );
 
 		let promise = new Promise( resolve => {
 
@@ -118,7 +118,7 @@ export class Titles extends THREE.Object3D {
 		} );
 
 		this.loader = new THREE.TextureLoader();
-		this.loader.load( './assets/scene/fonts/' + this.fontName + '/' + this.fontName + '.png', tex => {
+		this.loader.load( '/assets/scene/fonts/' + this.fontName + '/' + this.fontName + '.png', tex => {
 
 			this.commonUniforms.tex.value = tex;
 

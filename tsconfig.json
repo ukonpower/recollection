@@ -15,7 +15,7 @@
 		"baseUrl": ".",
 		"paths": {
 			"@ore-three-ts" : ["src/common/ts/ore-three-ts/src"],
-			"@gl/*" : ["src/gl/*"],
+			"@gl/*" : ["src/ts/gl/*"],
 		}
 	},
   	"include": [

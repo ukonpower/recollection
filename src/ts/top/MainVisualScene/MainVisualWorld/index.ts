@@ -7,7 +7,6 @@ import { Background } from './Background';
 import { Contents } from './Contents';
 import { Particles } from './Particles';
 
-import { ContentViewer } from './ContentViewer';
 import { LayerInfo } from '@ore-three-ts';
 export class MainVisualWorld {
 
@@ -21,7 +20,6 @@ export class MainVisualWorld {
 	public contents: Contents;
 	public particle: Particles;
 	public background: Background;
-	public contentViewer: ContentViewer;
 
 	constructor( info: LayerInfo, assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -49,10 +47,6 @@ export class MainVisualWorld {
 		this.particle = new Particles( this.commonUniforms );
 		this.scene.add( this.particle );
 
-		this.contentViewer = new ContentViewer( this.renderer, this.layerInfo, this.commonUniforms );
-		this.contentViewer.position.set( 1, 1, 0 );
-		this.scene.add( this.contentViewer );
-		
 	}
 
 }

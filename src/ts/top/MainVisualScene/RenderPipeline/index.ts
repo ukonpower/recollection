@@ -163,7 +163,7 @@ export class RenderPipeline {
 		};
 
 		let loader = new THREE.TextureLoader();
-		loader.load( './assets/smaa/smaa-area.png', ( tex ) => {
+		loader.load( '/assets/smaa/smaa-area.png', ( tex ) => {
 
 			tex.minFilter = THREE.LinearFilter;
 			tex.generateMipmaps = false;
@@ -173,7 +173,7 @@ export class RenderPipeline {
 
 		} );
 
-		loader.load( './assets/smaa/smaa-search.png', ( tex ) => {
+		loader.load( '/assets/smaa/smaa-search.png', ( tex ) => {
 
 			tex.minFilter = THREE.NearestFilter;
 			tex.magFilter = THREE.NearestFilter;
@@ -185,12 +185,12 @@ export class RenderPipeline {
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
-			'./assets/scene/img/env/px.jpg',
-			'./assets/scene/img/env/nx.jpg',
-			'./assets/scene/img/env/py.jpg',
-			'./assets/scene/img/env/ny.jpg',
-			'./assets/scene/img/env/pz.jpg',
-			'./assets/scene/img/env/nz.jpg',
+			'/assets/scene/img/env/px.jpg',
+			'/assets/scene/img/env/nx.jpg',
+			'/assets/scene/img/env/py.jpg',
+			'/assets/scene/img/env/ny.jpg',
+			'/assets/scene/img/env/pz.jpg',
+			'/assets/scene/img/env/nz.jpg',
 		], ( tex ) => {
 
 			this.inputTextures.envMap.value = tex;

@@ -1,6 +1,7 @@
 const fancyLog = require('fancy-log');
 const supportsColor = require( 'supports-color' );
 const gulp = require( 'gulp' );
+const rename = require( 'gulp-rename' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
 const plumber = require( 'gulp-plumber' );
@@ -14,6 +15,7 @@ const minimist = require( 'minimist' );
 const browserSync = require( 'browser-sync' );
 const eslint = require( 'gulp-eslint' );
 const del = require( 'del' );
+const fs = require( 'fs' );
 
 const _ = require( 'lodash' );
 const { reload } = require('browser-sync');
@@ -25,8 +27,8 @@ const options = minimist( process.argv.slice( 2 ), {
 	}
 });
 
-const srcPath = './src/MainVisual';
-const glPath = './src/gl';
+const srcPath = './src';
+const glPath = './src/ts/gl';
 const publicPath = './public';
 var webpackMode = 'development';
 
@@ -84,10 +86,19 @@ function cleanAllFiles( cb ) {
 
 function copyFiles( cb ) {
 
-	gulp.src( srcPath + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/' ) );
+	gulp.src( srcPath + '/ts/top/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/' ) );
 	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( publicPath ) );
-	gulp.src( glPath + '/*/assets/**/*' ).pipe( gulp.dest( publicPath + '/gl/' ) );
 
+	let glList = require( './src/ts/gl/gl.json' );
+
+	for (let i = 0; i < glList.length; i++) {
+		
+		let glName = glList[i].name;
+
+		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/gl/' + glList[i].name + '/' ) );
+		
+	}
+		
 	browserSync.reload();
 	
 	cb();
@@ -98,7 +109,7 @@ let webpackConfDev = _.cloneDeep( require( './webpack.config' ) );
 
 function webpackDev( cb ) {
 
-	webpackConfDev.entry.main = srcPath + '/ts/main.ts';
+	webpackConfDev.entry.main = srcPath + '/ts/top/main.ts';
 	webpackConfDev.output.filename = 'main.js';
 	webpackConfDev.mode = options.P ? 'production' : webpackMode;
 	
@@ -143,11 +154,11 @@ function webpackDev( cb ) {
 
 }
 
-function pugDev() {
+function pugDev( cb ) {
 
 	let title = options.name || 'Recollection';
 	
-	return gulp.src([ srcPath + '/pug/**/*.pug', '!' + srcPath + '/pug/**/_*.pug'] )
+	gulp.src( srcPath + '/pug/index.pug' )
 		.pipe(plumber())
 		.pipe(pug({
 			pretty: true,
@@ -157,6 +168,28 @@ function pugDev() {
 		}))
 		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );
+
+	
+	let glList = require( './src/ts/gl/gl.json' );
+
+	for (let i = 0; i < glList.length; i++) {
+
+		let glName = glList[i].name;
+		
+		gulp.src( srcPath + '/pug/gl.pug' )
+			.pipe( plumber() )
+			.pipe( pug( {
+				pretty: true,
+				locals: {
+					glName: glName,
+				}
+			} ) )
+			.pipe( rename( (path) => { path.basename = glName }) )
+			.pipe( gulp.dest( publicPath + '/gl/' ) )
+		
+	}
+
+	cb();
 	
 }
 
@@ -190,9 +223,6 @@ function watch() {
 	gulp.watch( srcPath + '/scss/**/*', gulp.series( sassDev ) );
 	gulp.watch( [srcPath + '/assets/**/*', glPath + '/assets/**/*'], gulp.series( copyFiles ) );
 	
-	let commonDir = './src/common';
-	gulp.watch( commonDir + '/pug/**/*', gulp.series( pugDev ) );
-
 }
 
 function setModeDevelopment( cb ) {

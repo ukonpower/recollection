@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { RenderPipeline } from './RenderPipeline';
 
 import { ContentSelector } from './ContentSelector';
+import { ContentViewer } from './ContentViewer';
 
 import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
@@ -21,6 +22,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 	private renderPipeline: RenderPipeline;
 
 	private contentSelector: ContentSelector;
+	private contentViewer: ContentViewer;
 
 	private world: MainVisualWorld;
 	private gManager: MainVisualManager;
@@ -103,6 +105,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraDatas' ), this.gManager.animator, this.commonUniforms );
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
+		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
+		this.scene.add( this.contentViewer );
+
 		this.initContentSelector();
 
 	}
@@ -114,7 +119,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.world.contents.changeContent( e.num );
 
-			this.world.contentViewer.open( this.world.contents.glList[ e.num ].name );
+			this.contentViewer.open( this.world.contents.glList[ e.num ].name );
 
 		} );
 
@@ -133,7 +138,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.contentSelector.update( deltaTime );
 
 			this.world.contents.update( deltaTime, this.contentSelector.value );
-			this.world.contentViewer.update( deltaTime );
+			this.contentViewer.update( deltaTime );
 
 			this.renderPipeline.render( this.scene, this.camera );
 
@@ -184,7 +189,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-
 	}
 
 	private touchStartTime: number;
@@ -196,6 +200,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
 		this.contentSelector.catch();
+		this.contentViewer.touchStart( args );
 
 		this.touchStartTime = this.time;
 
@@ -208,6 +213,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
 		this.contentSelector.drag( args.delta.x );
+		this.contentViewer.touchMove( args );
 
 	}
 
@@ -218,6 +224,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
 		this.contentSelector.release( args.delta.x );
+		this.contentViewer.touchEnd( args );
 
 		if ( this.time - this.touchStartTime < 0.2 ) {
 
@@ -233,7 +240,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.renderPipeline.resize( this.info.size.canvasPixelSize );
 
-			this.world.contentViewer.resize();
+			this.contentViewer.resize();
 
 			this.cameraController.resize( this.info.aspect );
 

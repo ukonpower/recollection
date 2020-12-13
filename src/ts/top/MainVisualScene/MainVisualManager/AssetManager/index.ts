@@ -27,7 +27,7 @@ declare interface TextureInfo {
 
 export class AssetManager extends ORE.EventDispatcher {
 
-	private basePath = './assets';
+	private basePath = '/assets';
 
 	public preLoadingManager: THREE.LoadingManager;
 	public mustLoadingManager: THREE.LoadingManager;
@@ -76,7 +76,7 @@ export class AssetManager extends ORE.EventDispatcher {
 			let name = glList[ i ].name;
 
 			this.mustLoadTexturesInfo.push( {
-				path: './gl/' + name + '/assets/' + name + '.jpg',
+				path: '/assets/gl/' + name + '/' + name + '.jpg',
 				name: name
 			} );
 

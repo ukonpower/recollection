@@ -3,7 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 import contentViewerVert from './shaders/contentViewer.vs';
 import contentViewerFrag from './shaders/contentViewer.fs';
-import { BaseGL } from 'src/gl/BaseGL';
+import { BaseGL } from '@gl/BaseGL';
 
 export class ContentViewer extends THREE.Mesh {
 
@@ -17,7 +17,7 @@ export class ContentViewer extends THREE.Mesh {
 	constructor( renderer: THREE.WebGLRenderer, layerInfo: ORE.LayerInfo, parentUniforms?: ORE.Uniforms ) {
 
 		let contentRenderTarget = new THREE.WebGLRenderTarget( 1, 1 );
-		
+
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			tex: {
 				value: contentRenderTarget.texture
@@ -36,9 +36,9 @@ export class ContentViewer extends THREE.Mesh {
 		this.renderer = renderer;
 		this.layerInfo = layerInfo;
 		this.contentRenderTarget = contentRenderTarget;
-		
+
 		this.resize();
-		
+
 	}
 
 	public open( sceneName: string ) {
@@ -49,6 +49,17 @@ export class ContentViewer extends THREE.Mesh {
 
 			this.currentScene = new Scene( this.renderer, this.layerInfo, this.contentRenderTarget );
 
+			this.dispatchEvent( {
+				type: 'loaded',
+				sceneName: sceneName,
+				scene: this.currentScene
+			} );
+
+		} );
+
+		this.dispatchEvent( {
+			type: 'loadstart',
+			sceneName: sceneName
 		} );
 
 	}
@@ -56,7 +67,7 @@ export class ContentViewer extends THREE.Mesh {
 	public update( deltaTime: number ) {
 
 		if ( this.currentScene ) {
-			
+
 			this.currentScene.animate( deltaTime );
 
 		}
@@ -83,7 +94,7 @@ export class ContentViewer extends THREE.Mesh {
 
 	}
 
-	public onTouchStart( args: ORE.TouchEventArgs ) {
+	public touchStart( args: ORE.TouchEventArgs ) {
 
 		if ( this.currentScene ) {
 
@@ -93,7 +104,7 @@ export class ContentViewer extends THREE.Mesh {
 
 	}
 
-	public onTouchMove( args: ORE.TouchEventArgs ) {
+	public touchMove( args: ORE.TouchEventArgs ) {
 
 		if ( this.currentScene ) {
 
@@ -103,7 +114,7 @@ export class ContentViewer extends THREE.Mesh {
 
 	}
 
-	public onTouchEnd( args: ORE.TouchEventArgs ) {
+	public touchEnd( args: ORE.TouchEventArgs ) {
 
 		if ( this.currentScene ) {
 
@@ -115,8 +126,8 @@ export class ContentViewer extends THREE.Mesh {
 
 	public resize() {
 
-		this.contentRenderTarget.setSize( this.layerInfo.size.canvasPixelSize.x, this.layerInfo.size.canvasPixelSize.y)
-		
+		this.contentRenderTarget.setSize( this.layerInfo.size.canvasPixelSize.x, this.layerInfo.size.canvasPixelSize.y );
+
 		if ( this.currentScene ) {
 
 			this.currentScene.onResize();
@@ -124,6 +135,5 @@ export class ContentViewer extends THREE.Mesh {
 		}
 
 	}
-
 
 }
