@@ -2,7 +2,7 @@
 	"compilerOptions": {
 		"sourceMap": true,
 		"target": "es5",
-		"module": "es2015",
+		"module": "es2020",
 		"moduleResolution": "node",
 		"allowSyntheticDefaultImports": true,
 		"resolveJsonModule": true,
@@ -14,8 +14,8 @@
 		"rootDir": "./src/",
 		"baseUrl": ".",
 		"paths": {
-			"@ore-three-ts" : ["./src/common/ts/ore-three-ts/src"],
-			"@gl" : ["./src/gl"],
+			"@ore-three-ts" : ["src/common/ts/ore-three-ts/src"],
+			"@gl/*" : ["src/gl/*"],
 		}
 	},
   	"include": [

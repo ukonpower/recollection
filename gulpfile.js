@@ -15,6 +15,7 @@ const del = require( 'del' );
 const fs = require( 'fs' );
 
 const _ = require( 'lodash' );
+const { reload } = require('browser-sync');
 
 const options = minimist( process.argv.slice( 2 ), {
 	default: {
@@ -23,7 +24,8 @@ const options = minimist( process.argv.slice( 2 ), {
 	}
 });
 
-const srcPath = './src';
+const srcPath = './src/MainVisual';
+const glPath = './src/gl';
 const publicPath = './public';
 var webpackMode = 'development';
 
@@ -37,7 +39,6 @@ function esLint( cb ) {
 
 	let paths = [
 		'./src/gl',
-		'./src/topVisual'
 	];
 
 	for ( let i = 0; i < paths.length; i ++ ) {
@@ -57,63 +58,6 @@ function esLint( cb ) {
 /*-------------------
 	Production
 --------------------*/
-
-const glDir = srcPath + '/gl/';
-const distGLDir =  publicPath + '/gl/';
-
-function buildAllGLs( cb ) {
-
-	let glList = require( './src/gl/gl.json' );
-
-	let conf = _.cloneDeep( require( './webpack.config' ) );
-	conf.mode = options.P ? 'production' : webpackMode;
-
-	for ( let i = 0; i < glList.length; i++ ) {
-
-		let glName = glList[i].name;
-		
-		if( glName == '.DS_Store' ) continue;
-		
-		let glItemDir = glDir + glName;
-		let distGLItemDir = distGLDir + glName;
-
-		//set webpack entry files
-		conf.entry[glName] = glItemDir + '/ts/main.ts';	 
-
-		//pug
-		gulp.src([ glItemDir + '/pug/**/*.pug', '!' + glItemDir + '/pug/**/_*.pug'] )
-			.pipe(plumber())
-			.pipe(pug({
-				pretty: true,
-				locals: {
-					title: glName,
-				}
-			}))
-			.pipe(gulp.dest( distGLItemDir ));
-
-		//sass
-		gulp.src( glItemDir + "/scss/style.scss" )
-			.pipe( plumber() )
-			.pipe( autoprefixer() )
-			.pipe( sass() )
-			.pipe( cssmin() )
-			.pipe( gulp.dest( distGLItemDir + "/css/" ) )
-
-		//copy files
-		gulp.src( glDir + glName + '/assets/**/*' ).pipe( gulp.dest( distGLItemDir + '/assets/' ) );
-		gulp.src( glItemDir + '/' + glName + '.jpg', { allowEmpty: true } ).pipe( gulp.dest( distGLItemDir) );
-		
-	}
-	
-	conf.output.filename = '[name]/js/main.js';
-	
-	//webpack
-	webpackStream( conf, webpack )
-		.on( 'error', function() { this.emit( 'end' ) } )
-		.pipe( gulp.dest( distGLDir ) )
-		.on( 'end', cb )
-
-}
 
 function cleanAllFiles( cb ) {
 
@@ -137,13 +81,11 @@ function cleanAllFiles( cb ) {
 	Development
 --------------------*/
 
-let srcDir = '';
-let distDir = '';
-
 function copyFiles( cb ) {
 
-	gulp.src( srcDir + '/assets/**/*' ).pipe( gulp.dest( distDir + '/assets/' ) );
-	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( distDir ) );
+	gulp.src( srcPath + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/' ) );
+	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( publicPath ) );
+	gulp.src( glPath + '/*/assets/**/*' ).pipe( gulp.dest( publicPath + '/gl/' ) );
 
 	browserSync.reload();
 	
@@ -155,14 +97,17 @@ let webpackConfDev = _.cloneDeep( require( './webpack.config' ) );
 
 function webpackDev( cb ) {
 
-	webpackConfDev.entry.main = srcDir + '/ts/main.ts';
+	webpackConfDev.entry.main = srcPath + '/ts/main.ts';
 	webpackConfDev.output.filename = 'main.js';
 	webpackConfDev.mode = options.P ? 'production' : webpackMode;
 	
-	webpackStream( webpackConfDev, webpack )
+	webpackStream( webpackConfDev, webpack, function() {
+		reload();
+	} )
 		.on( 'error', function() { this.emit( 'end' ) } )
-		.pipe( gulp.dest( distDir + "/js/" ) )
-		.on( 'end', function() { browserSync.reload(); cb(); } );
+		.pipe( gulp.dest( publicPath + "/js/" ) )
+
+	cb();
 
 }
 
@@ -170,7 +115,7 @@ function pugDev() {
 
 	let title = options.name || 'Recollection';
 	
-	return gulp.src([ srcDir + '/pug/**/*.pug', '!' + srcDir + '/pug/**/_*.pug'] )
+	return gulp.src([ srcPath + '/pug/**/*.pug', '!' + srcPath + '/pug/**/_*.pug'] )
 		.pipe(plumber())
 		.pipe(pug({
 			pretty: true,
@@ -178,19 +123,19 @@ function pugDev() {
 				title: title,
 			}
 		}))
-		.pipe( gulp.dest( distDir ) )
+		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );
 	
 }
 
 function sassDev() {
 
-	return gulp.src( srcDir + "/scss/style.scss" )
+	return gulp.src( srcPath + "/scss/style.scss" )
 		.pipe( plumber() )
 		.pipe( sass() )
 		.pipe( autoprefixer() )
 		.pipe( cssmin() )
-		.pipe( gulp.dest( distDir + "/css/" ) )
+		.pipe( gulp.dest( publicPath + "/css/" ) )
 		.pipe( browserSync.stream() )
 
 }
@@ -199,7 +144,7 @@ function brSync() {
 
 	browserSync.init({
 		server: {
-			baseDir: distDir,
+			baseDir: publicPath,
 			index: "index.html",
 		},
 		notify: false
@@ -209,32 +154,12 @@ function brSync() {
 
 function watch() {
 
-	gulp.watch( srcDir + '/ts/**/*', gulp.series( webpackDev ) );
-	gulp.watch( srcDir + '/pug/**/*', gulp.series( pugDev ) );
-	gulp.watch( srcDir + '/scss/**/*', gulp.series( sassDev ) );
-	gulp.watch( srcDir + '/html/**/*', gulp.series( copyFiles ) );
-	gulp.watch( srcDir + '/assets/**/*', gulp.series( copyFiles ) );
+	gulp.watch( srcPath + '/pug/**/*', gulp.series( pugDev ) );
+	gulp.watch( srcPath + '/scss/**/*', gulp.series( sassDev ) );
+	gulp.watch( [srcPath + '/assets/**/*', glPath + '/assets/**/*'], gulp.series( copyFiles ) );
 	
 	let commonDir = './src/common';
-	gulp.watch( commonDir + '/ts/**/*', gulp.series( webpackDev ) );
 	gulp.watch( commonDir + '/pug/**/*', gulp.series( pugDev ) );
-
-}
-
-function setPathGL( cb ) {
-	
-	srcDir = srcPath + '/gl/' + options.name;
-	distDir = publicPath + '/gl/' + options.name + '/public';
-
-	cb();
-}
-
-function setPathMainVisual( cb ) {
-
-	srcDir = srcPath + '/MainVisual';
-	distDir = publicPath;
-
-	cb();
 
 }
 
@@ -264,11 +189,8 @@ let develop = gulp.series(
 	gulp.parallel( brSync, watch ),
 );
 
-exports.build	= gulp.series( cleanAllFiles, setModeProduction, buildAllGLs, setPathMainVisual, build );
-exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, buildAllGLs, setPathMainVisual, develop );
-
-exports.top	= gulp.series( setPathMainVisual, setModeDevelopment, develop );
-exports.gl	= gulp.series( cleanAllFiles, setPathGL, setModeDevelopment, develop );
+exports.build	= gulp.series( cleanAllFiles, setModeProduction, build );
+exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, develop );
 
 exports.lint = gulp.series( esLint );
 

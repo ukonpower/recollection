@@ -43,7 +43,7 @@ export class Contents {
 
 	}
 
-	public update( selectorValue: number ) {
+	public update( deltaTime: number, selectorValue: number ) {
 
 		this.thumbnails.update( selectorValue );
 

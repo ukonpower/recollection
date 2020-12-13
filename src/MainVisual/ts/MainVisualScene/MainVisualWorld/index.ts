@@ -7,6 +7,8 @@ import { Background } from './Background';
 import { Contents } from './Contents';
 import { Particles } from './Particles';
 
+import { ContentViewer } from './ContentViewer';
+import { LayerInfo } from '@ore-three-ts';
 export class MainVisualWorld {
 
 	private commonUniforms: ORE.Uniforms;
@@ -15,19 +17,20 @@ export class MainVisualWorld {
 	private assetManager: AssetManager;
 	private renderer: THREE.WebGLRenderer;
 
+	private layerInfo: ORE.LayerInfo
 	public contents: Contents;
 	public particle: Particles;
 	public background: Background;
+	public contentViewer: ContentViewer;
 
-	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
+	constructor( info: LayerInfo, assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
+		this.layerInfo = info;
 		this.assetManager = assetManager;
-
 		this.renderer = renderer;
 		this.scene = scene;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
-
 		} );
 
 		this.scene.add( this.assetManager.gltfScene );
@@ -46,14 +49,10 @@ export class MainVisualWorld {
 		this.particle = new Particles( this.commonUniforms );
 		this.scene.add( this.particle );
 
-	}
-
-	public update( deltaTime: number ) {
-
-	}
-
-	public resize( layerSize: ORE.LayerSize ) {
-
+		this.contentViewer = new ContentViewer( this.renderer, this.layerInfo, this.commonUniforms );
+		this.contentViewer.position.set( 1, 1, 0 );
+		this.scene.add( this.contentViewer );
+		
 	}
 
 }

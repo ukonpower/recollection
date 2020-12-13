@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
-import { threadId } from 'worker_threads';
 
 export class ContentSelector extends ORE.EventDispatcher {
 
@@ -112,7 +111,7 @@ export class ContentSelector extends ORE.EventDispatcher {
 			this.wheelStop = false;
 			this.dispatchEvent( {
 				type: 'changecontent',
-				num: this.currentContent
+				num: this.currentContent,
 			} );
 
 		}

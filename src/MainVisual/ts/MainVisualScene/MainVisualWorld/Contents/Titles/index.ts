@@ -103,7 +103,7 @@ export class Titles extends THREE.Object3D {
 					type: 'infoloaded'
 				} );
 
-				resolve();
+				resolve(null);
 
 			};
 

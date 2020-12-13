@@ -76,7 +76,7 @@ export class AssetManager extends ORE.EventDispatcher {
 			let name = glList[ i ].name;
 
 			this.mustLoadTexturesInfo.push( {
-				path: './gl/' + name + '/' + name + '.jpg',
+				path: './gl/' + name + '/assets/' + name + '.jpg',
 				name: name
 			} );
 

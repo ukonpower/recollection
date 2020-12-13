@@ -65,7 +65,7 @@ class APP {
 		this.controller = new ORE.Controller();
 
 		this.controller.addLayer( new MainVisualScene(), {
-			name: 'MainVisual',
+			name: 'SceneController',
 			canvas: canvas
 		} );
 
