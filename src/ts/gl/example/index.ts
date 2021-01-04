@@ -6,7 +6,7 @@ import { BaseGL } from '../BaseGL';
 export default class Example extends BaseGL {
 
 	private box: THREE.Mesh;
-	
+
 	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget ) {
 
 		super( renderer, info, renderTarget );
@@ -23,11 +23,11 @@ export default class Example extends BaseGL {
 	}
 
 	public animate( deltaTime: number ) {
-		
+
 		let renderTargetMem = this.renderer.getRenderTarget();
 
 		this.box.rotateX( 0.01 );
-		
+
 		this.renderer.setRenderTarget( this.renderTarget );
 		this.renderer.render( this.scene, this.camera );
 
@@ -36,6 +36,8 @@ export default class Example extends BaseGL {
 	}
 
 	public onResize() {
+
+		super.onResize();
 
 	}
 

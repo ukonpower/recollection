@@ -5,6 +5,8 @@ uniform float width;
 uniform float height;
 uniform float visibility;
 uniform float index;
+uniform float infoVisibility;
+
 varying vec2 vHighPrecisionZW;
 
 #pragma glslify: import('./easings.glsl' )
@@ -15,12 +17,15 @@ void main( void ) {
 
 	vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
 	gl_Position = projectionMatrix * mvPosition;
+	gl_Position.z = 0.01;
 
 	vUv = uv;
 
 	vUv.y = 1.0 - vUv.y;
 	vUv.y *= height;
 	vUv.y = 1.0 - vUv.y;
+
+	vUv.x += 1.0 - infoVisibility;
 
 	vUv.x *= width;
 	vUv.x += left;

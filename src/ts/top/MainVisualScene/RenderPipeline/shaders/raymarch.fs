@@ -18,6 +18,8 @@ uniform mat4 camProjectionInverseMatrix;
 uniform float camNear;
 uniform float camFar;
 
+uniform float contentVisibility;
+
 uniform float phase;
 
 #pragma glslify: import( './constants.glsl' )
@@ -48,12 +50,11 @@ float sphereObj( vec3 p  ) {
 	p.xy *= rotate(time * 0.2);
 	p.xz *= rotate(time * 0.2);
 	
-	
 	vec3 size = vec3(
 		0.65
 	);
 	
-	if( sdBox( p, size + 0.1 ) < 0.1 ) {
+	// if( sdBox( p, size + 0.1 ) < 0.1 ) {
 	
 		for (int i = 0; i < 2; i++) {
 
@@ -66,9 +67,11 @@ float sphereObj( vec3 p  ) {
 			p.xy = abs(p.xy);
 			p.xy *= rotate( p.x * sin( contentNum ));
 
+			p.x += contentVisibility;
+
 		}
 
-	}
+	// }
 
 	return sdBox( p, size );
 
@@ -217,7 +220,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.2 ) ) {
+	// if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.2 ) ) {
 
 		for( int i = 0; i < 16; i++ ) {
 
@@ -239,7 +242,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 			
 		}
 
-	}
+	// }
 
 	if( raymarchCol.w != 1.0 ) {
 

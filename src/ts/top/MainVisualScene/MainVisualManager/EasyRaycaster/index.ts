@@ -21,7 +21,7 @@ declare interface ElementInfo {
 	mouseOutHandler: any;
 }
 
-export class EasyRaycaster {
+export class EasyRaycaster extends THREE.EventDispatcher {
 
 	public enabled: boolean = true;
 	private raycaster: THREE.Raycaster;
@@ -41,9 +41,10 @@ export class EasyRaycaster {
 	public touchableObjs: THREE.Mesh[] = [];
 
 	public onChangeHitObject: ( object: THREE.Object3D | HTMLElement ) => void;
-	public onTouchObject: ( object: THREE.Object3D ) => void;
 
 	constructor() {
+
+		super();
 
 		this.raycaster = new THREE.Raycaster();
 
@@ -247,11 +248,15 @@ export class EasyRaycaster {
 
 				if ( normalizePos.clone().sub( this.touchStartPos ).length() > 0.1 ) return;
 
-				if ( this.onTouchObject ) {
+				this.dispatchEvent( {
+					type: 'ontouch',
+					object: this.holdObj
+				} );
 
-					this.onTouchObject( this.holdObj );
-
-				}
+				this.dispatchEvent( {
+					type: this.holdObj.name,
+					object: this.holdObj
+				} );
 
 				for ( let i = 0; i < this.clickEvents.length; i ++ ) {
 

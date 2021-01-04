@@ -26,6 +26,9 @@ import neiborhoodBlendingFrag from './shaders/smaa_neiborhoodBlending.fs';
 //composite shader
 import compositeFrag from './shaders/composite.fs';
 
+//sceneMix shader
+import sceneMixerFrag from './shaders/sceneMixer.fs';
+
 export class RenderPipeline {
 
 	private commonUniforms: ORE.Uniforms;
@@ -48,6 +51,8 @@ export class RenderPipeline {
 	private smaaBlendingPP: PostProcessing;
 
 	private compositePP: PostProcessing;
+
+	private sceneMixerPP: PostProcessing;
 
 	private renderTargets: {
 		[keys:string]: { value: THREE.WebGLRenderTarget }
@@ -119,8 +124,6 @@ export class RenderPipeline {
 				} )
 			},
 		};
-
-		let blurTexs: THREE.WebGLRenderTarget[] = [];
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
@@ -268,18 +271,18 @@ export class RenderPipeline {
 			"SMAA_AREATEX_SELECT(sample)": "sample.rg",
 		};
 
-		this.smaaCommonUni = ORE.UniformsLib.mergeUniforms( {
+		this.smaaCommonUni = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 			SMAA_RT_METRICS: {
 				value: new THREE.Vector4()
 			}
-		}, this.commonUniforms );
+		} );
 
 		this.smaaEdgePP = new PostProcessing( this.renderer,
 			{
 				vertexShader: edgeDetectionVert,
 				fragmentShader: edgeDetectionFrag,
-				uniforms: ORE.UniformsLib.mergeUniforms( {
-				}, this.smaaCommonUni ),
+				uniforms: ORE.UniformsLib.mergeUniforms( this.smaaCommonUni, {
+				} ),
 				defines: defines
 			}
 		);
@@ -288,10 +291,10 @@ export class RenderPipeline {
 			{
 				vertexShader: blendingWeightCalculationVert,
 				fragmentShader: blendingWeightCalculationFrag,
-				uniforms: ORE.UniformsLib.mergeUniforms( {
+				uniforms: ORE.UniformsLib.mergeUniforms( this.smaaCommonUni, {
 					areaTex: this.inputTextures.areaTex,
 					searchTex: this.inputTextures.searchTex,
-				}, this.smaaCommonUni ),
+				} ),
 				defines: defines,
 			}
 		);
@@ -300,8 +303,8 @@ export class RenderPipeline {
 			{
 				vertexShader: neiborhoodBlendingVert,
 				fragmentShader: neiborhoodBlendingFrag,
-				uniforms: ORE.UniformsLib.mergeUniforms( {
-				}, this.smaaCommonUni ),
+				uniforms: ORE.UniformsLib.mergeUniforms( this.smaaCommonUni, {
+				} ),
 				defines: defines
 			}
 		);
@@ -313,16 +316,24 @@ export class RenderPipeline {
 
 		this.compositePP = new PostProcessing( this.renderer, {
 			fragmentShader: compo,
-			uniforms: ORE.UniformsLib.mergeUniforms( {
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 				lensTex: this.assetManager.textures.lensDirt,
 				noiseTex: this.assetManager.textures.noise,
 				brightness: {
 					value: 0.2
 				},
-			}, this.commonUniforms ),
+			} ),
 			defines: {
 				RENDER_COUNT: this.bloomRenderCount.toString()
 			}
+		} );
+
+		/*------------------------
+			SceneMixer
+		------------------------*/
+		this.sceneMixerPP = new PostProcessing( this.renderer, {
+			fragmentShader: sceneMixerFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
 		} );
 
 	}
@@ -351,7 +362,27 @@ export class RenderPipeline {
 
 	}
 
-	public render( scene: THREE.Scene, camera: THREE.Camera ) {
+	public render( scene: THREE.Scene, camera: THREE.Camera, renderMainVisual: boolean, contentRenderTarget: THREE.WebGLRenderTarget ) {
+
+		if ( renderMainVisual ) {
+
+			this.renderMainVisual( scene, camera );
+
+		}
+
+		/*------------------------
+			Scene Mixer
+		------------------------*/
+		this.sceneMixerPP.render( {
+			sceneTex: this.renderTargets.rt2,
+			contentTex: { value: contentRenderTarget }
+		}, null );
+
+		this.renderer.autoClear = true;
+
+	}
+
+	private renderMainVisual( scene: THREE.Scene, camera: THREE.Camera ) {
 
 		/*------------------------
 			Scene
@@ -429,7 +460,6 @@ export class RenderPipeline {
 			backbuffer: this.renderTargets.rt2,
 		}, this.renderTargets.rt1 );
 
-
 		/*------------------------
 			Composite
 		------------------------*/
@@ -447,10 +477,7 @@ export class RenderPipeline {
 		}
 
 		compositeInputRenderTargets.bloomTexs = { value: bloomTexArray };
-
-		this.compositePP.render( compositeInputRenderTargets, null );
-
-		this.renderer.autoClear = true;
+		this.compositePP.render( compositeInputRenderTargets, this.renderTargets.rt2 );
 
 	}
 

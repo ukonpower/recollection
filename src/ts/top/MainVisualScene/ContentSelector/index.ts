@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-export class ContentSelector extends ORE.EventDispatcher {
+export class ContentSelector extends THREE.Object3D {
 
 	public value: number = 0;
 
@@ -22,6 +22,8 @@ export class ContentSelector extends ORE.EventDispatcher {
 
 	private commonUniforms: ORE.Uniforms;
 
+	public clickTargetMesh: THREE.Mesh;
+
 	constructor( contentNum: number, parentUniforms: ORE.Uniforms ) {
 
 		super();
@@ -33,7 +35,10 @@ export class ContentSelector extends ORE.EventDispatcher {
 
 		this.initAnimator();
 
+		this.initClickTargetMesh();
+
 	}
+
 	protected initAnimator() {
 
 		this.animator = window.mainVisualManager.animator;
@@ -51,6 +56,27 @@ export class ContentSelector extends ORE.EventDispatcher {
 		} );
 
 	}
+
+	private initClickTargetMesh() {
+
+		let geo = new THREE.SphereBufferGeometry( 1.0, 4, 4 );
+		let mat = new THREE.MeshBasicMaterial( {
+			color: new THREE.Color( "#FFF" ),
+			visible: true,
+			wireframe: true,
+			depthTest: false,
+			depthWrite: false,
+			transparent: true
+		} );
+
+		this.clickTargetMesh = new THREE.Mesh( geo, mat );
+		this.clickTargetMesh.name = 'ClickTarget';
+		this.clickTargetMesh.renderOrder = 999;
+		this.clickTargetMesh.visible = false;
+		this.add( this.clickTargetMesh );
+
+	}
+
 	public update( deltaTime: number ) {
 
 		if ( this.isAnimating ) {

@@ -1,3 +1,4 @@
+import barba from '@barba/core';
 import * as ORE from '@ore-three-ts';
 import * as THREE from 'three';
 
@@ -26,6 +27,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private world: MainVisualWorld;
 	private gManager: MainVisualManager;
+
+	private state = {
+		renderMainVisual: false,
+		renderContent: false,
+	}
 
 	constructor() {
 
@@ -79,13 +85,95 @@ export class MainVisualScene extends ORE.BaseLayer {
 			}
 		} );
 
+		this.initERay();
+
 	}
 
 	private initAnimator() {
 
 		this.animator = this.gManager.animator;
 
-		this.animator.applyToUniforms( this.commonUniforms );
+		this.commonUniforms.contentVisibility = this.animator.add( {
+			name: 'contentVisibility',
+			initValue: 0,
+		} );
+
+		this.commonUniforms.infoVisibility = this.animator.add( {
+			name: 'infoVisibility',
+			initValue: 1
+		} );
+
+	}
+
+	private initERay() {
+
+		this.gManager.eRay.addEventListener( 'ClickTarget', ( e ) =>{
+
+			let currentGL = this.world.contents.glList[ this.contentSelector.currentContent ];
+
+			barba.go( window.origin + '/gl/' + currentGL.fileName + '.html' );
+
+		} );
+
+	}
+
+	public openContent( contentName: string ) {
+
+		if ( ! this.gManager.assetManager.isLoaded ) {
+
+			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+
+				this.openContent( contentName );
+
+			} );
+
+		}
+
+		let promise = new Promise( resolve => {
+
+			this.state.renderContent = true;
+
+			this.animator.animate( 'contentVisibility', 1, 2, () => {
+
+				this.state.renderMainVisual = false;
+
+				console.log( contentName );
+
+				resolve( null );
+
+			} );
+
+		} );
+
+		return promise;
+
+	}
+
+	public closeContent() {
+
+		this.state.renderMainVisual = true;
+
+		this.animator.animate( 'contentVisibility', 0, 2, () => {
+
+			this.state.renderContent = false;
+
+		} );
+
+	}
+
+	public switchInfoVisibility( visibility: boolean ) {
+
+		let promise = new Promise( resolve => {
+
+			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.5, () => {
+
+				resolve( null );
+
+			} );
+
+		} );
+
+		return promise;
 
 	}
 
@@ -94,19 +182,18 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
 		this.camera.updateProjectionMatrix();
+		this.camera.position.set( 0, 3, 10 );
 
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
 
-		this.scene.add( this.camera );
-		this.camera.position.set( 0, 3, 10 );
-
 		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
+
 		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraDatas' ), this.gManager.animator, this.commonUniforms );
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
 		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
-		this.scene.add( this.contentViewer );
+		// this.scene.add( this.contentViewer );
 
 		this.initContentSelector();
 
@@ -123,9 +210,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		} );
 
+		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
+
+		this.scene.add( this.contentSelector );
+
 	}
 
 	public animate( deltaTime: number ) {
+
+		deltaTime = Math.min( deltaTime, 0.1 );
 
 		this.commonUniforms.time.value = this.time;
 
@@ -138,9 +231,14 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.contentSelector.update( deltaTime );
 
 			this.world.contents.update( deltaTime, this.contentSelector.value );
-			this.contentViewer.update( deltaTime );
 
-			this.renderPipeline.render( this.scene, this.camera );
+			if ( this.state.renderContent ) {
+
+				this.contentViewer.update( deltaTime );
+
+			}
+
+			this.renderPipeline.render( this.scene, this.camera, this.state.renderMainVisual, this.contentViewer.contentRenderTarget );
 
 		}
 
@@ -166,6 +264,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( this.gManager.assetManager.isLoaded ) {
 
 			this.cameraController.updateCursor( args.normalizedPosition );
+			this.gManager.eRay.checkHitObject( args.normalizedPosition, this.camera, this.gManager.eRay.touchableObjs );
 
 		}
 
@@ -191,8 +290,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	private touchStartTime: number;
-
 	public onTouchStart( args: ORE.TouchEventArgs ) {
 
 		args.event?.preventDefault();
@@ -202,7 +299,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.contentSelector.catch();
 		this.contentViewer.touchStart( args );
 
-		this.touchStartTime = this.time;
+		this.gManager.eRay.touchStart( args.normalizedPosition, this.camera, this.gManager.eRay.touchableObjs );
 
 	}
 
@@ -226,9 +323,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.contentSelector.release( args.delta.x );
 		this.contentViewer.touchEnd( args );
 
-		if ( this.time - this.touchStartTime < 0.2 ) {
-
-		}
+		this.gManager.eRay.touchEnd( args.normalizedPosition, this.camera, this.gManager.eRay.touchableObjs );
 
 	}
 

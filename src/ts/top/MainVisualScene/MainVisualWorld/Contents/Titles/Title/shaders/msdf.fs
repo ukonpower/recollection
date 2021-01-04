@@ -15,6 +15,7 @@ void main( void ) {
 
 	vec4 fontTex = texture2D( tex, vUv );
     float sigDist = median( fontTex.r, fontTex.g, fontTex.b ) - 0.5;
+
     float alpha = step( 0.0, sigDist );
 	alpha *= step( vUv.y, 1.0 - top );
 	alpha *= step( 1.0 - top - height, vUv.y );

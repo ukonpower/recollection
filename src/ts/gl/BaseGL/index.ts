@@ -4,7 +4,7 @@ import * as THREE from 'three';
 export class BaseGL extends ORE.BaseLayer {
 
 	protected renderTarget: THREE.WebGLRenderTarget;
-	
+
 	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget ) {
 
 		super();
@@ -14,7 +14,7 @@ export class BaseGL extends ORE.BaseLayer {
 		this.info = info;
 
 		this.camera.position.set( 0, 0, 5 );
-		
+
 	}
 
 	public animate( deltaTime: number ) {
@@ -36,6 +36,9 @@ export class BaseGL extends ORE.BaseLayer {
 	}
 
 	public onResize() {
+
+		super.onResize();
+
 	}
 
 }

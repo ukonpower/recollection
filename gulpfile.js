@@ -147,8 +147,7 @@ function webpackDev( cb ) {
 		
 	})
 		.on( 'error', function() { this.emit( 'end' ) } )
-		.pipe( gulp.dest( publicPath + "/js/" ) )
-		.on('end', function() { reload() } );
+		.pipe( gulp.dest( publicPath + "/js/" ) );
 
 	cb();
 

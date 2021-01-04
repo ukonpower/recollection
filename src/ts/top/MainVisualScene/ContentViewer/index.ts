@@ -7,8 +7,9 @@ import { BaseGL } from '@gl/BaseGL';
 
 export class ContentViewer extends THREE.Mesh {
 
+	public contentRenderTarget: THREE.WebGLRenderTarget;
+
 	private renderer: THREE.WebGLRenderer;
-	private contentRenderTarget: THREE.WebGLRenderTarget;
 	private layerInfo: ORE.LayerInfo;
 
 	private commonUniforms: ORE.Uniforms;
@@ -24,14 +25,22 @@ export class ContentViewer extends THREE.Mesh {
 			}
 		} );
 
-		let geo = new THREE.PlaneBufferGeometry( 1.0, 1.0 );
+		let geo = new THREE.PlaneBufferGeometry( 2.0, 2.0 );
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: contentViewerVert,
 			fragmentShader: contentViewerFrag,
-			uniforms: uni
+			uniforms: uni,
 		} );
 
 		super( geo, mat );
+
+		this.customDepthMaterial = new THREE.ShaderMaterial( {
+			vertexShader: contentViewerVert,
+			fragmentShader: THREE.ShaderLib.depth.fragmentShader,
+			defines: {
+				'DEPTH_PACKING': THREE.RGBADepthPacking,
+			}
+		} );
 
 		this.renderer = renderer;
 		this.layerInfo = layerInfo;
@@ -48,6 +57,7 @@ export class ContentViewer extends THREE.Mesh {
 			let Scene = e.default as ( typeof BaseGL );
 
 			this.currentScene = new Scene( this.renderer, this.layerInfo, this.contentRenderTarget );
+			this.currentScene.onResize();
 
 			this.dispatchEvent( {
 				type: 'loaded',
