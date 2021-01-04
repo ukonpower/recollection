@@ -55,12 +55,7 @@ class APP {
 
 					}
 
-				},
-				afterEnter: ( data ) => {
-
-					this.scene.switchInfoVisibility( true );
-
-				},
+				}
 			} );
 
 		}

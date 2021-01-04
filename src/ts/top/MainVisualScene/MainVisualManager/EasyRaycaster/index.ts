@@ -40,8 +40,6 @@ export class EasyRaycaster extends THREE.EventDispatcher {
 
 	public touchableObjs: THREE.Mesh[] = [];
 
-	public onChangeHitObject: ( object: THREE.Object3D | HTMLElement ) => void;
-
 	constructor() {
 
 		super();
@@ -93,11 +91,11 @@ export class EasyRaycaster extends THREE.EventDispatcher {
 
 				}
 
-				if ( this.onChangeHitObject ) {
 
-					this.onChangeHitObject( hitObj[ 0 ].object );
-
-				}
+				this.dispatchEvent( {
+					type: 'onChangeHitObject',
+					obj: hitObj[ 0 ].object
+				} );
 
 			}
 
@@ -121,11 +119,11 @@ export class EasyRaycaster extends THREE.EventDispatcher {
 
 				}
 
-				if ( this.onChangeHitObject ) {
+				this.dispatchEvent( {
+					type: 'onChangeHitObject',
+					obj: null
+				} );
 
-					this.onChangeHitObject( null );
-
-				}
 
 			}
 
@@ -296,11 +294,11 @@ export class EasyRaycaster extends THREE.EventDispatcher {
 
 		}
 
-		if ( this.onChangeHitObject ) {
+		this.dispatchEvent( {
+			type: 'onChangeHitObject',
+			obj: this.hoverElm
+		} );
 
-			this.onChangeHitObject( this.hoverElm );
-
-		}
 
 	}
 
@@ -320,12 +318,10 @@ export class EasyRaycaster extends THREE.EventDispatcher {
 
 		}
 
-
-		if ( this.onChangeHitObject ) {
-
-			this.onChangeHitObject( null );
-
-		}
+		this.dispatchEvent( {
+			type: 'onChangeHitObject',
+			obj: null
+		} );
 
 		this.hoverElm = null;
 

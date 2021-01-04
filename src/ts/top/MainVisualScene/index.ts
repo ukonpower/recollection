@@ -31,6 +31,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 	private state = {
 		renderMainVisual: false,
 		renderContent: false,
+		animatingInfoVisibility: false
 	}
 
 	constructor() {
@@ -109,9 +110,25 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.gManager.eRay.addEventListener( 'ClickTarget', ( e ) =>{
 
+			this.contentSelector.enable = false;
+
 			let currentGL = this.world.contents.glList[ this.contentSelector.currentContent ];
 
 			barba.go( window.origin + '/gl/' + currentGL.fileName + '.html' );
+
+		} );
+
+		this.gManager.eRay.addEventListener( 'onChangeHitObject', ( e ) => {
+
+			if ( e.obj ) {
+
+				document.querySelector( '.container' ).parentElement.style.cursor = 'pointer';
+
+			} else {
+
+				document.querySelector( '.container' ).parentElement.style.cursor = 'unset';
+
+			}
 
 		} );
 
@@ -131,22 +148,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		let promise = new Promise( resolve => {
+		this.state.renderContent = true;
+		this.contentSelector.enable = false;
 
-			this.state.renderContent = true;
-			this.contentSelector.enable = false;
+		return this.animator.animate( 'contentVisibility', 1, 2, () => {
 
-			this.animator.animate( 'contentVisibility', 1, 2, () => {
-
-				this.state.renderMainVisual = false;
-
-				resolve( null );
-
-			} );
+			this.state.renderMainVisual = false;
+			this.switchInfoVisibility( true );
 
 		} );
-
-		return promise;
 
 	}
 
@@ -154,10 +164,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.state.renderMainVisual = true;
 
-		this.animator.animate( 'contentVisibility', 0, 2, () => {
+		return this.animator.animate( 'contentVisibility', 0, 2, () => {
 
 			this.state.renderContent = false;
 			this.contentSelector.enable = true;
+			this.switchInfoVisibility( true );
 
 		} );
 
@@ -177,10 +188,22 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		if ( this.state.animatingInfoVisibility ) {
+
+			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
+			callback && callback();
+
+		}
 
 		let promise = new Promise( resolve => {
 
+			this.state.animatingInfoVisibility = true;
+
+			document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
+
 			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.5, () => {
+
+				this.state.animatingInfoVisibility = false;
 
 				resolve( null );
 

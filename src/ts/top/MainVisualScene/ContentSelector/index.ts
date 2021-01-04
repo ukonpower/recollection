@@ -123,7 +123,7 @@ export class ContentSelector extends THREE.Object3D {
 
 		let diff = this.selectingContentPos - this.value;
 		this.moveVelocity += diff * deltaTime * 0.3;
-		this.moveVelocity *= 0.9;
+		this.moveVelocity *= 0.85;
 
 	}
 
@@ -149,11 +149,12 @@ export class ContentSelector extends THREE.Object3D {
 
 		if ( ! this.enable ) return;
 
+		this.touchStartPos = this.value;
+		this.touchStartContentPos = this.isAnimating ? null : Math.max( 0.0, Math.min( this.contentNum - 1.0, Math.round( this.value ) ) );
+		this.touchMove = 0;
+
 		this.isTouching = true;
 		this.isAnimating = false;
-		this.touchStartPos = this.value;
-		this.touchStartContentPos = Math.max( 0.0, Math.min( this.contentNum - 1.0, Math.round( this.value ) ) );
-		this.touchMove = 0;
 
 	}
 
