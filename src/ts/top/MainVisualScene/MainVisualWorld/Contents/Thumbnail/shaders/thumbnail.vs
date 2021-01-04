@@ -1,9 +1,14 @@
 varying vec2 currentUV;
 varying vec2 nextUV;
 varying vec2 vHighPrecisionZW;
+varying vec2 vUv;
+
 uniform vec3 camPosition;
 uniform float contentNum;
 uniform float contentFade;
+
+uniform float windowAspect;
+uniform float infoVisibility;
 
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: rotate = require('./rotate.glsl' )
@@ -15,6 +20,9 @@ void main( void ) {
 	pos.xz = vec2( -4.0, 0.0 );
 	pos.xz *= rotate( -uv.x * PI );	
 	pos.y *= 4.5;
+
+	pos.y *= infoVisibility;
+	
 	pos.y -= (uv.x - 0.5) * 2.0;
 	pos.z *= 0.5;
 
@@ -27,7 +35,10 @@ void main( void ) {
 
 	currentUV = ((gl_Position.xy / gl_Position.w) + 1.0) / 2.0;
 	currentUV -= 0.5;
-	currentUV *= 0.5;
+
+	currentUV.x *= windowAspect;
+	currentUV.x /= 16.0 / 9.0;
+	
 	currentUV += 0.5;
 
 	float m = 0.7;
@@ -41,5 +52,6 @@ void main( void ) {
 	vec3 v = wPos - camPosition * 10.0;
 	currentUV += v.xy * 0.01;
 	nextUV += v.xy * 0.01;
+	vUv = uv;
 
 }

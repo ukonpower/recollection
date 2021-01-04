@@ -66,6 +66,9 @@ export class CameraController {
 
 		}
 
+		this.camera.position.z -= this.commonUniforms.contentVisibility.value * 5.0;
+		this.camera.rotation.z = -this.commonUniforms.contentVisibility.value * 0.1;
+
 	}
 
 	public resize( info: ORE.AspectInfo ) {

@@ -51,12 +51,16 @@ export class Particles extends THREE.Mesh {
 			uniforms: uni,
 			depthWrite: false,
 			depthTest: false,
-			transparent: true
+			transparent: true,
 		} );
 
 		super( geo, mat );
-		this.renderOrder = 999;
 
+		this.customDepthMaterial = new THREE.MeshDepthMaterial({
+			visible: false
+		})
+
+		this.renderOrder = 999;
 		this.commonUniforms = uni;
 
 	}

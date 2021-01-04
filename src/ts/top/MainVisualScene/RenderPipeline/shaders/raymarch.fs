@@ -45,16 +45,19 @@ float sdBox( vec3 p, vec3 b )
   
 }
 
-float sphereObj( vec3 p  ) {
 
-	p.xy *= rotate(time * 0.2);
-	p.xz *= rotate(time * 0.2);
-	
+vec2 mainObjDist( vec3 p ) {
+
+	float d = 0.0;
 	vec3 size = vec3(
 		0.65
 	);
 	
-	// if( sdBox( p, size + 0.1 ) < 0.1 ) {
+	p.xz *= rotate(contentNum * -1.5);
+	p.xy *= rotate(time * 0.2);
+	p.xz *= rotate(time * 0.2);
+
+	if( sdBox( p, size + 0.1 ) < 0.1 ) {
 	
 		for (int i = 0; i < 2; i++) {
 
@@ -67,22 +70,34 @@ float sphereObj( vec3 p  ) {
 			p.xy = abs(p.xy);
 			p.xy *= rotate( p.x * sin( contentNum ));
 
-			p.x += contentVisibility;
+			p.x += smoothstep( 0.0, 0.5, contentVisibility);
 
 		}
 
-	// }
+	}
 
-	return sdBox( p, size );
+	d = sdBox( p, size );
 
+	return vec2( d, MAT_MAIN );
+	
 }
 
-
-vec2 MainObjDist( vec3 p ) {
+vec2 backObjDist( vec3 p ) {
 
 	float d = 0.0;
+	vec3 size = vec3( 0.1, 0.1, 0.2 );
 
-	d = sphereObj( p );
+	vec3 modP = p;
+	modP.xy *= rotate( p.z * 0.1 );
+
+	modP.xy = mod( modP.xy, 2.0 ) - 1.0;
+	modP.z = mod( modP.z, 0.5 ) - 0.25;
+	modP.xy *= rotate( -time + p.z * 0.3 );
+
+	p += vec3( 0.0, 0.0, 5.0 );
+
+	d = sdBox( modP, size );
+	d = max( d, -sdBox( p  -vec3( 0.0, 0.0, 10.0 ), vec3( 30.0 * ( 1.0 - contentVisibility ) ) )  );
 
 	return vec2( d, MAT_MAIN );
 	
@@ -90,13 +105,11 @@ vec2 MainObjDist( vec3 p ) {
 
 vec2 D( vec3 p ) {
 
-	p.xz *= rotate( -contentNum * PI * 1.0 );
-
-	vec2 mainObj = MainObjDist( p );
+	vec2 mainObj = mainObjDist( p );
+	vec2 backObj = backObjDist( p );
 
 	// vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
-	// return U( mainObj, refPlane );
-	return mainObj;
+	return U( mainObj, backObj );
 
 }
 
@@ -222,7 +235,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	// if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.2 ) ) {
 
-		for( int i = 0; i < 16; i++ ) {
+		for( int i = 0; i < 32; i++ ) {
 
 			distRes = D( rayPos );
 			depth += distRes.x;

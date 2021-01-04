@@ -66,6 +66,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 			camProjectionInverseMatrix: {
 				value: new THREE.Matrix4()
 			},
+			windowAspect: {
+				value: 1.0
+			}
 		};
 
 	}
@@ -151,7 +154,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.state.renderContent = true;
 		this.contentSelector.enable = false;
 
-		return this.animator.animate( 'contentVisibility', 1, 2, () => {
+		return this.animator.animate( 'contentVisibility', 1, 4, () => {
 
 			this.state.renderMainVisual = false;
 			this.switchInfoVisibility( true );
@@ -164,7 +167,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.state.renderMainVisual = true;
 
-		return this.animator.animate( 'contentVisibility', 0, 2, () => {
+		return this.animator.animate( 'contentVisibility', 0, 4, () => {
 
 			this.state.renderContent = false;
 			this.contentSelector.enable = true;
@@ -264,17 +267,25 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
+			let a = (Math.sin( this.time ) * 0.5 + 0.5);
+
+			// this.commonUniforms.contentVisibility.value = (Math.max( 0.3, a ) - 0.3 ) * (10 / 7);
+			// this.commonUniforms.infoVisibility.value = 1.0 - (Math.min( 0.3, a )  ) * 3.3333;
+			
+			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.7;
+			// this.commonUniforms.infoVisibility.value = 0.0;
+			
 			this.updateCameraInfo( deltaTime );
 
 			this.contentSelector.update( deltaTime );
 
 			this.world.contents.update( deltaTime, this.contentSelector.value );
 
-			if ( this.state.renderContent ) {
+			// if ( this.state.renderContent ) {
 
 				this.contentViewer.update( deltaTime );
 
-			}
+			// }
 
 			this.renderPipeline.render( this.scene, this.camera, this.state.renderMainVisual, this.contentViewer.contentRenderTarget );
 
@@ -309,8 +320,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 	}
 
 	public onWheel( e: WheelEvent, trackpadDelta: number ) {
-
-		e.preventDefault();
 
 		if ( ! this.gManager.assetManager.isLoaded ) return;
 
@@ -376,6 +385,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.contentViewer.resize();
 
 			this.cameraController.resize( this.info.aspect );
+
+			this.commonUniforms.windowAspect.value = this.info.size.canvasAspectRatio;
 
 		}
 

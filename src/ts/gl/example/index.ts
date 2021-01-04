@@ -17,8 +17,15 @@ export default class Example extends BaseGL {
 
 	private initScene() {
 
-		this.box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshNormalMaterial() );
-		this.scene.add( this.box );
+		for ( let i = 0; i < 5; i++ ) {
+			for ( let j = 0; j < 5; j++ ) {
+				this.box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshNormalMaterial() );
+				this.scene.add( this.box );
+				this.box.scale.multiplyScalar( 0.5 );
+				this.box.position.set( i - 2, j - 2, 0 );
+			}
+		}
+		
 
 	}
 
