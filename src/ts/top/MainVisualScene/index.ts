@@ -127,17 +127,18 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			} );
 
+			return;
+
 		}
 
 		let promise = new Promise( resolve => {
 
 			this.state.renderContent = true;
+			this.contentSelector.enable = false;
 
 			this.animator.animate( 'contentVisibility', 1, 2, () => {
 
 				this.state.renderMainVisual = false;
-
-				console.log( contentName );
 
 				resolve( null );
 
@@ -156,12 +157,26 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.animator.animate( 'contentVisibility', 0, 2, () => {
 
 			this.state.renderContent = false;
+			this.contentSelector.enable = true;
 
 		} );
 
 	}
 
 	public switchInfoVisibility( visibility: boolean ) {
+
+		if ( ! this.gManager.assetManager.isLoaded ) {
+
+			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+
+				this.switchInfoVisibility( visibility );
+
+			} );
+
+			return;
+
+		}
+
 
 		let promise = new Promise( resolve => {
 

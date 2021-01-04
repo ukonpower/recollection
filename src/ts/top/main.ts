@@ -47,18 +47,18 @@ class APP {
 
 					if ( open ) {
 
-						return this.scene.openContent( data.next.namespace );
+						this.scene.openContent( data.next.namespace );
 
 					} else {
 
-						return this.scene.closeContent();
+						this.scene.closeContent();
 
 					}
 
 				},
 				afterEnter: ( data ) => {
 
-					return this.scene.switchInfoVisibility( true );
+					this.scene.switchInfoVisibility( true );
 
 				},
 			} );

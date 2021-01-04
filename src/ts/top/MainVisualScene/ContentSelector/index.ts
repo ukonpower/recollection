@@ -3,6 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 export class ContentSelector extends THREE.Object3D {
 
+	public enable: boolean = true;
 	public value: number = 0;
 
 	private selectingContentPos: number = 0;
@@ -146,6 +147,8 @@ export class ContentSelector extends THREE.Object3D {
 
 	public catch() {
 
+		if ( ! this.enable ) return;
+
 		this.isTouching = true;
 		this.isAnimating = false;
 		this.touchStartPos = this.value;
@@ -156,11 +159,15 @@ export class ContentSelector extends THREE.Object3D {
 
 	public drag( delta: number ) {
 
+		if ( ! this.enable ) return;
+
 		this.touchMove -= delta * 0.0005;
 
 	}
 
 	public release( delta: number ) {
+
+		if ( ! this.enable ) return;
 
 		this.isTouching = false;
 
@@ -169,6 +176,8 @@ export class ContentSelector extends THREE.Object3D {
 	}
 
 	public next() {
+
+		if ( ! this.enable ) return;
 
 		if ( this.wheelStop ) return;
 
@@ -182,6 +191,8 @@ export class ContentSelector extends THREE.Object3D {
 	}
 
 	public prev() {
+
+		if ( ! this.enable ) return;
 
 		if ( this.wheelStop ) return;
 
