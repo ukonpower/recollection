@@ -7,9 +7,9 @@ export default class Complex extends BaseGL {
 
 	private box: THREE.Mesh;
 
-	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget ) {
+	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget, parentUniforms: ORE.Uniforms ) {
 
-		super( renderer, info, renderTarget );
+		super( renderer, info, renderTarget, parentUniforms );
 
 		this.initScene();
 

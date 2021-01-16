@@ -5,9 +5,11 @@ export class BaseGL extends ORE.BaseLayer {
 
 	protected renderTarget: THREE.WebGLRenderTarget;
 
-	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget ) {
+	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget, parentUniforms: ORE.Uniforms ) {
 
 		super();
+
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( this.commonUniforms, parentUniforms );
 
 		this.renderTarget = renderTarget;
 		this.renderer = renderer;

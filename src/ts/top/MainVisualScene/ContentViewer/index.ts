@@ -46,6 +46,11 @@ export class ContentViewer extends THREE.Mesh {
 		this.layerInfo = layerInfo;
 		this.contentRenderTarget = contentRenderTarget;
 
+		this.commonUniforms = {
+			contentVisibility: parentUniforms.contentVisibility,
+			infoVisibility: parentUniforms.infoVisibility,
+		};
+
 		this.resize();
 
 	}
@@ -56,7 +61,7 @@ export class ContentViewer extends THREE.Mesh {
 
 			let Scene = e.default as ( typeof BaseGL );
 
-			this.currentScene = new Scene( this.renderer, this.layerInfo, this.contentRenderTarget );
+			this.currentScene = new Scene( this.renderer, this.layerInfo, this.contentRenderTarget, this.commonUniforms );
 			this.currentScene.onResize();
 
 			this.dispatchEvent( {

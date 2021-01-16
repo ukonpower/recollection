@@ -85,19 +85,29 @@ vec2 mainObjDist( vec3 p ) {
 vec2 backObjDist( vec3 p ) {
 
 	float d = 0.0;
-	vec3 size = vec3( 0.1, 0.1, 0.2 );
+
+	float lenXY = length( p.xy );
+
+	// p.xy *= rotate( -p.z * contentVisibility * 0.5 * smoothstep( 3.0, 0.0, lenXY ) );
+	p.xy *= rotate( -p.z  * 0.2 );
+
+	float loop = contentVisibility * (2.0 - smoothstep( 5.0, 0.0, lenXY ) * 1.0 ) + 0.5;
 
 	vec3 modP = p;
-	modP.xy *= rotate( p.z * 0.1 );
-
-	modP.xy = mod( modP.xy, 2.0 ) - 1.0;
-	modP.z = mod( modP.z, 0.5 ) - 0.25;
-	modP.xy *= rotate( -time + p.z * 0.3 );
-
+	modP = mod( modP, loop ) - loop / 2.0;
 	p += vec3( 0.0, 0.0, 5.0 );
 
+	for (int i = 0; i < 3; i++) {
+
+		modP.zy = abs(modP.zy);
+		modP.zy *= rotate( -contentVisibility * p.z * 0.2 * smoothstep( 0.2, 2.0, lenXY ) );
+
+	}
+
+	vec3 size = vec3( 0.001 * lenXY, 0.001 * lenXY, 10.0 * contentVisibility );
+
 	d = sdBox( modP, size );
-	d = max( d, -sdBox( p  -vec3( 0.0, 0.0, 10.0 ), vec3( 30.0 * ( 1.0 - contentVisibility ) ) )  );
+	d = max( d, sdSphere( p  -vec3( 0.0, 0.0, 10.0 ), ( 30.0 * contentVisibility ) )  );
 
 	return vec2( d, MAT_MAIN );
 	
@@ -158,7 +168,7 @@ float fresnel( float dVH ) {
 	
 }
 
-vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
+vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth ) {
 
 	vec3 normal = N( rayPos, 0.0001 );
 	
@@ -171,6 +181,8 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes ) {
 		float f = fresnel( dvh );
 		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.1 );
 		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f ) * 2.0;
+
+		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
 
 		return vec4( c, 1.0 );
 
@@ -243,7 +255,7 @@ vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 			if( distRes.x < 0.01 ) {
 
-				raymarchCol = material( rayPos, rayDir, distRes );
+				raymarchCol = material( rayPos, rayDir, distRes, depth );
 
 				if( raymarchCol.w == 1.0 ) {
 

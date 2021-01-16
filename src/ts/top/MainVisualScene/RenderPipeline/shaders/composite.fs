@@ -8,6 +8,7 @@ uniform sampler2D bloomTexs[RENDER_COUNT];
 uniform sampler2D noiseTex;
 uniform float brightness;
 uniform float time;
+uniform float windowAspect;
 
 #pragma glslify: random = require( './random.glsl' );
 
@@ -50,6 +51,8 @@ void main(){
 	#pragma unroll_loop_end
 
 	c += random( uv ) * 0.1 * c;
+
+	c += texture2D( lensTex, vec2( vUv ) * vec2( windowAspect, 1.0 ) ).x * texture2D( bloomTexs[ RENDER_COUNT - 1 ], vUv ).x * 5.0;
 
 	c *= smoothstep( -1.5, 0.5, 1.0 - length( cuv ) );
 

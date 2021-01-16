@@ -143,6 +143,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
 
+				this.animator.setValue( 'contentVisibility', 1.0 );
 				this.openContent( contentName );
 
 			} );
@@ -154,7 +155,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.state.renderContent = true;
 		this.contentSelector.enable = false;
 
-		return this.animator.animate( 'contentVisibility', 1, 4, () => {
+		return this.animator.animate( 'contentVisibility', 1, 6, () => {
 
 			this.state.renderMainVisual = false;
 			this.switchInfoVisibility( true );
@@ -204,7 +205,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
 
-			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.5, () => {
+			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.0, () => {
 
 				this.state.animatingInfoVisibility = false;
 
@@ -267,14 +268,16 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		if ( this.gManager.assetManager.isLoaded ) {
 
-			let a = (Math.sin( this.time ) * 0.5 + 0.5);
+			let a = ( Math.sin( this.time ) * 0.5 + 0.5 );
 
-			// this.commonUniforms.contentVisibility.value = (Math.max( 0.3, a ) - 0.3 ) * (10 / 7);
-			// this.commonUniforms.infoVisibility.value = 1.0 - (Math.min( 0.3, a )  ) * 3.3333;
-			
-			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.7;
+			// this.commonUniforms.contentVisibility.value = ( Math.max( 0.3, a ) - 0.3 ) * ( 10 / 7 );
+			// this.commonUniforms.infoVisibility.value = 1.0 - ( Math.min( 0.3, a ) ) * 3.3333;
+
+			// this.commonUniforms.contentVisibility.value = 0.5 + Math.sin( this.time ) * 0.1;
+			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.9;
+			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.9;
 			// this.commonUniforms.infoVisibility.value = 0.0;
-			
+
 			this.updateCameraInfo( deltaTime );
 
 			this.contentSelector.update( deltaTime );
@@ -283,7 +286,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			// if ( this.state.renderContent ) {
 
-				this.contentViewer.update( deltaTime );
+			this.contentViewer.update( deltaTime );
 
 			// }
 
