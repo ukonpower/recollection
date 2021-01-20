@@ -145,6 +145,13 @@ export class ContentSelector extends THREE.Object3D {
 
 	}
 
+	public setCurrentContent( contentNum: number ) {
+
+		this.value = contentNum;
+		this.currentContent = contentNum;
+
+	}
+
 	public catch() {
 
 		if ( ! this.enable ) return;

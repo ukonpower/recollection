@@ -15,6 +15,8 @@ export class BaseGL extends ORE.BaseLayer {
 		this.renderer = renderer;
 		this.info = info;
 
+		this.readyAnimate = true;
+
 		this.camera.position.set( 0, 0, 5 );
 
 	}

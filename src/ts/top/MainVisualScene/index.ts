@@ -152,6 +152,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		let contentIndex = this.world.contents.glList.findIndex( ( gl ) => {
+
+			return gl.title == contentName;
+
+		} );
+
+		this.contentSelector.setCurrentContent( contentIndex );
+		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
+
 		this.state.renderContent = true;
 		this.contentSelector.enable = false;
 
@@ -247,8 +256,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
 
 			this.world.contents.changeContent( e.num );
-
-			this.contentViewer.open( this.world.contents.glList[ e.num ].fileName );
 
 		} );
 

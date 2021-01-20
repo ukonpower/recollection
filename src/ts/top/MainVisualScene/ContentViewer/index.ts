@@ -83,7 +83,7 @@ export class ContentViewer extends THREE.Mesh {
 
 		if ( this.currentScene ) {
 
-			this.currentScene.animate( deltaTime );
+			this.currentScene.tick( deltaTime );
 
 		}
 
