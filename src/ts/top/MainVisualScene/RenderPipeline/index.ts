@@ -1,9 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 import { AssetManager } from '../MainVisualManager/AssetManager';
-import { PostProcessing } from './PostProcessing';
-
-import depthVert from './shaders/depth.vs';
 
 //raymarch
 import raymarchFrag from './shaders/raymarch.fs';
@@ -42,20 +39,20 @@ export class RenderPipeline {
 	private bloomResolutionRatio: number;
 	private bloomRenderCount: number;
 
-	private raymarch: PostProcessing;
-	private mix: PostProcessing;
-	private bloomBrightPP: PostProcessing;
-	private bloomBlurPP: PostProcessing;
-	private smaaEdgePP: PostProcessing;
-	private smaaCalcWeighttPP: PostProcessing;
-	private smaaBlendingPP: PostProcessing;
+	private raymarch: ORE.PostProcessing;
+	private mix: ORE.PostProcessing;
+	private bloomBrightPP: ORE.PostProcessing;
+	private bloomBlurPP: ORE.PostProcessing;
+	private smaaEdgePP: ORE.PostProcessing;
+	private smaaCalcWeighttPP: ORE.PostProcessing;
+	private smaaBlendingPP: ORE.PostProcessing;
 
-	private compositePP: PostProcessing;
+	private compositePP: ORE.PostProcessing;
 
-	private sceneMixerPP: PostProcessing;
+	private sceneMixerPP: ORE.PostProcessing;
 
 	private renderTargets: {
-		[keys:string]: { value: THREE.WebGLRenderTarget }
+		[keys:string]: THREE.WebGLRenderTarget
 	};
 
 	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, bloomResolutionRatio: number = 0.5, bloomRenderCount: number = 5, parentUniforms?: ORE.Uniforms ) {
@@ -77,75 +74,61 @@ export class RenderPipeline {
 	private initRenderTargets() {
 
 		this.renderTargets = {
-			sceneDepth: {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					stencilBuffer: false,
-					generateMipmaps: false,
-					depthBuffer: true,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			},
-			raymarch: {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					stencilBuffer: false,
-					generateMipmaps: false,
-					depthBuffer: false,
-					// type: THREE.HalfFloatType,
-					minFilter: THREE.NearestFilter,
-					magFilter: THREE.NearestFilter
-				} )
-			},
-			rt1: {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					stencilBuffer: false,
-					generateMipmaps: false,
-					depthBuffer: true,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			},
-			rt2: {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					depthBuffer: false,
-					stencilBuffer: false,
-					generateMipmaps: false,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			},
-			rt3: {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					depthBuffer: false,
-					stencilBuffer: false,
-					generateMipmaps: false,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			},
+			sceneDepth: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			raymarch: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: false,
+				// type: THREE.HalfFloatType,
+				minFilter: THREE.NearestFilter,
+				magFilter: THREE.NearestFilter
+			} ),
+			rt1: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			rt2: new THREE.WebGLRenderTarget( 0, 0, {
+				depthBuffer: false,
+				stencilBuffer: false,
+				generateMipmaps: false,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			rt3: new THREE.WebGLRenderTarget( 0, 0, {
+				depthBuffer: false,
+				stencilBuffer: false,
+				generateMipmaps: false,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} )
 		};
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ] = {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					depthBuffer: false,
-					stencilBuffer: false,
-					generateMipmaps: false,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			};
+			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ] = new THREE.WebGLRenderTarget( 0, 0, {
+				depthBuffer: false,
+				stencilBuffer: false,
+				generateMipmaps: false,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} );
 
-			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ] = {
-				value: new THREE.WebGLRenderTarget( 0, 0, {
-					depthBuffer: false,
-					stencilBuffer: false,
-					generateMipmaps: false,
-					minFilter: THREE.LinearFilter,
-					magFilter: THREE.LinearFilter
-				} )
-			};
+			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ] = new THREE.WebGLRenderTarget( 0, 0, {
+				depthBuffer: false,
+				stencilBuffer: false,
+				generateMipmaps: false,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} );
 
 		}
 
@@ -207,7 +190,7 @@ export class RenderPipeline {
 		/*------------------------
 			Raymarch
 		------------------------*/
-		this.raymarch = new PostProcessing( this.renderer, {
+		this.raymarch = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: raymarchFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( {
 				envMap: this.inputTextures.envMap
@@ -217,7 +200,7 @@ export class RenderPipeline {
 		/*------------------------
 			mix
 		------------------------*/
-		this.mix = new PostProcessing( this.renderer, {
+		this.mix = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: mixFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( {
 			}, this.commonUniforms ),
@@ -226,7 +209,7 @@ export class RenderPipeline {
 		/*------------------------
 			Bloom
 		------------------------*/
-		this.bloomBrightPP = new PostProcessing( this.renderer, {
+		this.bloomBrightPP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: bloomBrightFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( {
 				threshold: {
@@ -235,7 +218,7 @@ export class RenderPipeline {
 			}, this.commonUniforms ),
 		} );
 
-		this.bloomBlurPP = new PostProcessing( this.renderer, {
+		this.bloomBlurPP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: bloomBlurFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( {
 				backbuffer: {
@@ -277,7 +260,7 @@ export class RenderPipeline {
 			}
 		} );
 
-		this.smaaEdgePP = new PostProcessing( this.renderer,
+		this.smaaEdgePP = new ORE.PostProcessing( this.renderer,
 			{
 				vertexShader: edgeDetectionVert,
 				fragmentShader: edgeDetectionFrag,
@@ -287,7 +270,7 @@ export class RenderPipeline {
 			}
 		);
 
-		this.smaaCalcWeighttPP = new PostProcessing( this.renderer,
+		this.smaaCalcWeighttPP = new ORE.PostProcessing( this.renderer,
 			{
 				vertexShader: blendingWeightCalculationVert,
 				fragmentShader: blendingWeightCalculationFrag,
@@ -299,7 +282,7 @@ export class RenderPipeline {
 			}
 		);
 
-		this.smaaBlendingPP = new PostProcessing( this.renderer,
+		this.smaaBlendingPP = new ORE.PostProcessing( this.renderer,
 			{
 				vertexShader: neiborhoodBlendingVert,
 				fragmentShader: neiborhoodBlendingFrag,
@@ -314,7 +297,7 @@ export class RenderPipeline {
 		------------------------*/
 		let compo = compositeFrag.replace( /RENDER_COUNT/g, this.bloomRenderCount.toString() );
 
-		this.compositePP = new PostProcessing( this.renderer, {
+		this.compositePP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: compo,
 			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 				lensTex: this.assetManager.textures.lensDirt,
@@ -331,7 +314,7 @@ export class RenderPipeline {
 		/*------------------------
 			SceneMixer
 		------------------------*/
-		this.sceneMixerPP = new PostProcessing( this.renderer, {
+		this.sceneMixerPP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: sceneMixerFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 				noiseTex: window.mainVisualManager.assetManager.textures.noise
@@ -345,20 +328,20 @@ export class RenderPipeline {
 		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
 
 		let lowScale = 1.0 / this.renderer.getPixelRatio() * 0.8;
-		this.renderTargets.sceneDepth.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
-		this.renderTargets.raymarch.value.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
+		this.renderTargets.sceneDepth.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
+		this.renderTargets.raymarch.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 
-		this.renderTargets.rt1.value.setSize( pixelWindowSize.x, pixelWindowSize.y );
-		this.renderTargets.rt2.value.setSize( pixelWindowSize.x, pixelWindowSize.y );
-		this.renderTargets.rt3.value.setSize( pixelWindowSize.x, pixelWindowSize.y );
+		this.renderTargets.rt1.setSize( pixelWindowSize.x, pixelWindowSize.y );
+		this.renderTargets.rt2.setSize( pixelWindowSize.x, pixelWindowSize.y );
+		this.renderTargets.rt3.setSize( pixelWindowSize.x, pixelWindowSize.y );
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
 			let size = pixelWindowSize.clone().multiplyScalar( this.bloomResolutionRatio );
 			size.divideScalar( ( i + 1 ) * 2 );
 
-			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ].value.setSize( size.x, size.y );
-			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].value.setSize( size.x, size.y );
+			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ].setSize( size.x, size.y );
+			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].setSize( size.x, size.y );
 
 		}
 
@@ -376,8 +359,8 @@ export class RenderPipeline {
 			Scene Mixer
 		------------------------*/
 		this.sceneMixerPP.render( {
-			sceneTex: this.renderTargets.rt2,
-			contentTex: { value: contentRenderTarget }
+			sceneTex: this.renderTargets.rt2.texture,
+			contentTex: contentRenderTarget.texture
 		}, null );
 
 		this.renderer.autoClear = true;
@@ -391,11 +374,11 @@ export class RenderPipeline {
 		------------------------*/
 		let renderTargetMem = this.renderer.getRenderTarget();
 
-		this.renderer.setRenderTarget( this.renderTargets.rt1.value );
+		this.renderer.setRenderTarget( this.renderTargets.rt1 );
 		this.renderer.render( scene, camera );
 		this.swapDepthMaterial( scene );
 
-		this.renderer.setRenderTarget( this.renderTargets.sceneDepth.value );
+		this.renderer.setRenderTarget( this.renderTargets.sceneDepth );
 		this.renderer.render( scene, camera );
 		this.swapDepthMaterial( scene );
 
@@ -413,21 +396,21 @@ export class RenderPipeline {
 			blend
 		------------------------*/
 		this.mix.render( {
-			sceneTex: this.renderTargets.rt1,
-			sceneDepthTex: this.renderTargets.sceneDepth,
-			raymarchTex: this.renderTargets.raymarch,
+			sceneTex: this.renderTargets.rt1.texture,
+			sceneDepthTex: this.renderTargets.sceneDepth.texture,
+			raymarchTex: this.renderTargets.raymarch.texture,
 		}, this.renderTargets.rt3 );
 
 		/*------------------------
 			Bloom
 		------------------------*/
 		this.bloomBrightPP.render( {
-			sceneTex: this.renderTargets.rt3
+			sceneTex: this.renderTargets.rt3.texture
 		}, this.renderTargets.rt1 );
 
-		let target: { value: THREE.WebGLRenderTarget };
+		let target: THREE.WebGLRenderTarget;
 		let uni = this.bloomBlurPP.effect.material.uniforms;
-		uni.backbuffer.value = this.renderTargets.rt1.value.texture;
+		uni.backbuffer.value = this.renderTargets.rt1.texture;
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
@@ -438,11 +421,11 @@ export class RenderPipeline {
 			this.bloomBlurPP.render( null, target );
 
 			uni.direction.value = true;
-			uni.backbuffer.value = target.value.texture;
+			uni.backbuffer.value = target.texture;
 			target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
 			this.bloomBlurPP.render( null, target );
 
-			uni.backbuffer.value = target.value.texture;
+			uni.backbuffer.value = target.texture;
 
 		}
 
@@ -450,23 +433,23 @@ export class RenderPipeline {
 			SMAA
 		------------------------*/
 		this.smaaEdgePP.render( {
-			sceneTex: this.renderTargets.rt3,
+			sceneTex: this.renderTargets.rt3.texture,
 		}, this.renderTargets.rt1 );
 
 		this.smaaCalcWeighttPP.render( {
-			backbuffer: this.renderTargets.rt1,
+			backbuffer: this.renderTargets.rt1.texture,
 		}, this.renderTargets.rt2 );
 
 		this.smaaBlendingPP.render( {
-			sceneTex: this.renderTargets.rt3,
-			backbuffer: this.renderTargets.rt2,
+			sceneTex: this.renderTargets.rt3.texture,
+			backbuffer: this.renderTargets.rt2.texture,
 		}, this.renderTargets.rt1 );
 
 		/*------------------------
 			Composite
 		------------------------*/
 		let compositeInputRenderTargets = {
-			sceneTex: this.renderTargets.rt1,
+			sceneTex: this.renderTargets.rt1.texture,
 			bloomTexs: null
 		};
 
@@ -474,11 +457,11 @@ export class RenderPipeline {
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-			bloomTexArray.push( this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].value.texture );
+			bloomTexArray.push( this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].texture );
 
 		}
 
-		compositeInputRenderTargets.bloomTexs = { value: bloomTexArray };
+		compositeInputRenderTargets.bloomTexs = bloomTexArray;
 		this.compositePP.render( compositeInputRenderTargets, this.renderTargets.rt2 );
 
 	}
