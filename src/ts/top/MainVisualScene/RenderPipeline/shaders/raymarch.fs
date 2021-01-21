@@ -4,7 +4,7 @@ varying vec3 vNormal;
 varying vec3 vPosition;
 
 uniform sampler2D backbuffer;
-uniform sampler2D sceneDepthTex;
+uniform sampler2D sceneTex;
 uniform samplerCube envMap;
 uniform vec2 resolution;
 uniform float time;
@@ -67,7 +67,7 @@ vec2 mainObjDist( vec3 p ) {
 			p.xz *= rotate( -contentNum * 0.3 + contentVisibility * 10.0);
 
 			p.xz = abs(p.xz);
-			p.yz *= rotate( -contentNum * 1.0 + length( p ) * sin( contentNum ) * 2.0  );
+			p.yz *= rotate( -contentNum * 0.9 + length( p ) * sin( contentNum ) * 2.0  );
 
 			// for( int j = 0; j < 2; j ++ ) {
 			p.xz = abs(p.xz) - 0.2 * contentVisibility;
@@ -184,8 +184,14 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 		float dvh = dot( v, normal );
 
 		float f = fresnel( dvh );
-		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.1 );
-		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f ) * 2.0;
+		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.2 );
+		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f ) * 1.5;
+
+		float nf = (1.0 - smoothstep( 0.0, 0.04, f));
+
+		c.x += nf * texture2D( sceneTex, vUv + normal.xy * 0.1 ).x;
+		c.y += nf * texture2D( sceneTex, vUv + normal.xy * 0.12 ).y;
+		c.z += nf * texture2D( sceneTex, vUv + normal.xy * 0.14 ).z;
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
 

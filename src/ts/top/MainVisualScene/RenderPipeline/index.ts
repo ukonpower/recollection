@@ -390,7 +390,9 @@ export class RenderPipeline {
 		/*------------------------
 			Raymarch
 		------------------------*/
-		this.raymarch.render( null, this.renderTargets.raymarch );
+		this.raymarch.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+		}, this.renderTargets.raymarch );
 
 		/*------------------------
 			blend
