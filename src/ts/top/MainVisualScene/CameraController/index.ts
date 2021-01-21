@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
+import { getDiffieHellman } from 'crypto';
 
 export class CameraController {
 
@@ -12,6 +13,7 @@ export class CameraController {
 
 	private cursorPos: THREE.Vector2;
 	public cursorPosDelay: THREE.Vector2;
+	private cursorPosDelayVel: THREE.Vector2;
 
 	private baseCamera: THREE.PerspectiveCamera;
 
@@ -20,7 +22,6 @@ export class CameraController {
 		this.camera = obj;
 		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
 		this.cameraTargetPos = data.getObjectByName( 'CameraTarget' ).getWorldPosition( new THREE.Vector3() );
-
 		this.baseCamera = data.getObjectByName( 'Camera' ).children[ 0 ] as THREE.PerspectiveCamera;
 
 		this.animator = animator;
@@ -36,6 +37,7 @@ export class CameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
+		this.cursorPosDelayVel = new THREE.Vector2();
 
 	}
 
@@ -53,9 +55,15 @@ export class CameraController {
 
 		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 1.0 );
 		diff.multiply( diff.clone().addScalar( 1.0 ) );
-		this.cursorPosDelay.add( diff );
 
-		let weight = Math.max( 0.0, 1.0 - this.commonUniforms.contentVisibility.value * 2.0 );
+		// let l = diff.length() + 1.0;
+
+		this.cursorPosDelayVel.add( diff.multiplyScalar( 3.0 ) );
+		this.cursorPosDelayVel.multiplyScalar( 0.9 );
+
+		this.cursorPosDelay.add( this.cursorPosDelayVel );
+
+		let weight = Math.max( 0.0, 1.0 - this.commonUniforms.contentVisibility.value * 1.0 ) * 0.2;
 		this.camera.position.set(
 			this.cameraBasePos.x + this.cursorPosDelay.x * weight,
 			this.cameraBasePos.y + this.cursorPosDelay.y * weight,

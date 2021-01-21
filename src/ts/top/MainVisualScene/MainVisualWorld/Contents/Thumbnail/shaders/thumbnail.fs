@@ -16,7 +16,7 @@ void main( void ) {
 	float w = contentFade;
 
 	vec4 col = mix( currentCol, nextCol, w );
-	col.xyz *= 0.5;
+	col.xyz *= 0.9;
 	col.xyz *= smoothstep( 0.7, 0.0, abs(vUv.y - 0.5));
 
 	gl_FragColor = col;
