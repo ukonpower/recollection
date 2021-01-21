@@ -54,6 +54,8 @@ vec2 mainObjDist( vec3 p ) {
 	);
 	
 	p.xz *= rotate(contentNum * -1.5);
+	vec3 mp = p;
+
 	p.xy *= rotate(time * 0.2);
 	p.xz *= rotate(time * 0.2);
 
@@ -62,21 +64,24 @@ vec2 mainObjDist( vec3 p ) {
 		for (int i = 0; i < 2; i++) {
 
 			p.zy = abs(p.zy);
-			p.xz *= rotate( -contentNum * 0.3 );
+			p.xz *= rotate( -contentNum * 0.3 + contentVisibility * 10.0);
 
 			p.xz = abs(p.xz);
 			p.yz *= rotate( -contentNum * 1.0 + length( p ) * sin( contentNum ) * 2.0  );
 
+			// for( int j = 0; j < 2; j ++ ) {
+			p.xz = abs(p.xz) - 0.2 * contentVisibility;
+			p.yx *= rotate( length( (mp.x + mp.y) * 30.0 * contentVisibility ) );
+			// }
+
 			p.xy = abs(p.xy);
 			p.xy *= rotate( p.x * sin( contentNum ));
-
-			p.x += smoothstep( 0.0, 0.5, contentVisibility);
 
 		}
 
 	}
 
-	d = sdBox( p, size );
+	d = sdBox( p, size * vec3( smoothstep( 0.2, 0.0, contentVisibility), smoothstep( 0.2, 0.0, contentVisibility), smoothstep( 0.5, 0.0, contentVisibility) ) );
 
 	return vec2( d, MAT_MAIN );
 	

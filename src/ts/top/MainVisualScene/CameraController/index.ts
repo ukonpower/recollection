@@ -12,7 +12,6 @@ export class CameraController {
 
 	private cursorPos: THREE.Vector2;
 	public cursorPosDelay: THREE.Vector2;
-	private cameraMoveWeight: THREE.Vector2;
 
 	private baseCamera: THREE.PerspectiveCamera;
 
@@ -37,7 +36,6 @@ export class CameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.3, 0.3 );
 
 	}
 
@@ -51,14 +49,18 @@ export class CameraController {
 
 	public update( deltaTime: number, target?: THREE.Vector3 ) {
 
-		deltaTime = Math.min( 0.3, deltaTime );
+		deltaTime = Math.min( 0.3, deltaTime ) * 0.3;
 
 		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 1.0 );
 		diff.multiply( diff.clone().addScalar( 1.0 ) );
 		this.cursorPosDelay.add( diff );
 
-		let weight = 1.0;
-		this.camera.position.set( this.cameraBasePos.x + this.cursorPosDelay.x * this.cameraMoveWeight.x, this.cameraBasePos.y + this.cursorPosDelay.y * this.cameraMoveWeight.y, this.cameraBasePos.z );
+		let weight = Math.max( 0.0, 1.0 - this.commonUniforms.contentVisibility.value * 2.0 );
+		this.camera.position.set(
+			this.cameraBasePos.x + this.cursorPosDelay.x * weight,
+			this.cameraBasePos.y + this.cursorPosDelay.y * weight,
+			this.cameraBasePos.z
+		);
 
 		if ( this.cameraTargetPos ) {
 
@@ -67,7 +69,6 @@ export class CameraController {
 		}
 
 		this.camera.position.z -= this.commonUniforms.contentVisibility.value * 5.0;
-		this.camera.rotation.z = -this.commonUniforms.contentVisibility.value * 0.1;
 
 	}
 

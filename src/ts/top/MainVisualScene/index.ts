@@ -282,7 +282,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			// this.commonUniforms.contentVisibility.value = 0.5 + Math.sin( this.time ) * 0.1;
 			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.9;
-			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.9;
+			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.7;
 			// this.commonUniforms.infoVisibility.value = 0.0;
 
 			this.updateCameraInfo( deltaTime );
