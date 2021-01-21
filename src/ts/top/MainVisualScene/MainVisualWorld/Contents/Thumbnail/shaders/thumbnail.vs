@@ -35,6 +35,7 @@ void main( void ) {
 
 	currentUV = ((gl_Position.xy / gl_Position.w) + 1.0) / 2.0;
 	currentUV -= 0.5;
+	currentUV *= 0.8;
 
 	currentUV.x *= windowAspect;
 	currentUV.x /= 16.0 / 9.0;

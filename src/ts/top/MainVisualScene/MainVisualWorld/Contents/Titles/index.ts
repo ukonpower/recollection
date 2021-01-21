@@ -75,7 +75,9 @@ export class Titles extends THREE.Object3D {
 		}
 
 		this.currentTitle = new Title( glContent.title, this.fontInfo, this.commonUniforms );
-		this.currentTitle.position.set( 2.3, - 0.9, 0 );
+		this.currentTitle.rotation.set( 0, 0.1, 0 );
+		this.currentTitle.position.set( 2.3, - 0.9, 0.0 );
+		this.currentTitle.scale.setScalar( 0.9 );
 		this.currentTitle.setText( glContent.title.toUpperCase(), "right" );
 		// this.currentTitle.position.set( - 2.6, - 1.0, 0.0 );
 		// this.currentTitle.setText( glContent.name.toUpperCase(), "left" );
@@ -103,7 +105,7 @@ export class Titles extends THREE.Object3D {
 					type: 'infoloaded'
 				} );
 
-				resolve(null);
+				resolve( null );
 
 			};
 

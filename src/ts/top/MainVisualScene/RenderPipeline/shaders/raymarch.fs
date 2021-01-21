@@ -52,6 +52,9 @@ vec2 mainObjDist( vec3 p ) {
 	vec3 size = vec3(
 		0.65
 	);
+
+	p += vec3( 0.0, 0.0, 1.5 );
+	p *= 0.7;
 	
 	p.xz *= rotate(contentNum * -1.5);
 	vec3 mp = p;

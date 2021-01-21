@@ -31,11 +31,11 @@ void main( void ) {
 	vUv.x += left;
 	vUv.y -= top;
 
-	float start = index * .3;
-	float offsetY = visibility;
-	offsetY = smoothstep( start, start + 0.7, offsetY );
-	offsetY = 1.0 - easeOutQuart( offsetY );
-	vUv.x -= ( offsetY * width );
+	float start = (1.0 - index) * 0.3;
+	float offsetX = visibility;
+	offsetX = smoothstep( start, start + 0.7, offsetX );
+	offsetX = 1.0 - easeOutQuart( offsetX );
+	vUv.x += ( offsetX * width );
 
 	float offsetYEnd = max( 0.0, visibility - 1.0 );
 	offsetYEnd = smoothstep( start, start + 0.7, offsetYEnd );
