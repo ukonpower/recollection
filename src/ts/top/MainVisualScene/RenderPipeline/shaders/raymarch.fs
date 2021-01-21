@@ -72,10 +72,8 @@ vec2 mainObjDist( vec3 p ) {
 			p.xz = abs(p.xz);
 			p.yz *= rotate( -contentNum * 0.9 + length( p ) * sin( contentNum ) * 2.0  );
 
-			// for( int j = 0; j < 2; j ++ ) {
 			p.xz = abs(p.xz) - 0.2 * contentVisibility;
 			p.yx *= rotate( length( (mp.x + mp.y) * 30.0 * contentVisibility ) );
-			// }
 
 			p.xy = abs(p.xy);
 			p.xy *= rotate( p.x * sin( contentNum ));
@@ -95,12 +93,9 @@ vec2 backObjDist( vec3 p ) {
 	float d = 0.0;
 
 	float lenXY = length( p.xy );
-
-	// p.xy *= rotate( -p.z * contentVisibility * 0.5 * smoothstep( 3.0, 0.0, lenXY ) );
 	p.xy *= rotate( -p.z  * 0.2 );
-
+	
 	float loop = contentVisibility * (2.0 - smoothstep( 5.0, 0.0, lenXY ) * 1.0 ) + 0.5;
-
 	vec3 modP = p;
 	modP = mod( modP, loop ) - loop / 2.0;
 	p += vec3( 0.0, 0.0, 5.0 );
@@ -123,11 +118,14 @@ vec2 backObjDist( vec3 p ) {
 
 vec2 D( vec3 p ) {
 
-	vec2 mainObj = mainObjDist( p );
-	vec2 backObj = backObjDist( p );
+	vec2 d = mainObjDist( p );
 
-	// vec2 refPlane = vec2( sdBox( p, vec3( 100.0, 0.01, 100.0 ) ), MAT_REFLECT );
-	return U( mainObj, backObj );
+	if( contentVisibility > 0.0 ) {
+		vec2 backObj = backObjDist( p );
+		d = U( d, backObj );
+	}
+
+	return d;
 
 }
 
@@ -144,9 +142,7 @@ vec3 N( vec3 pos, float delta ){
 vec3 matEdge( vec3 normal, vec3 normal2 ) {
 
     float diff = clamp( dot( vec3( 0.5, 0.5, 0.5 ), normal ), 0.1, 1.0 );
-
     vec3 edge = vec3( length( normal - normal2 ) ) * 3.0;
-
 	return vec3( edge );
 	
 }
@@ -155,7 +151,6 @@ vec3 matMain( vec3 normal ) {
 
 	float w = clamp(dot(vec3(0.0,1.0,0.0), normal), 0.1, 1.0);
 	w += clamp(dot(vec3(0.0,-1.0,0.0), normal), 0.1, 1.0);
-
 	return vec3( w * 0.15  + 0.55 );
 	
 }
@@ -171,7 +166,6 @@ float GGX(vec3 normal, vec3 halfDir, float roughness) {
 float fresnel( float dVH ) {
 
 	float f0 = 0.01;
-
 	return f0 + ( 1.0 - f0 ) * pow( 1.0 - dVH, 2.0 );
 	
 }
@@ -187,14 +181,14 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 		float dvh = dot( v, normal );
 
 		float f = fresnel( dvh );
-		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.2 );
-		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * ( f ) * 1.5;
+		float nf = (0.5 - smoothstep( 0.0, 0.03, f) * 1.0 );
 
-		float nf = (1.0 - smoothstep( 0.0, 0.04, f));
+		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.3 );
+		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * f * 1.5;
 
 		c.x += nf * texture2D( sceneTex, vUv + normal.xy * 0.1 ).x;
-		c.y += nf * texture2D( sceneTex, vUv + normal.xy * 0.12 ).y;
-		c.z += nf * texture2D( sceneTex, vUv + normal.xy * 0.14 ).z;
+		c.y += nf * texture2D( sceneTex, vUv + normal.xy * 0.11 ).y;
+		c.z += nf * texture2D( sceneTex, vUv + normal.xy * 0.12 ).z;
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
 
@@ -233,55 +227,31 @@ vec2 packingRGB2RG( vec3 value ) {
 	
 }
 
-bool intersectionSphere( vec3 rayOrigin, vec3 rayDirection, vec3 pos, float radius ) {
-
-	vec3 oc = rayOrigin - pos;
-    float a = dot( rayDirection, rayDirection );
-    float b = 2.0 * dot( oc, rayDirection );
-    float c = dot( oc,oc ) - radius * radius;
-    float discriminant = b * b - 4.0 * a * c;
-	float t = ( -b - sqrt( discriminant ) ) / ( 2.0 * a );
-
-	if( discriminant > 0.0 && t > 0.00001 ) {
-
-		return true;
-		
-	}
-
-	return false;
-	
-}
-
 vec4 trace( vec3 rayPos, vec4 rayDir ) {
 
 	vec2 distRes = vec2( 0.0 );
-
 	vec4 raymarchCol = vec4( 0.0 );
 	float depth = 0.0;
 
-	// if( intersectionSphere( rayPos, rayDir.xyz, vec3( 0.0, 0.0, 0.0 ), 1.2 ) ) {
+	for( int i = 0; i < 32; i++ ) {
 
-		for( int i = 0; i < 32; i++ ) {
+		distRes = D( rayPos );
+		depth += distRes.x;
+		rayPos += distRes.x * rayDir.xyz;
 
-			distRes = D( rayPos );
-			depth += distRes.x;
-			rayPos += distRes.x * rayDir.xyz;
+		if( distRes.x < 0.01 ) {
 
-			if( distRes.x < 0.01 ) {
+			raymarchCol = material( rayPos, rayDir, distRes, depth );
 
-				raymarchCol = material( rayPos, rayDir, distRes, depth );
+			if( raymarchCol.w == 1.0 ) {
 
-				if( raymarchCol.w == 1.0 ) {
-
-					break;
-					
-				}
+				break;
 				
 			}
 			
 		}
-
-	// }
+		
+	}
 
 	if( raymarchCol.w != 1.0 ) {
 

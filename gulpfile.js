@@ -220,7 +220,7 @@ function watch() {
 
 	gulp.watch( srcPath + '/pug/**/*', gulp.series( pugDev ) );
 	gulp.watch( srcPath + '/scss/**/*', gulp.series( sassDev ) );
-	gulp.watch( [srcPath + '/assets/**/*', glPath + '/assets/**/*'], gulp.series( copyFiles ) );
+	gulp.watch( [srcPath + '/ts/top/assets/**/*', glPath + '/*/assets/**/*'], gulp.series( copyFiles ) );
 	
 }
 
