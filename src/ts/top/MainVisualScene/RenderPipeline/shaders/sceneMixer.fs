@@ -28,7 +28,7 @@ void main(){
 	vec4 noiseCol = texture2D( noiseTex, noiseUV );
 
 	float v = smoothstep( 0.45, 1.0, contentVisibility );
-	float w = smoothstep( 0.0, -1.5, length( cUV + (noiseCol.xy - 0.5) * 0.4 ) - v * 3.0 );
+	float w = smoothstep( 0.0, -1.5, length( cUV + (noiseCol.xy - 0.5) * 0.4 ) - v * 2.5 * max( 1.2 ,windowAspect * 0.8) );
 
 	vec4 sceneCol = texture2D( sceneTex, uv + (noiseCol.xy - 0.5) * ( 1.0 ) * sin(w * PI) );
 

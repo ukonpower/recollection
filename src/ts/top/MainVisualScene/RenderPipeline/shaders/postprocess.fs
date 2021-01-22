@@ -4,7 +4,7 @@ varying vec2 vUv;
 
 uniform float time;
 
-$random
+#pragma glslify: random = require('./random.glsl' )
 
 void main(){
 

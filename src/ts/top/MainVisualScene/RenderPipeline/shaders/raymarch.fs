@@ -82,7 +82,7 @@ vec2 mainObjDist( vec3 p ) {
 
 	}
 
-	d = sdBox( p, size * vec3( smoothstep( 0.2, 0.0, contentVisibility), smoothstep( 0.2, 0.0, contentVisibility), smoothstep( 0.5, 0.0, contentVisibility) ) );
+	d = sdBox( p, size * vec3( smoothstep( 0.2, 0.0, contentVisibility), smoothstep( 0.3, 0.0, contentVisibility), smoothstep( 0.6, 0.0, contentVisibility) ) );
 
 	return vec2( d, MAT_MAIN );
 	

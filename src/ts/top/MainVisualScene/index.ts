@@ -201,6 +201,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		console.log( this.state.animatingInfoVisibility );
+
+
 		if ( this.state.animatingInfoVisibility ) {
 
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
@@ -321,6 +324,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( args.position.x != args.position.x ) return;
 
 		if ( this.gManager.assetManager.isLoaded ) {
+
+			this.contentViewer.onHover( args );
 
 			this.cameraController.updateCursor( args.normalizedPosition );
 			this.gManager.eRay.checkHitObject( args.normalizedPosition, this.camera, this.gManager.eRay.touchableObjs );
