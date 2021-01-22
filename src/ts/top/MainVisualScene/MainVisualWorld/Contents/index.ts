@@ -40,7 +40,7 @@ export class Contents {
 		this.scene.add( this.thumbnails );
 
 		this.titles = new Titles( this.glList, this.commonUniforms );
-		// this.scene.add( this.titles );
+		this.scene.add( this.titles );
 
 	}
 
