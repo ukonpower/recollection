@@ -11,14 +11,12 @@ import { MainVisualWorld } from './MainVisualWorld';
 import { MainVisualManager } from './MainVisualManager';
 
 import { CameraController } from './CameraController';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class MainVisualScene extends ORE.BaseLayer {
 
 	private animator: ORE.Animator;
 
 	private cameraController: CameraController;
-	private orbitControls: OrbitControls;
 
 	private renderPipeline: RenderPipeline;
 
@@ -29,9 +27,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 	private gManager: MainVisualManager;
 
 	private state = {
-		renderMainVisual: false,
-		renderContent: false,
-		animatingInfoVisibility: false
 	}
 
 	constructor() {
@@ -52,6 +47,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 				value: 0
 			},
 			camFar: {
+				value: 0
+			},
+			loaded: {
 				value: 0
 			},
 			camPosition: {
@@ -77,19 +75,38 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		super.onBind( info );
 
+		this.initGmanager();
+
+		this.initERay();
+
+	}
+
+	private initGmanager() {
+
 		this.gManager = new MainVisualManager( {
+			onPreAssetsLoaded: () => {
+
+				this.preInitScene();
+				window.dispatchEvent( new CustomEvent( 'resize' ) );
+
+			},
 			onMustAssetsLoaded: () => {
 
-				this.initAnimator();
-
 				this.initScene();
-
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
 			}
 		} );
 
-		this.initERay();
+		this.initAnimator();
+
+		this.gManager.assetManager.addEventListener( 'mustAssetsProcess', ( e ) => {
+
+			let percent = e.num / e.total;
+
+			this.animator.animate( 'loaded', percent, 0.5 );
+
+		} );
 
 	}
 
@@ -99,12 +116,23 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.commonUniforms.contentVisibility = this.animator.add( {
 			name: 'contentVisibility',
+			easing: {
+				func: ORE.Easings.easeInOutCubic,
+			},
 			initValue: 0,
 		} );
 
 		this.commonUniforms.infoVisibility = this.animator.add( {
 			name: 'infoVisibility',
-			initValue: 1
+			initValue: 0
+		} );
+
+		this.commonUniforms.loaded = this.animator.add( {
+			name: 'loaded',
+			initValue: 0,
+			easing: {
+				func: ORE.Easings.easeInOutCubic
+			}
 		} );
 
 	}
@@ -112,8 +140,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 	private initERay() {
 
 		this.gManager.eRay.addEventListener( 'ClickTarget', ( e ) =>{
-
-			this.contentSelector.enable = false;
 
 			let currentGL = this.world.contents.glList[ this.contentSelector.currentContent ];
 
@@ -123,13 +149,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.gManager.eRay.addEventListener( 'onChangeHitObject', ( e ) => {
 
-			if ( e.obj ) {
+			if ( this.contentSelector.enable ) {
 
-				document.querySelector( '.container' ).parentElement.style.cursor = 'pointer';
-
-			} else {
-
-				document.querySelector( '.container' ).parentElement.style.cursor = 'unset';
+				this.switchCursorPointer( e.obj != null );
 
 			}
 
@@ -137,10 +159,26 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
+	private switchCursorPointer( enable: boolean ) {
+
+		if ( enable ) {
+
+			document.querySelector( '.container' ).parentElement.style.cursor = 'pointer';
+
+		} else {
+
+			document.querySelector( '.container' ).parentElement.style.cursor = 'unset';
+
+		}
+
+	}
+
 	public openContent( contentName: string ) {
 
-		if ( ! this.gManager.assetManager.isLoaded ) {
+		//ロードが終わってなかった場合
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
 
+			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
 
 				this.animator.setValue( 'contentVisibility', 1.0 );
@@ -159,14 +197,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 		} );
 
 		this.contentSelector.setCurrentContent( contentIndex );
-		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
 
-		this.state.renderContent = true;
-		this.contentSelector.enable = false;
+		this.switchCursorPointer( false );
+
+		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
 
 		return this.animator.animate( 'contentVisibility', 1, 6, () => {
 
-			this.state.renderMainVisual = false;
 			this.switchInfoVisibility( true );
 
 		} );
@@ -175,12 +212,24 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public closeContent() {
 
-		this.state.renderMainVisual = true;
+		//ロードが終わってなかった場合
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
 
-		return this.animator.animate( 'contentVisibility', 0, 4, () => {
+			//ロード終了後再度同関数を呼ぶ
+			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
 
-			this.state.renderContent = false;
+				this.closeContent();
+
+			} );
+
+			return;
+
+		}
+
+		this.animator.animate( 'contentVisibility', 0, 4, () => {
+
 			this.contentSelector.enable = true;
+
 			this.switchInfoVisibility( true );
 
 		} );
@@ -189,7 +238,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public switchInfoVisibility( visibility: boolean ) {
 
-		if ( ! this.gManager.assetManager.isLoaded ) {
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
 
 			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
 
@@ -201,25 +250,30 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		console.log( this.state.animatingInfoVisibility );
-
-
-		if ( this.state.animatingInfoVisibility ) {
+		if ( this.animator.isAnimatingVariable( 'infoVisibility' ) ) {
 
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
 			callback && callback();
+
+			if ( visibility ) {
+
+				return;
+
+			}
+
+		}
+
+		if ( ! visibility ) {
+
+			this.contentSelector.enable = false;
 
 		}
 
 		let promise = new Promise( resolve => {
 
-			this.state.animatingInfoVisibility = true;
-
 			document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
 
 			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.0, () => {
-
-				this.state.animatingInfoVisibility = false;
 
 				resolve( null );
 
@@ -231,23 +285,24 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	private initScene() {
+	private preInitScene() {
 
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
 		this.camera.updateProjectionMatrix();
 		this.camera.position.set( 0, 3, 10 );
-
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
 
-		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
-
-		this.cameraController = new CameraController( this.camera, this.scene.getObjectByName( 'CameraDatas' ), this.gManager.animator, this.commonUniforms );
+		this.cameraController = new CameraController( this.camera, this.gManager.animator, this.commonUniforms );
+		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
-		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
-		// this.scene.add( this.contentViewer );
+	}
+
+	private initScene() {
+
+		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 
 		this.initContentSelector();
 
@@ -271,36 +326,23 @@ export class MainVisualScene extends ORE.BaseLayer {
 	public animate( deltaTime: number ) {
 
 		deltaTime = Math.min( deltaTime, 0.1 );
-
 		this.commonUniforms.time.value = this.time;
 
 		this.gManager.update( deltaTime );
+		this.updateCameraInfo( deltaTime );
 
-		if ( this.gManager.assetManager.isLoaded ) {
+		if ( this.gManager.assetManager.preAssetsLoaded ) {
 
-			let a = ( Math.sin( this.time ) * 0.5 + 0.5 );
+			this.contentViewer.update( deltaTime );
+			this.renderPipeline.render( this.scene, this.camera, true, this.contentViewer.contentRenderTarget );
 
-			// this.commonUniforms.contentVisibility.value = ( Math.max( 0.3, a ) - 0.3 ) * ( 10 / 7 );
-			// this.commonUniforms.infoVisibility.value = 1.0 - ( Math.min( 0.3, a ) ) * 3.3333;
+		}
 
-			// this.commonUniforms.contentVisibility.value = 0.5 + Math.sin( this.time ) * 0.1;
-			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.9;
-			// this.commonUniforms.contentVisibility.value = ( Math.sin( this.time ) * 0.5 + 0.5 ) * 0.7;
-			// this.commonUniforms.infoVisibility.value = 0.0;
-
-			this.updateCameraInfo( deltaTime );
+		if ( this.gManager.assetManager.mustAssetsLoaded ) {
 
 			this.contentSelector.update( deltaTime );
 
 			this.world.contents.update( deltaTime, this.contentSelector.value );
-
-			// if ( this.state.renderContent ) {
-
-			this.contentViewer.update( deltaTime );
-
-			// }
-
-			this.renderPipeline.render( this.scene, this.camera, this.state.renderMainVisual, this.contentViewer.contentRenderTarget );
 
 		}
 
@@ -308,8 +350,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private updateCameraInfo( deltaTime: number ) {
 
-		this.cameraController.update( deltaTime );
-
+		this.cameraController && this.cameraController.update( deltaTime );
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
 		this.commonUniforms.camPosition.value.copy( this.camera.position );
@@ -323,7 +364,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		if ( args.position.x != args.position.x ) return;
 
-		if ( this.gManager.assetManager.isLoaded ) {
+		if ( this.gManager.assetManager.mustAssetsLoaded ) {
 
 			this.contentViewer.onHover( args );
 
@@ -336,7 +377,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public onWheel( e: WheelEvent, trackpadDelta: number ) {
 
-		if ( ! this.gManager.assetManager.isLoaded ) return;
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 
 		if ( Math.abs( trackpadDelta ) < 5.0 ) return;
 
@@ -356,7 +397,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		args.event?.preventDefault();
 
-		if ( ! this.gManager.assetManager.isLoaded ) return;
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 
 		this.contentSelector.catch();
 		this.contentViewer.touchStart( args );
@@ -369,7 +410,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		args.event?.preventDefault();
 
-		if ( ! this.gManager.assetManager.isLoaded ) return;
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 
 		this.contentSelector.drag( args.delta.x );
 		this.contentViewer.touchMove( args );
@@ -380,7 +421,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		args.event?.preventDefault();
 
-		if ( ! this.gManager.assetManager.isLoaded ) return;
+		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 
 		this.contentSelector.release( args.delta.x );
 		this.contentViewer.touchEnd( args );
@@ -393,14 +434,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		super.onResize();
 
-		if ( this.gManager.assetManager.isLoaded ) {
+		if ( this.gManager.assetManager.preAssetsLoaded ) {
 
 			this.renderPipeline.resize( this.info.size.canvasPixelSize );
-
 			this.contentViewer.resize();
-
 			this.cameraController.resize( this.info.aspect );
-
 			this.commonUniforms.windowAspect.value = this.info.size.canvasAspectRatio;
 
 		}

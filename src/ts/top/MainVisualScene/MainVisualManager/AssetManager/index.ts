@@ -45,29 +45,21 @@ export class AssetManager extends ORE.EventDispatcher {
 	public gltfScene: THREE.Group;
 	public textures: ORE.Uniforms = {};
 
-	private videoTexture1: VideoTextureCreator;
-	private videoTexture2: VideoTextureCreator;
-
-	public get isLoaded() {
-
-		return this.mustAssetsLoaded;
-
-	}
-
 	constructor() {
 
 		super();
 
 		this.gltfPath = this.basePath + '/scene/scene.glb';
 
-		this.preLoadTexturesInfo = [];
+		this.preLoadTexturesInfo = [
+			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
+			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } }
+		];
 
 		this.mustLoadTexturesInfo = [
 			{ path: this.basePath + '/scene/img/ground-roughness.jpg', name: 'groundRoughness', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/ground-color.jpg', name: 'groundColor', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/ground-normal.jpg', name: 'groundNormal', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 		];
 
 		let glList: GLList = require( '@gl/gl.json' );
@@ -107,6 +99,11 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.dispatchEvent( { type: 'mustAssetsLoaded' } );
 
+			},
+			( url: string, num: number, total: number ) => {
+
+				this.dispatchEvent( { type: 'mustAssetsProcess', num: num, total: total } );
+
 			}
 		);
 
@@ -117,7 +114,7 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.dispatchEvent( { type: 'subAssetsLoaded' } );
 
-			}
+			},
 		);
 
 	}

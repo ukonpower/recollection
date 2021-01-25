@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
-import { getDiffieHellman } from 'crypto';
 
 export class CameraController {
 
@@ -17,12 +16,12 @@ export class CameraController {
 
 	private baseCamera: THREE.PerspectiveCamera;
 
-	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D, animator: ORE.Animator, parentUniforms?: ORE.Uniforms ) {
+	constructor( obj: THREE.PerspectiveCamera, animator: ORE.Animator, parentUniforms?: ORE.Uniforms ) {
 
 		this.camera = obj;
-		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
-		this.cameraTargetPos = data.getObjectByName( 'CameraTarget' ).getWorldPosition( new THREE.Vector3() );
-		this.baseCamera = data.getObjectByName( 'Camera' ).children[ 0 ] as THREE.PerspectiveCamera;
+		this.cameraBasePos = new THREE.Vector3( 0, 0, 3.49641 );
+		this.cameraTargetPos = new THREE.Vector3( 0, 0, 0 );
+		this.baseCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 1000 );
 
 		this.animator = animator;
 

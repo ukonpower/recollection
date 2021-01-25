@@ -383,8 +383,6 @@ export class RenderPipeline {
 		this.swapDepthMaterial( scene );
 
 		this.renderer.setRenderTarget( renderTargetMem );
-
-
 		this.renderer.autoClear = false;
 
 		/*------------------------

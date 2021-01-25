@@ -122,7 +122,7 @@ vec2 D( vec3 p ) {
 
 	if( contentVisibility > 0.0 ) {
 		vec2 backObj = backObjDist( p );
-		d = U( d, backObj );
+		d = mix( d, U( d, backObj ), smoothstep( 0.0, 0.1, contentVisibility ));
 	}
 
 	return d;

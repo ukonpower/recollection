@@ -5,9 +5,12 @@ import contentViewerVert from './shaders/contentViewer.vs';
 import contentViewerFrag from './shaders/contentViewer.fs';
 import { BaseGL } from '@gl/BaseGL';
 
-export class ContentViewer extends THREE.Mesh {
+export class ContentViewer extends THREE.EventDispatcher {
 
 	public contentRenderTarget: THREE.WebGLRenderTarget;
+	public state: {
+		openContent: boolean
+	};
 
 	private renderer: THREE.WebGLRenderer;
 	private layerInfo: ORE.LayerInfo;
@@ -17,30 +20,13 @@ export class ContentViewer extends THREE.Mesh {
 
 	constructor( renderer: THREE.WebGLRenderer, layerInfo: ORE.LayerInfo, parentUniforms?: ORE.Uniforms ) {
 
+		super();
+
 		let contentRenderTarget = new THREE.WebGLRenderTarget( 1, 1 );
 
-		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
-			tex: {
-				value: contentRenderTarget.texture
-			}
-		} );
-
-		let geo = new THREE.PlaneBufferGeometry( 2.0, 2.0 );
-		let mat = new THREE.ShaderMaterial( {
-			vertexShader: contentViewerVert,
-			fragmentShader: contentViewerFrag,
-			uniforms: uni,
-		} );
-
-		super( geo, mat );
-
-		this.customDepthMaterial = new THREE.ShaderMaterial( {
-			vertexShader: contentViewerVert,
-			fragmentShader: THREE.ShaderLib.depth.fragmentShader,
-			defines: {
-				'DEPTH_PACKING': THREE.RGBADepthPacking,
-			}
-		} );
+		this.state = {
+			openContent: true
+		};
 
 		this.renderer = renderer;
 		this.layerInfo = layerInfo;
@@ -64,6 +50,8 @@ export class ContentViewer extends THREE.Mesh {
 			this.currentScene = new Scene( this.renderer, this.layerInfo, this.contentRenderTarget, this.commonUniforms );
 			this.currentScene.onResize();
 
+			this.state.openContent = true;
+
 			this.dispatchEvent( {
 				type: 'loaded',
 				sceneName: sceneName,
@@ -76,6 +64,13 @@ export class ContentViewer extends THREE.Mesh {
 			type: 'loadstart',
 			sceneName: sceneName
 		} );
+
+	}
+
+	public close() {
+
+		this.currentScene = null;
+		this.state.openContent = false;
 
 	}
 

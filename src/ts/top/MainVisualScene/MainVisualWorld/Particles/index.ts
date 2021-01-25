@@ -56,9 +56,9 @@ export class Particles extends THREE.Mesh {
 
 		super( geo, mat );
 
-		this.customDepthMaterial = new THREE.MeshDepthMaterial({
+		this.customDepthMaterial = new THREE.MeshDepthMaterial( {
 			visible: false
-		})
+		} );
 
 		this.renderOrder = 999;
 		this.commonUniforms = uni;
