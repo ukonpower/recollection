@@ -27,6 +27,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 	private gManager: MainVisualManager;
 
 	private state = {
+		currentContent: '',
+		renderMainVisual: false
 	}
 
 	constructor() {
@@ -181,7 +183,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
 
-				this.animator.setValue( 'contentVisibility', 1.0 );
 				this.openContent( contentName );
 
 			} );
@@ -202,8 +203,12 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
 
-		return this.animator.animate( 'contentVisibility', 1, 6, () => {
+		let duration = this.state.currentContent == '' ? 0 : 6;
+		this.state.currentContent = contentName;
 
+		return this.animator.animate( 'contentVisibility', 1, duration, () => {
+
+			this.state.renderMainVisual = false;
 			this.switchInfoVisibility( true );
 
 		} );
@@ -226,10 +231,14 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		this.animator.animate( 'contentVisibility', 0, 4, () => {
+		let duration = this.state.currentContent == '' ? 0 : 4;
+
+		this.state.renderMainVisual = true;
+		this.state.currentContent = 'main';
+
+		this.animator.animate( 'contentVisibility', 0, duration, () => {
 
 			this.contentSelector.enable = true;
-
 			this.switchInfoVisibility( true );
 
 		} );
@@ -334,7 +343,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		if ( this.gManager.assetManager.preAssetsLoaded ) {
 
 			this.contentViewer.update( deltaTime );
-			this.renderPipeline.render( this.scene, this.camera, true, this.contentViewer.contentRenderTarget );
+			this.renderPipeline.render( this.scene, this.camera, this.state.renderMainVisual, this.contentViewer.contentRenderTarget );
 
 		}
 
