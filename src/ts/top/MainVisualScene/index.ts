@@ -88,6 +88,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.gManager = new MainVisualManager( {
 			onPreAssetsLoaded: () => {
 
+				this.animator.animate( 'loaded', 1, 3 );
+
 				this.preInitScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
@@ -100,15 +102,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 			}
 		} );
 
-		this.initAnimator();
-
 		this.gManager.assetManager.addEventListener( 'mustAssetsProcess', ( e ) => {
 
 			let percent = e.num / e.total;
 
-			this.animator.animate( 'loaded', percent, 0.5 );
+			this.animator.animate( 'loading', percent, 0.1 );
 
 		} );
+
+		this.initAnimator();
 
 	}
 
@@ -127,6 +129,14 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.commonUniforms.infoVisibility = this.animator.add( {
 			name: 'infoVisibility',
 			initValue: 0
+		} );
+
+		this.commonUniforms.loading = this.animator.add( {
+			name: 'loading',
+			initValue: 0,
+			easing: {
+				func: ORE.Easings.easeInOutCubic
+			}
 		} );
 
 		this.commonUniforms.loaded = this.animator.add( {
@@ -178,10 +188,10 @@ export class MainVisualScene extends ORE.BaseLayer {
 	public openContent( contentName: string ) {
 
 		//ロードが終わってなかった場合
-		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
+		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
 			//ロード終了後再度同関数を呼ぶ
-			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.openContent( contentName );
 
@@ -198,9 +208,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		} );
 
 		this.contentSelector.setCurrentContent( contentIndex );
-
 		this.switchCursorPointer( false );
-
 		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
 
 		let duration = this.state.currentContent == '' ? 0 : 6;
@@ -218,10 +226,10 @@ export class MainVisualScene extends ORE.BaseLayer {
 	public closeContent() {
 
 		//ロードが終わってなかった場合
-		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
+		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
 			//ロード終了後再度同関数を呼ぶ
-			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.closeContent();
 
@@ -247,9 +255,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public switchInfoVisibility( visibility: boolean ) {
 
-		if ( ! this.gManager.assetManager.mustAssetsLoaded ) {
+		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
-			this.gManager.assetManager.addEventListener( 'mustAssetsLoaded', () => {
+			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.switchInfoVisibility( visibility );
 
@@ -303,21 +311,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.commonUniforms.camNear.value = this.camera.near;
 		this.commonUniforms.camFar.value = this.camera.far;
 
+		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
+
 		this.cameraController = new CameraController( this.camera, this.gManager.animator, this.commonUniforms );
 		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
-
-	}
-
-	private initScene() {
-
-		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
-
-		this.initContentSelector();
-
-	}
-
-	private initContentSelector() {
 
 		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
 		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
@@ -325,10 +323,19 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.world.contents.changeContent( e.num );
 
 		} );
-
+		this.scene.add( this.contentSelector );
 		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
 
-		this.scene.add( this.contentSelector );
+
+	}
+
+	private initScene() {
+
+		this.initContentSelector();
+
+	}
+
+	private initContentSelector() {
 
 	}
 

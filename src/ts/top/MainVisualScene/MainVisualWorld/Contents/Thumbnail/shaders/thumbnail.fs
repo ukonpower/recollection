@@ -1,6 +1,9 @@
 uniform sampler2D currentTex;
 uniform sampler2D nextTex;
 uniform float contentFade;
+uniform float loaded;
+uniform float loading;
+
 varying vec2 currentUV;
 varying vec2 nextUV;
 varying vec2 vUv;

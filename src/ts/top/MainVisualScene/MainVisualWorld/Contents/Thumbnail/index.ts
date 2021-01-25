@@ -13,7 +13,9 @@ export class Thumbnail extends THREE.Mesh {
 
 	private commonUniforms: ORE.Uniforms;
 
-	constructor( glList: GLList, scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
+	constructor( glList: GLList, parentUniforms?: ORE.Uniforms ) {
+
+		console.log( window.mainVisualManager.assetManager.textures );
 
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			currentTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].fileName ],

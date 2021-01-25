@@ -137,37 +137,12 @@ export class RenderPipeline {
 	private initInputTextures() {
 
 		this.inputTextures = {
-			areaTex: {
-				value: null
-			},
-			searchTex: {
-				value: null
-			},
+			areaTex: this.assetManager.textures.smaaArea,
+			searchTex: this.assetManager.textures.smaaSearch,
 			envMap: {
 				value: null
 			}
 		};
-
-		let loader = new THREE.TextureLoader();
-		loader.load( '/assets/smaa/smaa-area.png', ( tex ) => {
-
-			tex.minFilter = THREE.LinearFilter;
-			tex.generateMipmaps = false;
-			tex.format = THREE.RGBFormat;
-			tex.flipY = false;
-			this.inputTextures.areaTex.value = tex;
-
-		} );
-
-		loader.load( '/assets/smaa/smaa-search.png', ( tex ) => {
-
-			tex.minFilter = THREE.NearestFilter;
-			tex.magFilter = THREE.NearestFilter;
-			tex.generateMipmaps = false;
-			tex.flipY = false;
-			this.inputTextures.searchTex.value = tex;
-
-		} );
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [

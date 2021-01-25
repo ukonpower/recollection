@@ -31,18 +31,16 @@ export class MainVisualWorld {
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 		} );
 
-		this.scene.add( this.assetManager.gltfScene );
-
 		this.init();
 
 	}
 
 	private init() {
 
-		this.contents = new Contents( this.scene, this.commonUniforms );
-
 		this.background = new Background( this.commonUniforms );
 		this.scene.add( this.background );
+
+		this.contents = new Contents( this.scene, this.commonUniforms );
 
 		this.particle = new Particles( this.commonUniforms );
 		this.scene.add( this.particle );

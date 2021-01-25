@@ -67,7 +67,7 @@ vec2 mainObjDist( vec3 p ) {
 		for (int i = 0; i < 2; i++) {
 
 			p.zy = abs(p.zy);
-			p.xz *= rotate( -contentNum * 0.3 + contentVisibility * 10.0);
+			p.xz *= rotate( -contentNum * 0.3 + contentVisibility * 10.0 );
 
 			p.xz = abs(p.xz);
 			p.yz *= rotate( -contentNum * 0.9 + length( p ) * sin( contentNum ) * 2.0  );

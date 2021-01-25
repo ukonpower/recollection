@@ -15,6 +15,8 @@ declare interface TextureParam {
 	type?: THREE.TextureDataType;
 	anisotropy?: number;
 	encoding?: THREE.TextureEncoding;
+	generateMipmaps?: boolean;
+	flipY?: boolean;
 }
 
 declare interface TextureInfo {
@@ -52,14 +54,16 @@ export class AssetManager extends ORE.EventDispatcher {
 		this.gltfPath = this.basePath + '/scene/scene.glb';
 
 		this.preLoadTexturesInfo = [
-			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } }
 		];
 
 		this.mustLoadTexturesInfo = [
+			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
+			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/ground-roughness.jpg', name: 'groundRoughness', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/ground-color.jpg', name: 'groundColor', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/ground-normal.jpg', name: 'groundNormal', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
+			{ path: this.basePath + '/smaa/smaa-area.png', name: 'smaaArea', param: { flipY: false, minFilter: THREE.LinearFilter, generateMipmaps: false, format: THREE.RGBFormat } },
+			{ path: this.basePath + '/smaa/smaa-search.png', name: 'smaaSearch', param: { flipY: false, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, generateMipmaps: false } },
 		];
 
 		let glList: GLList = require( '@gl/gl.json' );
@@ -121,6 +125,8 @@ export class AssetManager extends ORE.EventDispatcher {
 
 	public load() {
 
+		this.registerTextures();
+
 		this.loadPreAssets(
 			() => {
 
@@ -130,6 +136,21 @@ export class AssetManager extends ORE.EventDispatcher {
 
 			}
 		);
+
+	}
+
+	private registerTextures() {
+
+		let textures = this.preLoadTexturesInfo.concat( this.mustLoadTexturesInfo ).concat( this.subLoadTexturesInfo );
+
+		for ( let i = 0; i < textures.length; i ++ ) {
+
+			let info = textures[ i ];
+
+			this.textures[ info.name ] = { value: null };
+
+		}
+
 
 	}
 
@@ -215,8 +236,6 @@ export class AssetManager extends ORE.EventDispatcher {
 		for ( let i = 0; i < infos.length; i ++ ) {
 
 			let info = infos[ i ];
-
-			this.textures[ info.name ] = { value: null };
 
 			if ( info.isVideoTexutre ) {
 

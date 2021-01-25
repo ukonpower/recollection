@@ -27,7 +27,6 @@ export class Contents {
 		this.glList = require( '@gl/gl.json' );
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
-
 		} );
 
 		this.init();
@@ -36,7 +35,7 @@ export class Contents {
 
 	protected init() {
 
-		this.thumbnails = new Thumbnail( this.glList, this.scene, this.commonUniforms );
+		this.thumbnails = new Thumbnail( this.glList, this.commonUniforms );
 		this.scene.add( this.thumbnails );
 
 		this.titles = new Titles( this.glList, this.commonUniforms );
