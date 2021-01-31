@@ -10,6 +10,9 @@ uniform float contentFade;
 uniform float windowAspect;
 uniform float infoVisibility;
 
+uniform float loaded1;
+uniform float loaded2;
+
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: rotate = require('./rotate.glsl' )
 
@@ -19,11 +22,12 @@ void main( void ) {
 
 	pos.xz = vec2( -4.0, 0.0 );
 	pos.xz *= rotate( -uv.x * PI );	
+	pos.z *= loaded2;
 	pos.y *= 4.5;
 
-	pos.y *= infoVisibility;
+	pos.y *= infoVisibility * (0.005 + ( loaded2 ) * 0.995);
 	
-	pos.y -= (uv.x - 0.5) * 2.0;
+	pos.y -= (uv.x - 0.5) * 2.0 * loaded1;
 	pos.z *= 0.5;
 
 	vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );

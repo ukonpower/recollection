@@ -173,7 +173,10 @@ function pugDev( cb ) {
 
 	for (let i = 0; i < glList.length; i++) {
 
-		let glName = glList[i].title;
+		let gl = glList[i];
+		let glName = gl.title;
+		let glDate = gl.data;
+		let glDescription = gl.description;
 		
 		gulp.src( srcPath + '/pug/gl.pug' )
 			.pipe( plumber() )
@@ -181,9 +184,11 @@ function pugDev( cb ) {
 				pretty: true,
 				locals: {
 					glName: glName,
+					glDate: glDate,
+					glDescription: glDescription
 				}
 			} ) )
-			.pipe( rename( (path) => { path.basename = glList[i].fileName }) )
+			.pipe( rename( (path) => { path.basename = gl.fileName }) )
 			.pipe( gulp.dest( publicPath + '/gl/' ) )
 		
 	}

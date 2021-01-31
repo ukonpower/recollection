@@ -47,17 +47,29 @@ html, body {
 
 
 .contents {
+	position: absolute;
 	opacity: 0;
-	transition: .4s opacity;
 
+	left: 50px;
+	bottom: 50px;
+
+	transition: .4s opacity;
+	
 	[data-info='true'] &{
 		opacity: 1;
 	}
 	
 	&-title {
-		position: absolute;
-		right: 50px;
-		bottom: 50px;
-		font-size: 30px;
+		font-size: 120px;
+		font-family: 'Bebas Neue', cursive;
+		height: 130px;
+	}
+	&-date{
+		font-family: 'Bebas Neue', cursive;
+		font-size: 24px;
+	}
+	&-description {
+		display: none;
+		font-size: 18px;
 	}
 }

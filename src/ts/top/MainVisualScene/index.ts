@@ -51,9 +51,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 			camFar: {
 				value: 0
 			},
-			loaded: {
-				value: 0
-			},
 			camPosition: {
 				value: new THREE.Vector3()
 			},
@@ -88,13 +85,21 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.gManager = new MainVisualManager( {
 			onPreAssetsLoaded: () => {
 
-				this.animator.animate( 'loaded', 1, 3 );
-
 				this.preInitScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
 			},
 			onMustAssetsLoaded: () => {
+
+				setTimeout( () => {
+
+					this.animator.animate( 'loaded1', 1, 1.0, () => {
+
+						this.animator.animate( 'loaded2', 1, 1.5 );
+
+					} );
+
+				}, 500 );
 
 				this.initScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
@@ -104,9 +109,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.gManager.assetManager.addEventListener( 'mustAssetsProcess', ( e ) => {
 
-			let percent = e.num / e.total;
+			let percent = e.num / ( e.total );
 
-			this.animator.animate( 'loading', percent, 0.1 );
+			this.animator.animate( 'loading', percent, 0.5 );
 
 		} );
 
@@ -135,12 +140,21 @@ export class MainVisualScene extends ORE.BaseLayer {
 			name: 'loading',
 			initValue: 0,
 			easing: {
-				func: ORE.Easings.easeInOutCubic
+				func: ORE.Easings.sigmoid
 			}
 		} );
 
-		this.commonUniforms.loaded = this.animator.add( {
-			name: 'loaded',
+		this.commonUniforms.loaded1 = this.animator.add( {
+			name: 'loaded1',
+			initValue: 0,
+			easing: {
+				func: ORE.Easings.sigmoid,
+				args: 6
+			}
+		} );
+
+		this.commonUniforms.loaded2 = this.animator.add( {
+			name: 'loaded2',
 			initValue: 0,
 			easing: {
 				func: ORE.Easings.easeInOutCubic

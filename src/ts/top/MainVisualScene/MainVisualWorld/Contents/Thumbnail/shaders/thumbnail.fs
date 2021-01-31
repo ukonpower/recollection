@@ -1,7 +1,9 @@
 uniform sampler2D currentTex;
 uniform sampler2D nextTex;
 uniform float contentFade;
-uniform float loaded;
+
+uniform float loaded1;
+uniform float loaded2;
 uniform float loading;
 
 varying vec2 currentUV;
@@ -20,7 +22,9 @@ void main( void ) {
 
 	vec4 col = mix( currentCol, nextCol, w );
 	col.xyz *= 0.9;
-	col.xyz *= smoothstep( 0.8, 0.0, abs(vUv.y - 0.5));
+	col.xyz *= smoothstep( 0.8, 0.0, abs(vUv.y - 0.5)) * loaded2;
+
+	col += step( 1.0, ( 1.0 - abs( vUv.x - 0.5 ) * 2.5) + loading ) * ( 1.0 - loaded2 );
 
 	gl_FragColor = col;
 

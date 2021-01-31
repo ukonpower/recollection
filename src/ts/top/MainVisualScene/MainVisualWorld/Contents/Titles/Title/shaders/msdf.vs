@@ -6,6 +6,7 @@ uniform float height;
 uniform float visibility;
 uniform float index;
 uniform float infoVisibility;
+uniform float loaded2;
 
 varying vec2 vHighPrecisionZW;
 
@@ -25,7 +26,7 @@ void main( void ) {
 	vUv.y *= height;
 	vUv.y = 1.0 - vUv.y;
 
-	vUv.x += 1.0 - infoVisibility;
+	vUv.x += 1.0 - (infoVisibility * smoothstep( 0.5, 1.0, loaded2));
 
 	vUv.x *= width;
 	vUv.x += left;

@@ -9,7 +9,7 @@ html(lang="en")
 		meta(name="twitter:site", content="@Uksksan")
 		meta(property="og:site_name", content="Recollection")
 		meta(property="og:locale", content="ja_JP")
-		link( href="https://fonts.googleapis.com/css2?family=Ropa+Sans&display=swap", rel="stylesheet" )
+		link( href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Ropa+Sans&display=swap", rel="stylesheet" )
 		link( href="../css/style.css", rel="stylesheet" )
 		title #{glName} | Recollection
 	body
@@ -21,4 +21,6 @@ html(lang="en")
 			.container(data-barba="container" data-barba-namespace=glName)
 				.contents
 					.contents-title #{glName}
+					.contents-date #{glDate}
+					.contents-description #{glDescription}
 		script(src="../js/main.js")

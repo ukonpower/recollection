@@ -7,6 +7,7 @@ uniform sampler2D sceneTex;
 uniform sampler2D sceneDepthTex;
 uniform float camNear;
 uniform float camFar;
+uniform float loaded2;
 
 float readDepth( sampler2D depthSampler, vec2 coord ) {
 	float fragCoordZ = unpackRGBAToDepth( texture2D( depthSampler, coord ) );
@@ -40,12 +41,12 @@ void main( void ) {
 	vec4 sceneCol = texture2D( sceneTex, vUv );
 	
 	float sceneDepth = readDepth( sceneDepthTex, vUv );
-
 	float rayDepth = unpack16( raymarchCol.zw );
 
 	float selector = rayDepth < sceneDepth ? 1.0 : 0.0;
 	
 	vec3 col = mix( sceneCol.xyz, unpackRG2RGB( raymarchCol.xy ), selector );
+	col = mix( sceneCol.xyz, col, loaded2 );
 
 	gl_FragColor = vec4( col, 1.0 );
 	// gl_FragColor = vec4( vec3( sceneDepth ) * 10.0, 1.0 );

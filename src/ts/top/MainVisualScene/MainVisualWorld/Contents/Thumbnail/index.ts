@@ -9,13 +9,10 @@ import thumbnailFrag from './shaders/thumbnail.fs';
 export class Thumbnail extends THREE.Mesh {
 
 	private glList: GLList;
-	private thumbnails: Thumbnail[];
 
 	private commonUniforms: ORE.Uniforms;
 
 	constructor( glList: GLList, parentUniforms?: ORE.Uniforms ) {
-
-		console.log( window.mainVisualManager.assetManager.textures );
 
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			currentTex: window.mainVisualManager.assetManager.textures[ glList[ 0 ].fileName ],
@@ -43,11 +40,6 @@ export class Thumbnail extends THREE.Mesh {
 
 		this.commonUniforms = uni;
 
-		this.init();
-
-	}
-
-	protected init() {
 	}
 
 	public update( selectorValue: number ) {
