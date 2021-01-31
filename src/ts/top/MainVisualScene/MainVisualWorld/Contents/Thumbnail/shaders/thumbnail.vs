@@ -16,6 +16,12 @@ uniform float loaded2;
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: rotate = require('./rotate.glsl' )
 
+float easeOutQuart( float t ) {
+
+	return 1.0 - pow(1.0 - t, 4.0);
+
+}
+
 void main( void ) {
 
 	vec3 pos = position;
@@ -25,7 +31,11 @@ void main( void ) {
 	pos.z *= loaded2;
 	pos.y *= 4.5;
 
-	pos.y *= infoVisibility * (0.005 + ( loaded2 ) * 0.995);
+	float cx = abs( uv.x - 0.5 );
+	float thumbVis = smoothstep( 1.0, 1.8, ( 1.0 - cx * cx ) + (loaded2) );
+	// thumbVis = easeOutQuart( thumbVis );
+
+	pos.y *= infoVisibility * (0.003 + ( thumbVis ) * 0.997);
 	
 	pos.y -= (uv.x - 0.5) * 2.0 * loaded1;
 	pos.z *= 0.5;
