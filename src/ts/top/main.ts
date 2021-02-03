@@ -84,7 +84,7 @@ class APP {
 		this.scene = new MainVisualScene();
 		this.controller.addLayer( this.scene, {
 			name: 'SceneController',
-			canvas: canvas
+			canvas: canvas,
 		} );
 
 	}

@@ -65,6 +65,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 			},
 			windowAspect: {
 				value: 1.0
+			},
+			portraitWeight: {
+				value: 0
 			}
 		};
 
@@ -94,7 +97,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 				setTimeout( () => {
 
-					this.animator.animate( 'loaded1', 1, 1.0, () => {
+					this.animator.animate( 'loaded1', 1, 2.0, () => {
 
 						this.animator.animate( 'loaded2', 1, 1.5 );
 
@@ -149,7 +152,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			name: 'loaded1',
 			initValue: 0,
 			easing: {
-				func: ORE.Easings.sigmoid,
+				func: ORE.Easings.linear,
 				args: 6
 			}
 		} );
@@ -471,7 +474,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.contentViewer.resize();
 			this.cameraController.resize( this.info.aspect );
 			this.world.resize( this.info );
+
 			this.commonUniforms.windowAspect.value = this.info.size.canvasAspectRatio;
+			this.commonUniforms.portraitWeight.value = this.info.aspect.portraitWeight;
 
 		}
 

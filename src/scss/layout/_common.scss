@@ -33,7 +33,8 @@ html, body {
 		font-family: 'Ropa Sans', sans-serif;
 		
 		@include sp {
-			font-size: 20px;
+			padding: 15px 30px;
+			font-size: 23px;
 		}
 	}
 }
@@ -72,4 +73,32 @@ html, body {
 		display: none;
 		font-size: 18px;
 	}
+}
+
+.ui {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	
+	// &-scroll {
+	// 	position: absolute;
+	// 	width: 100%;
+	// 	height: 10px;
+	// 	top: 50%;
+	// 	transform: translateY( -50% );
+	// 	display: flex;
+	// 	justify-content: space-between;
+	// 	&-item{
+	// 		width: 100px;
+	// 		height: 1px;
+	// 		margin: 0 20px;
+
+	// 		background-color: #ddd;
+	// 	}
+	// 	&-prev {
+	// 	}
+	// 	&-next {
+			
+	// 	}
+	// }
 }

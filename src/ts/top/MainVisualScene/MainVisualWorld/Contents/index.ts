@@ -45,9 +45,9 @@ export class Contents {
 		this.titles.scale.setScalar( 0.9 );
 
 		this.layoutControllers.push( new ORE.LayoutController( this.titles, {
-			position: new THREE.Vector3( - 1.2, - 1.0, 0.0 ),
-			rotation: new THREE.Quaternion().setFromEuler( new THREE.Euler( 0, - 0.1, 0 ) ),
-			scale: 0.6
+			position: new THREE.Vector3( - 1.35, - 0.9, 0.0 ),
+			rotation: new THREE.Quaternion().setFromEuler( new THREE.Euler( 0, - 0.13, 0 ) ),
+			scale: 0.55
 		} ) );
 
 		this.scene.add( this.titles );

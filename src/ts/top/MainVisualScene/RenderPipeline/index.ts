@@ -300,19 +300,28 @@ export class RenderPipeline {
 
 	public resize( pixelWindowSize: THREE.Vector2 ) {
 
-		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
+		console.log( window.devicePixelRatio );
 
-		let lowScale = 1.0 / this.renderer.getPixelRatio() * 0.8;
-		this.renderTargets.sceneDepth.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
+		let highScale = 1.0 / Math.max( 1.0, window.devicePixelRatio * 0.5 );
+		let lowScale = 1.0 / Math.max( 1.2, window.devicePixelRatio );
+
+		this.renderTargets.sceneDepth.setSize( pixelWindowSize.x * highScale, pixelWindowSize.y * highScale );
 		this.renderTargets.raymarch.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );
 
-		this.renderTargets.rt1.setSize( pixelWindowSize.x, pixelWindowSize.y );
-		this.renderTargets.rt2.setSize( pixelWindowSize.x, pixelWindowSize.y );
-		this.renderTargets.rt3.setSize( pixelWindowSize.x, pixelWindowSize.y );
+		this.renderTargets.rt1.setSize( pixelWindowSize.x * highScale, pixelWindowSize.y * highScale );
+		this.renderTargets.rt2.setSize( pixelWindowSize.x * highScale, pixelWindowSize.y * highScale );
+		this.renderTargets.rt3.setSize( pixelWindowSize.x * highScale, pixelWindowSize.y * highScale );
+
+		this.smaaCommonUni.SMAA_RT_METRICS.value.set(
+			1 / ( pixelWindowSize.x * highScale ),
+			1 / ( pixelWindowSize.y * highScale ),
+			pixelWindowSize.x * highScale,
+			pixelWindowSize.y * highScale
+		);
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-			let size = pixelWindowSize.clone().multiplyScalar( this.bloomResolutionRatio );
+			let size = pixelWindowSize.clone().multiplyScalar( highScale * this.bloomResolutionRatio );
 			size.divideScalar( ( i + 1 ) * 2 );
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ].setSize( size.x, size.y );
