@@ -20,10 +20,11 @@ export class Contents {
 	private thumbnails: Thumbnail;
 	private titles: Titles;
 
+	private layoutControllers: ORE.LayoutController[] = [];
+
 	constructor( scene: THREE.Scene, parentUniforms?: ORE.Uniforms ) {
 
 		this.scene = scene;
-
 		this.glList = require( '@gl/gl.json' );
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
@@ -39,6 +40,16 @@ export class Contents {
 		this.scene.add( this.thumbnails );
 
 		this.titles = new Titles( this.glList, this.commonUniforms );
+		this.titles.rotation.set( 0, 0.1, 0 );
+		this.titles.position.set( 2.3, - 0.9, 0.0 );
+		this.titles.scale.setScalar( 0.9 );
+
+		this.layoutControllers.push( new ORE.LayoutController( this.titles, {
+			position: new THREE.Vector3( - 1.2, - 1.0, 0.0 ),
+			rotation: new THREE.Quaternion().setFromEuler( new THREE.Euler( 0, - 0.1, 0 ) ),
+			scale: 0.6
+		} ) );
+
 		this.scene.add( this.titles );
 
 	}
@@ -52,6 +63,17 @@ export class Contents {
 	public changeContent( num: number ) {
 
 		this.titles.changeTitle( this.glList[ num ] );
+
+	}
+
+	public resize( layerInfo: ORE.LayerInfo ) {
+
+		for ( let i = 0; i < this.layoutControllers.length; i ++ ) {
+
+			this.layoutControllers[ i ].updateTransform( layerInfo.aspect.portraitWeight );
+
+		}
+
 
 	}
 

@@ -74,6 +74,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		super.onBind( info );
 
+		this.info.aspect.portraitAspect = 0.4;
 		this.initGmanager();
 
 		this.initERay();
@@ -99,7 +100,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 					} );
 
-				}, 500 );
+				}, 1000 );
 
 				this.initScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
@@ -398,7 +399,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.contentViewer.onHover( args );
 
-			this.cameraController.updateCursor( args.normalizedPosition );
+			this.cameraController.updateCursor( args.normalizedPosition.clone().multiplyScalar( 1.0 - this.info.aspect.portraitWeight ) );
 			this.gManager.eRay.checkHitObject( args.normalizedPosition, this.camera, this.gManager.eRay.touchableObjs );
 
 		}
@@ -469,6 +470,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			this.renderPipeline.resize( this.info.size.canvasPixelSize );
 			this.contentViewer.resize();
 			this.cameraController.resize( this.info.aspect );
+			this.world.resize( this.info );
 			this.commonUniforms.windowAspect.value = this.info.size.canvasAspectRatio;
 
 		}

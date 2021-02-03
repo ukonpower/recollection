@@ -55,8 +55,6 @@ export class CameraController {
 		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 1.0 );
 		diff.multiply( diff.clone().addScalar( 1.0 ) );
 
-		// let l = diff.length() + 1.0;
-
 		this.cursorPosDelayVel.add( diff.multiplyScalar( 3.0 ) );
 		this.cursorPosDelayVel.multiplyScalar( 0.9 );
 
@@ -81,7 +79,7 @@ export class CameraController {
 
 	public resize( info: ORE.AspectInfo ) {
 
-		this.camera.fov = this.baseCamera.fov * 1.0 + info.portraitWeight * 20.0;
+		this.camera.fov = this.baseCamera.fov * 1.0 + info.portraitWeight * 35.0;
 		this.camera.updateProjectionMatrix();
 
 	}
