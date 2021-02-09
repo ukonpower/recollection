@@ -14,10 +14,16 @@ html, body {
 	background-color: #000;
 	width: 100%;
 	height: 100%;
+	overflow: hidden;
 }
 
 .container {
 	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.wrapper {
 	width: 100%;
 	height: 100%;
 }
@@ -44,6 +50,10 @@ html, body {
 	left: 0; top: 0;
 	width: 100%;
 	height: 100%;
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
 }
 
 
@@ -51,7 +61,7 @@ html, body {
 	position: absolute;
 	opacity: 0;
 
-	left: 50px;
+	left: 50px;content="width=device-width
 	bottom: 50px;
 
 	transition: .4s opacity;
@@ -59,14 +69,23 @@ html, body {
 	[data-info='true'] &{
 		opacity: 1;
 	}
+
+	@include sp {
+		left: 20px;
+		bottom: 20px;
+	}
 	
 	&-title {
 		font-size: 120px;
-		font-family: 'Bebas Neue', cursive;
-		height: 130px;
+		font-family: 'Bebas Neue';
+		height: 125px;
+		@include sp {
+			font-size: 80px;
+			height: 85px;
+		}
 	}
 	&-date{
-		font-family: 'Bebas Neue', cursive;
+		font-family: 'Bebas Neue';
 		font-size: 24px;
 	}
 	&-description {
