@@ -30,7 +30,7 @@ export default class Complex extends BaseGL {
 	private initScene() {
 
 		this.renderPipeline = new RenderPipeline( this.renderer, 0.4, 4.0, this.commonUniforms );
-		
+
 		this.camera.position.set( 0, 1.8, 5 );
 		this.camera.lookAt( 0, 1.0, 0 );
 		this.cameraMover = new SmoothCameraMover( this.camera, Math.PI / 2, Math.PI / 12 );
@@ -90,7 +90,7 @@ export default class Complex extends BaseGL {
 
 		if ( this.info.size.canvasAspectRatio > 1.0 ) {
 
-			this.camera.fov = 45;
+			this.camera.fov = 40;
 
 		} else {
 
@@ -106,7 +106,7 @@ export default class Complex extends BaseGL {
 	}
 
 	public onHover( args: ORE.TouchEventArgs ) {
-		
+
 		this.cameraMover.setCursor( args.normalizedPosition );
 
 	}

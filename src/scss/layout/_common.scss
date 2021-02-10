@@ -32,11 +32,13 @@ html, body {
 	position: fixed;
 	left: 0; top: 0;
 	width: 100%;
+	padding: 30px 50px;
 	z-index: 10;
 	&-title {
-		padding: 30px 50px;
+		display: inline-block;
 		font-size: 30px;
 		font-family: 'Ropa Sans', sans-serif;
+		text-decoration: none;
 		
 		@include sp {
 			padding: 15px 30px;
@@ -59,16 +61,9 @@ html, body {
 
 .contents {
 	position: absolute;
-	opacity: 0;
 
-	left: 50px;content="width=device-width
+	left: 50px;
 	bottom: 50px;
-
-	transition: .4s opacity;
-	
-	[data-info='true'] &{
-		opacity: 1;
-	}
 
 	@include sp {
 		left: 20px;
@@ -79,20 +74,50 @@ html, body {
 		font-size: 120px;
 		font-family: 'Bebas Neue';
 		height: 125px;
+		transform: translateY( 20px );
+		opacity: 0;
+		
 		@include sp {
 			font-size: 80px;
 			height: 85px;
+
+		}
+		[data-info='true'] &{
+			transform: translateY( 0px );
+			opacity: 1;
+			transition: 1s;
 		}
 	}
 	&-date{
 		font-family: 'Bebas Neue';
 		font-size: 24px;
+		opacity: 0;
+
+		[data-info='true'] &{
+			transform: translateY( 0px );
+			opacity: 1;
+			transition: 1s;
+			transition-delay: .5s;
+		}
 	}
 	&-description {
 		display: none;
 		font-size: 18px;
 	}
 }
+
+.back {
+	position: absolute;
+	right: 50px; bottom: 40px;
+	text-decoration: none;
+	// font-weight: 10;
+	// color: #888;
+	opacity: 0;
+	[data-info='true'] &{
+		opacity: 1;
+	}
+}
+
 
 .ui {
 	position: absolute;

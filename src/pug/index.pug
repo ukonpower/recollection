@@ -2,7 +2,7 @@ html(lang="en")
 	head
 		include ./_analytics.pug
 		meta(charset="UTF-8")
-		//- meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
 		meta(name="description" content="Recollection.")
 		meta(http-equiv="X-UA-Compatible", content="ie=edge")
 		meta(property="og:url", content="https://recollection.ukon.dev")
@@ -18,10 +18,7 @@ html(lang="en")
 		title Recollection
 	body
 		.wrapper(data-barba="wrapper")
-			.header
-				.header-title Recollection
-			.canvas-wrap
-				canvas#canvas.canvas
+			include ./common.pug
 			.container(data-barba="container" data-barba-namespace="main")
 				//- .ui
 					//- .ui-scroll

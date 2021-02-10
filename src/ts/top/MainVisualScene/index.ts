@@ -28,7 +28,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private state = {
 		currentContent: '',
-		renderMainVisual: false
+		renderMainVisual: false,
+		firstMove: true
 	}
 
 	constructor() {
@@ -89,7 +90,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.gManager = new MainVisualManager( {
 			onPreAssetsLoaded: () => {
 
-				this.preInitScene();
+				this.initScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
 			},
@@ -105,7 +106,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 				}, 1000 );
 
-				this.initScene();
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
 			}
@@ -219,17 +219,25 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		//開くコンテンツのインデックスを取得
 		let contentIndex = this.world.contents.glList.findIndex( ( gl ) => {
 
 			return gl.title == contentName;
 
 		} );
 
+		this.contentSelector.enable = false;
+
+		//開くコンテンツへ移動
 		this.contentSelector.setCurrentContent( contentIndex );
-		this.switchCursorPointer( false );
+
+		//コンテンツを開く
 		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
 
+		this.switchCursorPointer( false );
+
 		let duration = this.state.currentContent == '' ? 0 : 6;
+
 		this.state.currentContent = contentName;
 
 		return this.animator.animate( 'contentVisibility', 1, duration, () => {
@@ -273,8 +281,10 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public switchInfoVisibility( visibility: boolean ) {
 
+		//ロードが終わってなかった場合
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
+			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.switchInfoVisibility( visibility );
@@ -285,6 +295,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		//infoがフェード中だったら
 		if ( this.animator.isAnimatingVariable( 'infoVisibility' ) ) {
 
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
@@ -298,29 +309,20 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		//infoが閉じるときはContentSelecorを停止
 		if ( ! visibility ) {
 
 			this.contentSelector.enable = false;
 
 		}
 
-		let promise = new Promise( resolve => {
+		document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
 
-			document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
-
-			this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.0, () => {
-
-				resolve( null );
-
-			} );
-
-		} );
-
-		return promise;
+		return this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.0 );
 
 	}
 
-	private preInitScene() {
+	private initScene() {
 
 		this.camera.near = 0.1;
 		this.camera.far = 1000.0;
@@ -342,18 +344,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		} );
 		this.scene.add( this.contentSelector );
+
 		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
 
-
-	}
-
-	private initScene() {
-
-		this.initContentSelector();
-
-	}
-
-	private initContentSelector() {
 
 	}
 

@@ -300,8 +300,6 @@ export class RenderPipeline {
 
 	public resize( pixelWindowSize: THREE.Vector2 ) {
 
-		console.log( window.devicePixelRatio );
-
 		let highScale = 1.0 / Math.max( 1.0, window.devicePixelRatio * 0.5 );
 		let lowScale = 1.0 / Math.max( 1.2, window.devicePixelRatio );
 

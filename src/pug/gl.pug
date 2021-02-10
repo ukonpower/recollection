@@ -15,13 +15,11 @@ html(lang="en")
 		title #{glName} | Recollection
 	body
 		.wrapper(data-barba="wrapper")
-			.header
-				.header-title Recollection
-			.canvas-wrap
-				canvas#canvas.canvas
+			include ./common.pug
 			.container(data-barba="container" data-barba-namespace=glName)
 				.contents
 					.contents-title #{glName}
 					.contents-date #{glDate}
 					.contents-description #{glDescription}
+				a(href="../../").back Back 
 		script(src="../js/main.js")
