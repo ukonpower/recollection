@@ -3,6 +3,8 @@ import * as ORE from '@ore-three-ts';
 
 export class SmoothCameraMover {
 
+	private commonUniforms: ORE.Uniforms;
+
 	private camera: THREE.Object3D;
 
 	private radX: number;
@@ -13,7 +15,9 @@ export class SmoothCameraMover {
 	private targetPos: THREE.Vector2;
 	private delayPos: THREE.Vector2;
 
-	constructor( camera: THREE.Object3D, radY: number = Math.PI / 2, radX: number = Math.PI / 4, rotateZ?: number ) {
+	constructor( commonUniforms: ORE.Uniforms, camera: THREE.Object3D, radY: number = Math.PI / 2, radX: number = Math.PI / 4, rotateZ?: number ) {
+
+		this.commonUniforms = commonUniforms;
 
 		this.radY = radY / 2;
 		this.radX = radX / 2;
@@ -30,8 +34,8 @@ export class SmoothCameraMover {
 
 	public setCursor( pos: THREE.Vector2 ) {
 
-		if( pos.x != pos.x ) return;
-		
+		if ( pos.x != pos.x ) return;
+
 		this.targetPos = pos.clone();
 
 	}
@@ -46,7 +50,15 @@ export class SmoothCameraMover {
 		this.camera.matrix.copy( this.baseMatrix );
 		this.camera.matrix.decompose( this.camera.position, this.camera.quaternion, this.camera.scale );
 
-		this.camera.applyMatrix4( ( new THREE.Matrix4().makeRotationFromEuler( new THREE.Euler( - this.delayPos.y * this.radX, this.delayPos.x * this.radY, 0, 'XYZ' ) ) ) );
+		let m = 1.0 - this.commonUniforms.contentVisibility.value;
+		this.camera.rotation.z = m * 3.0;
+		this.camera.position.z += ( m ) * 5.0;
+
+
+		// this.camera.position.set( 0, 0, 3 + ( m ) * 3.0 );
+		// this.camera.rotation.z = m * 1.4;
+
+		this.camera.applyMatrix4( new THREE.Matrix4().makeRotationFromEuler( new THREE.Euler( - this.delayPos.y * this.radX, this.delayPos.x * this.radY, 0.0, 'XYZ' ) ) );
 
 	}
 

@@ -33,7 +33,7 @@ export default class Complex extends BaseGL {
 
 		this.camera.position.set( 0, 1.8, 5 );
 		this.camera.lookAt( 0, 1.0, 0 );
-		this.cameraMover = new SmoothCameraMover( this.camera, Math.PI / 2, Math.PI / 12 );
+		this.cameraMover = new SmoothCameraMover( this.commonUniforms, this.camera, Math.PI / 2, Math.PI / 12 );
 
 		this.scene.background = new THREE.Color( 0.15, 0.15, 0.15 );
 
@@ -77,6 +77,11 @@ export default class Complex extends BaseGL {
 
 		// this.controls.update();
 
+		let m = 1.0 - this.commonUniforms.contentVisibility.value;
+
+		this.camera.position.set( 0, 0, 3 + ( m ) * 3.0 );
+		this.camera.rotation.z = m * 1.4;
+
 		this.cameraMover.update( deltaTime );
 		this.emotion.update( deltaTime );
 
@@ -88,15 +93,8 @@ export default class Complex extends BaseGL {
 
 		super.onResize();
 
-		if ( this.info.size.canvasAspectRatio > 1.0 ) {
-
-			this.camera.fov = 40;
-
-		} else {
-
-			this.camera.fov = 60;
-
-		}
+		this.camera.fov = 40 + this.info.aspect.portraitWeight * 20;
+		this.camera.updateProjectionMatrix();
 
 		this.windowSize.set( window.innerWidth, window.innerHeight );
 		this.reflectPlane.resize( this.info.size.canvasPixelSize );
