@@ -40,6 +40,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 			time: {
 				value: 0
 			},
+			contents: {
+				value: 0
+			},
 			contentNum: {
 				value: 0
 			},
@@ -324,13 +327,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private initScene() {
 
-		this.camera.near = 0.1;
-		this.camera.far = 1000.0;
-		this.camera.updateProjectionMatrix();
-		this.camera.position.set( 0, 3, 10 );
-		this.commonUniforms.camNear.value = this.camera.near;
-		this.commonUniforms.camFar.value = this.camera.far;
-
 		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
 
 		this.cameraController = new CameraController( this.camera, this.gManager.animator, this.commonUniforms );
@@ -338,15 +334,23 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
 
 		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
+		this.scene.add( this.contentSelector );
+
 		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
 
 			this.world.contents.changeContent( e.num );
 
 		} );
-		this.scene.add( this.contentSelector );
 
 		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
 
+		this.camera.near = 0.1;
+		this.camera.far = 1000.0;
+		this.camera.updateProjectionMatrix();
+		this.camera.position.set( 0, 3, 10 );
+		this.commonUniforms.camNear.value = this.camera.near;
+		this.commonUniforms.camFar.value = this.camera.far;
+		this.commonUniforms.contents.value = this.world.contents.glList.length;
 
 	}
 

@@ -5,6 +5,8 @@ uniform float contentFade;
 uniform float loaded1;
 uniform float loaded2;
 uniform float loading;
+uniform float index;
+uniform float contents;
 
 varying vec2 currentUV;
 varying vec2 nextUV;
@@ -13,10 +15,12 @@ varying vec2 vUv;
 void main( void ) {
 
 	vec4 currentCol = texture2D( currentTex, currentUV );
-	currentCol.xyz *= step( abs(currentUV.x - 0.5) , 0.5 ) * step( abs(currentUV.y - 0.5) , 0.5 ) * smoothstep( 0.5, 0.1, abs( currentUV.x - 0.5 ) );
+	currentCol.xyz *= smoothstep( 0.5, 0.1, abs( currentUV.x - 0.5 ) );
+	currentCol *= step( index, contents - 1.0 ) * step( 0.0, index );
 
 	vec4 nextCol = texture2D( nextTex, nextUV );
-	nextCol.xyz *= step( abs(nextUV.x - 0.5) , 0.5 ) * step( abs(nextUV.y - 0.5) , 0.5 ) * smoothstep( 0.5, 0.1, abs( nextUV.x - 0.5 ) );
+	nextCol.xyz *= smoothstep( 0.5, 0.1, abs( nextUV.x - 0.5 ) );
+	nextCol *= step( index, contents - 2.0 ) * step( -1.0, index ) ;
 
 	float w = contentFade;
 
