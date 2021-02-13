@@ -1,9 +1,9 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import msdfVert from './shaders/msdf.vs';
-import msdfFrag from './shaders/msdf.fs';
-import msdfDepthFrag from './shaders/msdfDepth.fs';
+import titleVert from './shaders/title.vs';
+import titleFrag from './shaders/title.fs';
+import titleDepthFrag from './shaders/titleDepth.fs';
 
 type TextOrigin = 'left' | 'center' | 'right';
 
@@ -170,8 +170,8 @@ export class Title extends THREE.Object3D {
 		] ), 1 ) );
 
 		let mat = new THREE.ShaderMaterial( {
-			vertexShader: msdfVert,
-			fragmentShader: msdfFrag,
+			vertexShader: titleVert,
+			fragmentShader: titleFrag,
 			uniforms: uni,
 			transparent: true,
 			depthTest: false,
@@ -181,8 +181,8 @@ export class Title extends THREE.Object3D {
 		mesh.renderOrder = 10;
 
 		mesh.customDepthMaterial = new THREE.ShaderMaterial( {
-			vertexShader: msdfVert,
-			fragmentShader: msdfDepthFrag,
+			vertexShader: titleVert,
+			fragmentShader: titleDepthFrag,
 			uniforms: uni,
 			defines: {
 				'DEPTH_PACKING': THREE.RGBADepthPacking
