@@ -8,7 +8,7 @@ float easeInQuart( float t ) {
 
 float easeOutQuart( float t ) {
 
-	return 1.0 - ( --t ) * t * t * t ;
+	return 1.0 - pow(1.0 - t, 4.0);
 
 }
 

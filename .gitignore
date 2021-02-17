@@ -4,3 +4,6 @@
 *.blend?*
 *.Identifier
 .firebase
+*.log
+report.*.json
+debug.log

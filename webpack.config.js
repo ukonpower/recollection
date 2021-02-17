@@ -1,6 +1,7 @@
 const path = require( 'path' );
 
 module.exports = {
+	watch: true,
 	entry: {
 	},
 	output: {
@@ -33,9 +34,19 @@ module.exports = {
 	},
 	resolve: {
 		modules: ['node_modules'],
-		extensions: ['.ts', '.js'],
+		extensions: ['.ts', '.js', '.json'],
 		alias: {
-            "@ore-three-ts": path.resolve(__dirname, './src/common/ts/ore-three-ts/src')
+            "@ore-three-ts": path.resolve(__dirname, './src/common/ts/ore-three-ts/src'),
+            "@gl": path.resolve(__dirname, './src/ts/gl/')
         }
+	},
+	cache: {
+		type: 'filesystem',
+		buildDependencies: {
+			config: [__filename]
+		}
+	},
+	optimization: {
+		innerGraph: true
 	}
 }

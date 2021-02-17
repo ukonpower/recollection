@@ -1,4 +1,7 @@
+const fancyLog = require('fancy-log');
+const supportsColor = require( 'supports-color' );
 const gulp = require( 'gulp' );
+const rename = require( 'gulp-rename' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
 const plumber = require( 'gulp-plumber' );
@@ -15,6 +18,7 @@ const del = require( 'del' );
 const fs = require( 'fs' );
 
 const _ = require( 'lodash' );
+const { reload } = require('browser-sync');
 
 const options = minimist( process.argv.slice( 2 ), {
 	default: {
@@ -24,6 +28,7 @@ const options = minimist( process.argv.slice( 2 ), {
 });
 
 const srcPath = './src';
+const glPath = './src/ts/gl';
 const publicPath = './public';
 var webpackMode = 'development';
 
@@ -37,7 +42,6 @@ function esLint( cb ) {
 
 	let paths = [
 		'./src/gl',
-		'./src/topVisual'
 	];
 
 	for ( let i = 0; i < paths.length; i ++ ) {
@@ -57,64 +61,6 @@ function esLint( cb ) {
 /*-------------------
 	Production
 --------------------*/
-
-const glDir = srcPath + '/gl/';
-const distGLDir =  publicPath + '/gl/';
-
-function buildAllGLs( cb ) {
-
-	fs.readdir( glDir, ( err, files ) => {
-
-		if ( err ) throw err;
-
-		let conf = _.cloneDeep( require( './webpack.config' ) );
-		conf.mode = options.P ? 'production' : webpackMode;
-
-		for ( let i = 0; i < files.length; i++ ) {
-
-			if( files[i] == '.DS_Store' ) continue;
-			
-			let glItemDir = glDir + files[i];
-			let distGLItemDir = distGLDir + files[i];
-
-			//set webpack entry files
-			conf.entry[files[i]] = glItemDir + '/ts/main.ts';	 
-
-			//pug
-			gulp.src([ glItemDir + '/pug/**/*.pug', '!' + glItemDir + '/pug/**/_*.pug'] )
-				.pipe(plumber())
-				.pipe(pug({
-					pretty: true,
-					locals: {
-						title: files[i],
-					}
-				}))
-				.pipe(gulp.dest( distGLItemDir ));
-
-			//sass
-			gulp.src( glItemDir + "/scss/style.scss" )
-				.pipe( plumber() )
-				.pipe( autoprefixer() )
-				.pipe( sass() )
-				.pipe( cssmin() )
-				.pipe( gulp.dest( distGLItemDir + "/css/" ) )
-
-			//copy files
-			gulp.src( glDir + files[i] + '/assets/**/*' ).pipe( gulp.dest( distGLItemDir + '/assets/' ) );
-			gulp.src( glItemDir + '/' + files[i] + '.jpg', { allowEmpty: true } ).pipe( gulp.dest( distGLItemDir) );
-			
-		}
-		
-		conf.output.filename = '[name]/js/main.js';
-
-		//webpack
-		webpackStream( conf, webpack )
-			.pipe( gulp.dest( distGLDir ) )
-			.on( 'end', cb )
-
-	});
-
-}
 
 function cleanAllFiles( cb ) {
 
@@ -138,58 +84,80 @@ function cleanAllFiles( cb ) {
 	Development
 --------------------*/
 
-let srcDir = '';
-let distDir = '';
-
 function copyFiles( cb ) {
 
-	gulp.src( srcDir + '/assets/**/*' ).pipe( gulp.dest( distDir + '/assets/' ) );
-	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( distDir ) );
+	gulp.src( srcPath + '/ts/top/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/' ) );
+	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( publicPath ) );
 
+	let glList = require( './src/ts/gl/gl.json' );
+
+	for (let i = 0; i < glList.length; i++) {
+		
+		let glName = glList[i].fileName;
+
+		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/gl/' + glName + '/' ) );
+		
+	}
+		
 	browserSync.reload();
 	
 	cb();
 
 }
 
-// function cleanFiles( cb ) {
-
-// 	del([
-
-// 		distDir
-		
-// 	],{
-
-// 		force: true,
-
-// 	}).then( ( paths ) => {
-
-// 		cb();
-
-// 	});
-
-// }
+let webpackConfDev = _.cloneDeep( require( './webpack.config' ) );
 
 function webpackDev( cb ) {
 
-	let conf = _.cloneDeep( require( './webpack.config' ) );
-	conf.entry.main = srcDir + '/ts/main.ts';
-	conf.output.filename = 'main.js';
-	conf.mode = options.P ? 'production' : webpackMode;
+	webpackConfDev.entry.main = srcPath + '/ts/top/main.ts';
+	webpackConfDev.output.filename = 'main.js';
+	webpackConfDev.mode = options.P ? 'production' : webpackMode;
 	
-	
-	webpackStream( conf, webpack )
+	webpackStream( webpackConfDev, webpack, function( err, stats ) {
+		
+		//https://github.com/shama/webpack-stream/blob/master/index.js
+		
+		if (err) {
+			return;
+		}
+
+		stats = stats || {};
+
+		var statusLog = stats.toString({
+			colors: supportsColor.stdout.hasBasic,
+			hash: false,
+			timings: false,
+			chunks: false,
+			chunkModules: false,
+			modules: false,
+			children: true,
+			version: true,
+			cached: false,
+			cachedAssets: false,
+			reasons: false,
+			source: false,
+			errorDetails: false
+		});
+		
+		if (statusLog) {
+			fancyLog(statusLog);
+		}
+
+		reload();
+		
+	})
 		.on( 'error', function() { this.emit( 'end' ) } )
-		.pipe( gulp.dest( distDir + "/js/" ) )
-		.on( 'end', function() {  browserSync.reload(); cb(); } );
+		.pipe( gulp.dest( publicPath + "/js/" ) );
+
+	cb();
 
 }
 
-function pugDev() {
+function pugDev( cb ) {
 
 	let title = options.name || 'Recollection';
 	
-	return gulp.src([ srcDir + '/pug/**/*.pug', '!' + srcDir + '/pug/**/_*.pug'] )
+	gulp.src( srcPath + '/pug/index.pug' )
 		.pipe(plumber())
 		.pipe(pug({
 			pretty: true,
@@ -197,19 +165,46 @@ function pugDev() {
 				title: title,
 			}
 		}))
-		.pipe( gulp.dest( distDir ) )
+		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );
+
+	
+	let glList = require( './src/ts/gl/gl.json' );
+
+	for (let i = 0; i < glList.length; i++) {
+
+		let gl = glList[i];
+		let glName = gl.title;
+		let glDate = gl.data;
+		let glDescription = gl.description;
+		
+		gulp.src( srcPath + '/pug/gl.pug' )
+			.pipe( plumber() )
+			.pipe( pug( {
+				pretty: true,
+				locals: {
+					glName: glName,
+					glDate: glDate,
+					glDescription: glDescription
+				}
+			} ) )
+			.pipe( rename( (path) => { path.basename = gl.fileName }) )
+			.pipe( gulp.dest( publicPath + '/gl/' ) )
+		
+	}
+
+	cb();
 	
 }
 
 function sassDev() {
 
-	return gulp.src( srcDir + "/scss/style.scss" )
+	return gulp.src( srcPath + "/scss/style.scss" )
 		.pipe( plumber() )
 		.pipe( sass() )
 		.pipe( autoprefixer() )
 		.pipe( cssmin() )
-		.pipe( gulp.dest( distDir + "/css/" ) )
+		.pipe( gulp.dest( publicPath + "/css/" ) )
 		.pipe( browserSync.stream() )
 
 }
@@ -218,7 +213,7 @@ function brSync() {
 
 	browserSync.init({
 		server: {
-			baseDir: distDir,
+			baseDir: publicPath,
 			index: "index.html",
 		},
 		notify: false
@@ -228,33 +223,10 @@ function brSync() {
 
 function watch() {
 
-	gulp.watch( srcDir + '/ts/**/*', gulp.series( webpackDev ) );
-	gulp.watch( srcDir + '/pug/**/*', gulp.series( pugDev ) );
-	gulp.watch( srcDir + '/scss/**/*', gulp.series( sassDev ) );
-	gulp.watch( srcDir + '/html/**/*', gulp.series( copyFiles ) );
-	gulp.watch( srcDir + '/assets/**/*', gulp.series( copyFiles ) );
+	gulp.watch( srcPath + '/pug/**/*', gulp.series( pugDev ) );
+	gulp.watch( srcPath + '/scss/**/*', gulp.series( sassDev ) );
+	gulp.watch( [srcPath + '/ts/top/assets/**/*', glPath + '/*/assets/**/*'], gulp.series( copyFiles ) );
 	
-	let commonDir = './src/common';
-	gulp.watch( commonDir + '/ts/**/*', gulp.series( webpackDev ) );
-	gulp.watch( commonDir + '/pug/**/*', gulp.series( pugDev ) );
-
-}
-
-function setPathGL( cb ) {
-	
-	srcDir = srcPath + '/gl/' + options.name;
-	distDir = publicPath + '/gl/' + options.name + '/public';
-
-	cb();
-}
-
-function setPathMainVisual( cb ) {
-
-	srcDir = srcPath + '/MainVisual';
-	distDir = publicPath;
-
-	cb();
-
 }
 
 function setModeDevelopment( cb ) {
@@ -283,11 +255,8 @@ let develop = gulp.series(
 	gulp.parallel( brSync, watch ),
 );
 
-exports.build	= gulp.series( cleanAllFiles, setModeProduction, buildAllGLs, setPathMainVisual, build );
-exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, buildAllGLs, setPathMainVisual, develop );
-
-exports.top	= gulp.series( cleanAllFiles, setPathMainVisual, setModeDevelopment, develop );
-exports.gl	= gulp.series( cleanAllFiles, setPathGL, setModeDevelopment, develop );
+exports.build	= gulp.series( cleanAllFiles, setModeProduction, build );
+exports.default	= gulp.series( cleanAllFiles, setModeDevelopment, develop );
 
 exports.lint = gulp.series( esLint );
 
