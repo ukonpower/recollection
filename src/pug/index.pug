@@ -1,0 +1,27 @@
+html(lang="en")
+	head
+		include ./_analytics.pug
+		meta(charset="UTF-8")
+		meta(name="viewport", content="width=device-width, initial-scale=1.0")
+		meta(name="description" content="Recollection.")
+		meta(http-equiv="X-UA-Compatible", content="ie=edge")
+		meta(property="og:url", content="https://recollection.ukon.dev")
+		meta(property="og:title", content="Recollection")
+		meta(property="og:description", content="Recollection.")
+		meta(property="og:image", content="https://recollection.ukon.dev/recollection-og-image.png")
+		meta(name="twitter:card", content="summary_large_image")
+		meta(name="twitter:site", content="@Uksksan")
+		meta(property="og:site_name", content="Recollection")
+		meta(property="og:locale", content="ja_JP")
+		link( href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Ropa+Sans&display=swap", rel="stylesheet" )
+		link( href="./css/style.css", rel="stylesheet" )
+		title Recollection
+	body
+		.wrapper(data-barba="wrapper")
+			include ./common.pug
+			.container(data-barba="container" data-barba-namespace="main")
+				//- .ui
+					//- .ui-scroll
+					//- 	.ui-scroll-item.prev
+					//- 	.ui-scroll-item.next
+		script(src="js/main.js")
