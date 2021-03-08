@@ -101,13 +101,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 				setTimeout( () => {
 
-					this.animator.animate( 'loaded1', 1, 2.0, () => {
+					this.animator.animate( 'loaded1', 1, 1.5, () => {
 
 						this.animator.animate( 'loaded2', 1, 1.5 );
 
 					} );
 
-				}, 1000 );
+				}, 500 );
 
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 

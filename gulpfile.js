@@ -155,15 +155,10 @@ function webpackDev( cb ) {
 
 function pugDev( cb ) {
 
-	let title = options.name || 'Recollection';
-	
-	gulp.src( srcPath + '/pug/index.pug' )
+	gulp.src( [srcPath + '/pug/**/*.pug', '!/**/_*.pug', '!/**/gl.pug'] )
 		.pipe(plumber())
 		.pipe(pug({
 			pretty: true,
-			locals: {
-				title: title,
-			}
 		}))
 		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );

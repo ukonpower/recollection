@@ -29,7 +29,6 @@ class APP {
 
 		let views: IView[] = [];
 
-
 		for ( let i = - 1; i < glList.length; i ++ ) {
 
 			let glName = i < 0 ? 'main' : glList[ i ].title;
