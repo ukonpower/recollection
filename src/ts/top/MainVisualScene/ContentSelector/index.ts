@@ -6,6 +6,8 @@ export class ContentSelector extends THREE.Object3D {
 	public enable: boolean = true;
 	public value: number = 0;
 
+	private commonUniforms: ORE.Uniforms;
+
 	private selectingContentPos: number = 0;
 	private touchStartContentPos: number = 0;
 	private moveVelocity: number = 0;
@@ -21,7 +23,8 @@ export class ContentSelector extends THREE.Object3D {
 	private touchStartPos: number = 0;
 	private touchMove: number;
 
-	private commonUniforms: ORE.Uniforms;
+	private prevElm: HTMLElement;
+	private nextElm: HTMLElement;
 
 	public clickTargetMesh: THREE.Mesh;
 
@@ -37,6 +40,8 @@ export class ContentSelector extends THREE.Object3D {
 		this.initAnimator();
 
 		this.initClickTargetMesh();
+
+		this.initElement();
 
 	}
 
@@ -136,6 +141,9 @@ export class ContentSelector extends THREE.Object3D {
 			this.currentContent = nearest;
 
 			this.wheelStop = false;
+
+			this.updateElm();
+
 			this.dispatchEvent( {
 				type: 'changecontent',
 				num: this.currentContent,
@@ -149,6 +157,8 @@ export class ContentSelector extends THREE.Object3D {
 
 		this.value = contentNum;
 		this.currentContent = contentNum;
+
+		this.initElement();
 
 	}
 
@@ -232,6 +242,23 @@ export class ContentSelector extends THREE.Object3D {
 			this.isAnimating = false;
 
 		} );
+
+	}
+
+	public initElement() {
+
+		this.prevElm = document.querySelector( '.ui-scroll-item.prev' );
+		this.prevElm.addEventListener( 'click', this.prev.bind( this ) );
+
+		this.nextElm = document.querySelector( '.ui-scroll-item.next' );
+		this.nextElm.addEventListener( 'click', this.next.bind( this ) );
+
+	}
+
+	private updateElm() {
+
+		this.prevElm.setAttribute( 'data-active', this.currentContent <= 0 ? 'false' : 'true' );
+		this.nextElm.setAttribute( 'data-active', this.currentContent >= this.contentNum - 1 ? 'false' : 'true' );
 
 	}
 
