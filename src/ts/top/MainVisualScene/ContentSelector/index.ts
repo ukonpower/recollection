@@ -41,8 +41,6 @@ export class ContentSelector extends THREE.Object3D {
 
 		this.initClickTargetMesh();
 
-		this.initElement();
-
 	}
 
 	protected initAnimator() {
@@ -248,17 +246,39 @@ export class ContentSelector extends THREE.Object3D {
 	public initElement() {
 
 		this.prevElm = document.querySelector( '.ui-scroll-item.prev' );
-		this.prevElm.addEventListener( 'click', this.prev.bind( this ) );
+
+		if ( this.prevElm ) {
+
+			this.prevElm.addEventListener( 'click', this.prev.bind( this ) );
+
+		}
 
 		this.nextElm = document.querySelector( '.ui-scroll-item.next' );
-		this.nextElm.addEventListener( 'click', this.next.bind( this ) );
+
+		if ( this.nextElm ) {
+
+			this.nextElm.addEventListener( 'click', this.next.bind( this ) );
+
+		}
+
+		this.updateElm();
 
 	}
 
 	private updateElm() {
 
-		this.prevElm.setAttribute( 'data-active', this.currentContent <= 0 ? 'false' : 'true' );
-		this.nextElm.setAttribute( 'data-active', this.currentContent >= this.contentNum - 1 ? 'false' : 'true' );
+		if ( this.prevElm ) {
+
+			this.prevElm.setAttribute( 'data-active', this.currentContent <= 0 ? 'false' : 'true' );
+
+		}
+
+		if ( this.nextElm ) {
+
+			this.nextElm.setAttribute( 'data-active', this.currentContent >= this.contentNum - 1 ? 'false' : 'true' );
+
+		}
+
 
 	}
 

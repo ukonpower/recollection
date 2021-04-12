@@ -29,12 +29,47 @@ class APP {
 
 		let views: IView[] = [];
 
-		for ( let i = - 1; i < glList.length; i ++ ) {
+		/*------------------------
+			Open Main
+		------------------------*/
 
-			let glName = i < 0 ? 'main' : glList[ i ].title;
+		views.push( {
+			namespace: 'main',
+			beforeLeave: () => {
+
+				return this.scene.switchInfoVisibility( false );
+
+			},
+			beforeEnter: ( data ) => {
+
+				let skipAnimation = data.current.namespace == '' || data.current.namespace == 'about';
+
+				this.scene.closeContent( skipAnimation );
+
+			}
+		},
+		{
+			namespace: 'about',
+			beforeLeave: () => {
+
+				return this.scene.switchInfoVisibility( false );
+
+			},
+			beforeEnter: ( data ) => {
+
+				// this.scene.closeContent();
+
+			}
+		} );
+
+		/*------------------------
+			Open GLs
+		------------------------*/
+
+		glList.forEach( item => {
 
 			views.push( {
-				namespace: glName,
+				namespace: item.title,
 				beforeLeave: () => {
 
 					return this.scene.switchInfoVisibility( false );
@@ -42,22 +77,12 @@ class APP {
 				},
 				beforeEnter: ( data ) => {
 
-					let open = data.next.namespace != 'main';
-
-					if ( open ) {
-
-						this.scene.openContent( data.next.namespace );
-
-					} else {
-
-						this.scene.closeContent();
-
-					}
+					this.scene.openContent( data.next.namespace );
 
 				}
 			} );
 
-		}
+		} );
 
 		barba.init( {
 			transitions: [

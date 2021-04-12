@@ -45,7 +45,7 @@ export class Contents {
 		this.titles.scale.setScalar( 0.9 );
 
 		this.layoutControllers.push( new ORE.LayoutController( this.titles, {
-			position: new THREE.Vector3( - 1.35, - 0.9, 0.0 ),
+			position: new THREE.Vector3( - 1.47, - 0.65, 0.0 ),
 			rotation: new THREE.Quaternion().setFromEuler( new THREE.Euler( 0, - 0.13, 0 ) ),
 			scale: 0.55
 		} ) );
