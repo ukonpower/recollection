@@ -44,8 +44,8 @@ html, body {
 	
 	&-title { 
 		display: inline-block;
-		font-size: 24px;
-		font-family:'Roboto ', serif;
+		font-size: 30px;
+		font-family:'Bebas Neue', serif;
 		text-decoration: none;
 		
 		@include sp {
@@ -186,9 +186,9 @@ html, body {
 .about-link {
 	position: absolute;
 	bottom: 0px;
-	left: 20px;
+	left: 30px;
 	transform-origin: right bottom;
-	transform: translateX(-100%) rotate(90deg) ;
+	transform: translateX(-100% ) rotate(90deg) translateX(10%) ;
 	
 	padding: 0px 2px;
 	padding-right: 20px;
@@ -198,12 +198,28 @@ html, body {
 		left: 15px;
 	}
 
+	opacity: 0;
+	transition: 1s;
+	
+	[data-info='true'] & {
+		opacity: 1;
+		transform: translate(-100%, 0) rotate(90deg);
+	}
+	
 	a {
+		position: relative;
 		font-size: 15px;
 		font-family: 'Noto Serif JP', sans-serif;
 		text-decoration: none;
 
 		color: #ddd;
+
+		opacity: 0;
+		transition: .4s;
+		
+		[data-info='true'] & {
+			opacity: 1;
+		}
 		
 		@include sp {
 			font-size: 15px;
@@ -223,7 +239,7 @@ html, body {
 	justify-content: center;
 	align-items: center;
 
-	background: rgba($color: #000, $alpha: 0.1);
+	background: rgba($color: #000, $alpha: 0.5);
 	opacity: 0;
 	transition: opacity .7s;
 
@@ -244,7 +260,15 @@ html, body {
 		position: absolute;
 		display: inline-block;
 		left: 50%; bottom: 80px;
-		transform: translateX(-50%);
+		transform: translateX(-20%);
+		
+		opacity: 0;
+		transition: 1s;
+		
+		[data-about='true'] & {
+			opacity: 1;
+			transform: translateX(0);
+		}
 		
 		a {
 			padding: 0 3px;
