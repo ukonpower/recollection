@@ -329,9 +329,9 @@ export class RenderPipeline {
 
 	}
 
-	public render( scene: THREE.Scene, camera: THREE.Camera, renderMainVisual: boolean, contentRenderTarget: THREE.WebGLRenderTarget ) {
+	public render( scene: THREE.Scene, camera: THREE.Camera, contentRenderTarget: THREE.WebGLRenderTarget ) {
 
-		if ( renderMainVisual ) {
+		if ( this.commonUniforms.contentVisibility.value != 1.0 ) {
 
 			this.renderMainVisual( scene, camera );
 

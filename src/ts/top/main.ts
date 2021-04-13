@@ -52,12 +52,14 @@ class APP {
 			namespace: 'about',
 			beforeLeave: () => {
 
+				this.scene.closeAbout();
+
 				return this.scene.switchInfoVisibility( false );
 
 			},
 			beforeEnter: ( data ) => {
 
-				// this.scene.closeContent();
+				this.scene.openAbout();
 
 			}
 		} );

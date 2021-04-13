@@ -42,10 +42,10 @@ html, body {
 		padding: 20px 20px;
 	}
 	
-	&-title {
+	&-title { 
 		display: inline-block;
-		font-size: 30px;
-		font-family: 'Ropa Sans', sans-serif;
+		font-size: 24px;
+		font-family:'Roboto ', serif;
 		text-decoration: none;
 		
 		@include sp {
@@ -183,7 +183,7 @@ html, body {
 	}
 }
 
-.about {
+.about-link {
 	position: absolute;
 	bottom: 0px;
 	left: 20px;
@@ -199,8 +199,8 @@ html, body {
 	}
 
 	a {
-		font-size: 18px;
-		font-family: 'Ropa Sans', sans-serif;
+		font-size: 15px;
+		font-family: 'Noto Serif JP', sans-serif;
 		text-decoration: none;
 
 		color: #ddd;
@@ -209,4 +209,60 @@ html, body {
 			font-size: 15px;
 		}
 	}
+}
+
+.about {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	background: rgba($color: #000, $alpha: 0.1);
+	opacity: 0;
+	transition: opacity .7s;
+
+	[data-about='true'] & {
+
+		opacity: 1;
+		
+	}
+	
+	&-inner{
+		p {
+			letter-spacing: 5px;
+			font-family: 'Noto Serif JP', serif;
+		}
+	}
+
+	&-back {
+		position: absolute;
+		display: inline-block;
+		left: 50%; bottom: 80px;
+		transform: translateX(-50%);
+		
+		a {
+			padding: 0 3px;
+			padding-left: 30px;
+			font-size: 16px;
+			font-family: 'Noto Serif JP', sans-serif;
+			text-decoration: none;
+			
+			&::after{
+				content: "";
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				width: 70px;
+				height: 1px;
+				background: #ccc;
+			}
+		}
+	}
+	
 }

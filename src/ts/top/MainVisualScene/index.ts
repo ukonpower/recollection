@@ -28,7 +28,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private state = {
 		currentContent: '',
-		renderMainVisual: false,
 		firstMove: true
 	}
 
@@ -143,6 +142,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 			initValue: 0
 		} );
 
+		this.commonUniforms.aboutVisibility = this.animator.add( {
+			name: 'aboutVisibility',
+			initValue: 0
+		} );
+
 		this.commonUniforms.loading = this.animator.add( {
 			name: 'loading',
 			initValue: 0,
@@ -167,6 +171,104 @@ export class MainVisualScene extends ORE.BaseLayer {
 				func: ORE.Easings.easeInOutCubic
 			}
 		} );
+
+	}
+
+	private initScene() {
+
+		/*------------------------
+			World
+		------------------------*/
+
+		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
+
+		/*------------------------
+			CameraController
+		------------------------*/
+
+		this.cameraController = new CameraController( this.camera, this.gManager.animator, this.commonUniforms );
+
+		this.addEventListener( 'aboutWillOpen', () => {
+
+			this.cameraController.changeScene( 'about' );
+
+		} );
+
+		this.addEventListener( 'aboutWillClose', () => {
+
+			this.cameraController.changeScene( 'main' );
+
+		} );
+
+		/*------------------------
+			ContentSelector
+		------------------------*/
+
+		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
+		this.scene.add( this.contentSelector );
+
+		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
+
+			this.world.contents.changeContent( e.num );
+
+		} );
+
+		this.addEventListener( 'contentWillOpen', ( e ) => {
+
+			this.contentSelector.enable = false;
+			this.contentSelector.setCurrentContent( e.contentIndex );
+
+		} );
+
+		this.addEventListener( 'contentClosed', () => {
+
+			this.contentSelector.enable = true;
+			this.contentSelector.initElement();
+
+		} );
+
+		this.addEventListener( 'openAbout', () => {
+
+			this.contentSelector.enable = false;
+
+		} );
+
+		this.addEventListener( 'closeAbout', () => {
+
+			this.contentSelector.enable = false;
+
+		} );
+
+		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
+
+		/*------------------------
+			ContentViewer
+		------------------------*/
+
+		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
+		this.addEventListener( 'contentWillOpen', ( e: any ) => {
+
+			this.contentViewer.open( this.world.contents.glList[ e.contentIndex ].fileName );
+
+		} );
+
+		/*------------------------
+			RenderPipeline
+		------------------------*/
+
+		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
+
+		/*------------------------
+			Camera
+		------------------------*/
+
+		this.camera.near = 0.1;
+		this.camera.far = 1000.0;
+		this.camera.updateProjectionMatrix();
+		this.camera.position.set( 0, 3, 10 );
+		this.commonUniforms.camNear.value = this.camera.near;
+		this.commonUniforms.camFar.value = this.camera.far;
+		this.commonUniforms.contents.value = this.world.contents.glList.length;
 
 	}
 
@@ -206,47 +308,82 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	public openContent( contentName: string ) {
+	public openAbout() {
 
-		//ロードが終わってなかった場合
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
-			//ロード終了後再度同関数を呼ぶ
-			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
-
-				this.openContent( contentName );
-
-			} );
+			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', this.openAbout.bind( this ) );
 
 			return;
 
 		}
 
-		//開くコンテンツのインデックスを取得
+		this.dispatchEvent( {
+			type: 'aboutWillOpen'
+		} );
+
+		this.animator.animate( 'aboutVisibility', 1.0, 1.0, () => {
+
+			document.body.setAttribute( 'data-about', 'true' );
+
+			this.dispatchEvent( {
+				type: 'aboutOpened'
+			} );
+
+		} );
+
+	}
+
+	public closeAbout() {
+
+		document.body.setAttribute( 'data-about', 'false' );
+
+		this.dispatchEvent( {
+			type: 'aboutWillClose'
+		} );
+
+		this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
+
+			this.dispatchEvent( {
+				type: 'aboutClosed'
+			} );
+
+		} );
+
+	}
+
+	public openContent( contentName: string ) {
+
+		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
+
+			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', this.openContent.bind( this, contentName ) );
+
+			return;
+
+		}
+
+		this.state.currentContent = contentName;
+
+		this.switchCursorPointer( false );
+
 		let contentIndex = this.world.contents.glList.findIndex( ( gl ) => {
 
 			return gl.title == contentName;
 
 		} );
 
-		this.contentSelector.enable = false;
+		this.dispatchEvent( {
+			type: 'contentWillOpen',
+			contentIndex: contentIndex
+		} );
 
-		//開くコンテンツへ移動
-		this.contentSelector.setCurrentContent( contentIndex );
+		return this.animator.animate( 'contentVisibility', 1, this.state.currentContent == '' ? 0 : 6, () => {
 
-		//コンテンツを開く
-		this.contentViewer.open( this.world.contents.glList[ contentIndex ].fileName );
-
-		this.switchCursorPointer( false );
-
-		let duration = this.state.currentContent == '' ? 0 : 6;
-
-		this.state.currentContent = contentName;
-
-		return this.animator.animate( 'contentVisibility', 1, duration, () => {
-
-			this.state.renderMainVisual = false;
 			this.switchInfoVisibility( true );
+
+			this.dispatchEvent( {
+				type: 'contentOpened'
+			} );
 
 		} );
 
@@ -254,10 +391,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public closeContent( skipAnimation: boolean = false ) {
 
-		//ロードが終わってなかった場合
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
-			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.closeContent( skipAnimation );
@@ -268,17 +403,19 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		let duration = skipAnimation ? 0 : 4;
-
-		this.state.renderMainVisual = true;
 		this.state.currentContent = 'main';
 
-		this.animator.animate( 'contentVisibility', 0, duration, () => {
+		this.dispatchEvent( {
+			type: 'contentWillClose'
+		} );
 
-			this.contentSelector.enable = true;
+		this.animator.animate( 'contentVisibility', 0, skipAnimation ? 0 : 4, () => {
+
 			this.switchInfoVisibility( true );
 
-			this.contentSelector.initElement();
+			this.dispatchEvent( {
+				type: 'contentClosed'
+			} );
 
 		} );
 
@@ -286,10 +423,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public switchInfoVisibility( visibility: boolean ) {
 
-		//ロードが終わってなかった場合
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
-			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
 				this.switchInfoVisibility( visibility );
@@ -300,7 +435,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		//infoがフェード中だったら
 		if ( this.animator.isAnimatingVariable( 'infoVisibility' ) ) {
 
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
@@ -327,47 +461,19 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	private initScene() {
-
-		this.world = new MainVisualWorld( this.info, this.gManager.assetManager, this.renderer, this.scene, this.commonUniforms );
-
-		this.cameraController = new CameraController( this.camera, this.gManager.animator, this.commonUniforms );
-		this.contentViewer = new ContentViewer( this.renderer, this.info, this.commonUniforms );
-		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
-
-		this.contentSelector = new ContentSelector( this.world.contents.glList.length, this.commonUniforms );
-		this.scene.add( this.contentSelector );
-
-		this.contentSelector.addEventListener( 'changecontent', ( e ) => {
-
-			this.world.contents.changeContent( e.num );
-
-		} );
-
-		this.gManager.eRay.touchableObjs.push( this.contentSelector.clickTargetMesh );
-
-		this.camera.near = 0.1;
-		this.camera.far = 1000.0;
-		this.camera.updateProjectionMatrix();
-		this.camera.position.set( 0, 3, 10 );
-		this.commonUniforms.camNear.value = this.camera.near;
-		this.commonUniforms.camFar.value = this.camera.far;
-		this.commonUniforms.contents.value = this.world.contents.glList.length;
-
-	}
-
 	public animate( deltaTime: number ) {
 
 		deltaTime = Math.min( deltaTime, 0.1 );
 		this.commonUniforms.time.value = this.time;
 
 		this.gManager.update( deltaTime );
-		this.updateCameraInfo( deltaTime );
+		this.updateCameraUnifrorms( deltaTime );
 
 		if ( this.gManager.assetManager.preAssetsLoaded ) {
 
 			this.contentViewer.update( deltaTime );
-			this.renderPipeline.render( this.scene, this.camera, this.state.renderMainVisual, this.contentViewer.contentRenderTarget );
+
+			this.renderPipeline.render( this.scene, this.camera, this.contentViewer.contentRenderTarget );
 
 		}
 
@@ -381,7 +487,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	private updateCameraInfo( deltaTime: number ) {
+	private updateCameraUnifrorms( deltaTime: number ) {
 
 		this.cameraController && this.cameraController.update( deltaTime );
 		this.commonUniforms.camNear.value = this.camera.near;
