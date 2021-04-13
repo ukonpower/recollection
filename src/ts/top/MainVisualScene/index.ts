@@ -101,13 +101,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 				setTimeout( () => {
 
-					this.animator.animate( 'loaded1', 1, 2.0, () => {
+					this.animator.animate( 'loaded1', 1, 1.5, () => {
 
 						this.animator.animate( 'loaded2', 1, 1.5 );
 
 					} );
 
-				}, 1000 );
+				}, 500 );
 
 				window.dispatchEvent( new CustomEvent( 'resize' ) );
 
@@ -235,7 +235,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.contentSelector.setCurrentContent( contentIndex );
 
 		//コンテンツを開く
-		this.contentViewer.open( this.world.contents.glList[ this.contentSelector.value ].fileName );
+		this.contentViewer.open( this.world.contents.glList[ contentIndex ].fileName );
 
 		this.switchCursorPointer( false );
 
@@ -252,7 +252,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	public closeContent() {
+	public closeContent( skipAnimation: boolean = false ) {
 
 		//ロードが終わってなかった場合
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
@@ -260,7 +260,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			//ロード終了後再度同関数を呼ぶ
 			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
-				this.closeContent();
+				this.closeContent( skipAnimation );
 
 			} );
 
@@ -268,7 +268,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		let duration = this.state.currentContent == '' ? 0 : 4;
+		let duration = skipAnimation ? 0 : 4;
 
 		this.state.renderMainVisual = true;
 		this.state.currentContent = 'main';
@@ -277,6 +277,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			this.contentSelector.enable = true;
 			this.switchInfoVisibility( true );
+
+			this.contentSelector.initElement();
 
 		} );
 

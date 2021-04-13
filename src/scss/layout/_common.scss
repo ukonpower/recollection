@@ -29,11 +29,19 @@ html, body {
 }
 
 .header {
-	position: fixed;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
 	left: 0; top: 0;
 	width: 100%;
 	padding: 30px 50px;
 	z-index: 10;
+
+	@include sp{
+		padding: 20px 20px;
+	}
+	
 	&-title {
 		display: inline-block;
 		font-size: 30px;
@@ -41,7 +49,7 @@ html, body {
 		text-decoration: none;
 		
 		@include sp {
-			padding: 15px 30px;
+			padding: 15px 0px;
 			font-size: 23px;
 		}
 	}
@@ -118,31 +126,87 @@ html, body {
 	}
 }
 
-
 .ui {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	
-	// &-scroll {
-	// 	position: absolute;
-	// 	width: 100%;
-	// 	height: 10px;
-	// 	top: 50%;
-	// 	transform: translateY( -50% );
-	// 	display: flex;
-	// 	justify-content: space-between;
-	// 	&-item{
-	// 		width: 100px;
-	// 		height: 1px;
-	// 		margin: 0 20px;
+	left: 0; top: 0;
+	pointer-events: none;
 
-	// 		background-color: #ddd;
-	// 	}
-	// 	&-prev {
-	// 	}
-	// 	&-next {
-			
-	// 	}
-	// }
+	&-scroll {
+		position: absolute;
+		display: flex;
+		width: 90%;
+		left: 50%; top: 50%;
+		transform: translate(-50%, -50%);
+		bottom: 30px;
+		align-items: center;
+		justify-content: space-between;
+
+		@include sp{
+			width: 80%;
+		}
+
+		&-item {
+			left: 25px;
+			width: 25px;
+			height: 25px;
+			border-top: 2px solid rgba($color: #FFF, $alpha: 0.4);
+			border-left: 2px solid rgba($color: #FFF, $alpha: 0.4);
+			transform: translateX(10px) rotate(-45deg);
+			opacity: 0;
+			transition: .4s;
+			pointer-events: none;
+			cursor: pointer;
+
+			@include sp {
+				left: 20px;
+				width: 20px;
+				height: 20px;
+			}
+
+			&[data-active="true"]{
+				opacity: 1;
+				pointer-events: auto;
+				transform: rotate(-45deg);
+			}
+
+			&.next {
+				transform: translateX(-10px) rotate(135deg);
+				
+				&[data-active="true"]{
+					transform: rotate(135deg);
+				}
+			}
+		}
+
+	}
+}
+
+.about {
+	position: absolute;
+	bottom: 0px;
+	left: 20px;
+	transform-origin: right bottom;
+	transform: translateX(-100%) rotate(90deg) ;
+	
+	padding: 0px 2px;
+	padding-right: 20px;
+	border-bottom: 1px solid #999;
+
+	@include sp {
+		left: 15px;
+	}
+
+	a {
+		font-size: 18px;
+		font-family: 'Ropa Sans', sans-serif;
+		text-decoration: none;
+
+		color: #ddd;
+		
+		@include sp {
+			font-size: 15px;
+		}
+	}
 }
