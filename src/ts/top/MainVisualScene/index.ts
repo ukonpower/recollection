@@ -227,15 +227,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		} );
 
-		this.addEventListener( 'openAbout', () => {
+		this.addEventListener( 'aboutWillOpen', () => {
 
 			this.contentSelector.enable = false;
 
 		} );
 
-		this.addEventListener( 'closeAbout', () => {
+		this.addEventListener( 'aboutClosed', () => {
 
-			this.contentSelector.enable = false;
+			this.contentSelector.enable = true;
 
 		} );
 
