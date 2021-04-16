@@ -409,9 +409,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			type: 'contentWillClose'
 		} );
 
-		this.animator.animate( 'contentVisibility', 0, skipAnimation ? 0 : 4, () => {
-
-			this.switchInfoVisibility( true );
+		return this.animator.animate( 'contentVisibility', 0, skipAnimation ? 0 : 4, () => {
 
 			this.dispatchEvent( {
 				type: 'contentClosed'

@@ -68,61 +68,100 @@ html, body {
 
 
 .contents {
+
 	position: absolute;
-
-	left: 50px;
-	bottom: 50px;
-
-	@include sp {
-		left: 20px;
-		bottom: 20px;
-	}
+	width: 100%;
+	height: 100%;
+	left: 0; top: 0;
 	
-	&-title {
-		font-size: 120px;
-		font-family: 'Bebas Neue';
-		height: 125px;
-		transform: translateY( 20px );
-		opacity: 0;
+	&-data {
 		
+		position: absolute;
+
+		left: 50px;
+		bottom: 50px;
+
 		@include sp {
-			font-size: 80px;
-			height: 85px;
-
+			left: 20px;
+			bottom: 20px;
 		}
-		[data-info='true'] &{
-			transform: translateY( 0px );
-			opacity: 1;
+		
+		&-title {
+			font-size: 120px;
+			font-family: 'Bebas Neue';
+			height: 125px;
+			transform: translateY( 20px );
+			opacity: 0;
+			
+			@include sp {
+				font-size: 80px;
+				height: 85px;
+	
+			}
+			
 			transition: 1s;
+			
+			[data-info='true'] &{
+				transform: translateY( 0px );
+				opacity: 1;
+			}
+		}
+		&-date{
+			font-family: 'Bebas Neue';
+			font-size: 24px;
+			opacity: 0;
+	
+			[data-info='true'] &{
+				transform: translateY( 0px );
+				opacity: 1;
+				transition: 1s;
+				transition-delay: .5s;
+			}
+		}
+		&-description {
+			display: none;
+			font-size: 18px;
 		}
 	}
-	&-date{
-		font-family: 'Bebas Neue';
-		font-size: 24px;
+
+	&-back {
+		position: absolute;
+		display: inline-block;
+		right: 20px; bottom: 45px;
+		
 		opacity: 0;
-
-		[data-info='true'] &{
-			transform: translateY( 0px );
+		transition: 1s;
+		
+		[data-info='true'] & {
 			opacity: 1;
-			transition: 1s;
-			transition-delay: .5s;
+			transform: translateX(-50%);
 		}
-	}
-	&-description {
-		display: none;
-		font-size: 18px;
-	}
-}
+		
+		a {
+			padding: 0 3px;
+			padding-left: 30px;
+			font-size: 16px;
+			font-family: 'Noto Serif JP', sans-serif;
+			text-decoration: none;
+			
+			&::after{
+				content: "";
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				width: 70px;
+				height: 1px;
+				background: #ccc;
+				transform: scaleX(0.6);
+				transform-origin: right;
 
-.back {
-	position: absolute;
-	right: 50px; bottom: 40px;
-	text-decoration: none;
-	// font-weight: 10;
-	// color: #888;
-	opacity: 0;
-	[data-info='true'] &{
-		opacity: 1;
+				transition: transform 1s;
+				[data-info='true'] & {
+					opacity: 1;
+					transform: scaleX(1.0);
+				}
+			}
+		}
 	}
 }
 
@@ -145,6 +184,13 @@ html, body {
 
 		@include sp{
 			width: 80%;
+		}
+
+		opacity: 0;
+		transition: 1s;
+
+		[data-info='true'] &{
+			opacity: 1;
 		}
 
 		&-item {
@@ -188,7 +234,7 @@ html, body {
 	bottom: 0px;
 	left: 30px;
 	transform-origin: right bottom;
-	transform: translateX(-100% ) rotate(90deg) translateX(10%) ;
+	transform: translateX( -100% ) rotate(90deg) translateX(100%) ;
 	
 	padding: 0px 2px;
 	padding-right: 20px;
@@ -215,7 +261,8 @@ html, body {
 		color: #ddd;
 
 		opacity: 0;
-		transition: .4s;
+		transition: .5s;
+		transition-delay: .5s;
 		
 		[data-info='true'] & {
 			opacity: 1;
@@ -239,7 +286,7 @@ html, body {
 	justify-content: center;
 	align-items: center;
 
-	background: rgba($color: #000, $alpha: 0.5);
+	background: rgba($color: #000, $alpha: 0.2);
 	opacity: 0;
 	transition: opacity .7s;
 
@@ -267,7 +314,7 @@ html, body {
 		
 		[data-about='true'] & {
 			opacity: 1;
-			transform: translateX(0);
+			transform: translateX(-50%);
 		}
 		
 		a {
@@ -285,6 +332,14 @@ html, body {
 				width: 70px;
 				height: 1px;
 				background: #ccc;
+				transform: scaleX(0.6);
+				transform-origin: right;
+
+				transition: transform 1s;
+				[data-about='true'] & {
+					opacity: 1;
+					transform: scaleX(1.0);
+				}
 			}
 		}
 	}

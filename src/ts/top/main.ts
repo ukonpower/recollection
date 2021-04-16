@@ -40,11 +40,12 @@ class APP {
 				return this.scene.switchInfoVisibility( false );
 
 			},
-			beforeEnter: ( data ) => {
+			beforeEnter: async ( data ) => {
 
 				let skipAnimation = data.current.namespace == '' || data.current.namespace == 'about';
 
-				this.scene.closeContent( skipAnimation );
+				await this.scene.closeContent( skipAnimation );
+				this.scene.switchInfoVisibility( true );
 
 			}
 		},
@@ -53,11 +54,17 @@ class APP {
 			beforeLeave: () => {
 
 				this.scene.closeAbout();
-
 				return this.scene.switchInfoVisibility( false );
 
 			},
-			beforeEnter: ( data ) => {
+			beforeEnter: async ( data ) => {
+
+				if ( data.current.namespace != '' && ! /(main|about)/.test( data.current.namespace ) ) {
+
+					await this.scene.closeContent();
+
+
+				}
 
 				this.scene.openAbout();
 

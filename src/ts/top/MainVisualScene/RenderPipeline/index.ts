@@ -377,6 +377,7 @@ export class RenderPipeline {
 		/*------------------------
 			blend
 		------------------------*/
+
 		this.mix.render( {
 			sceneTex: this.renderTargets.rt1.texture,
 			sceneDepthTex: this.renderTargets.sceneDepth.texture,

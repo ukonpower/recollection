@@ -21,8 +21,10 @@ html(lang="en")
 				.header
 					a(href="http://recollection.ukon.dev").header-title Recollection
 				.contents
-					.contents-title #{glName}
-					.contents-date #{glDate}
-					.contents-description #{glDescription}
-				a(href="../../").back Back 
+					.contents-data
+						.contents-data-title #{glName}
+						.contents-data-date #{glDate}
+						.contents-data-description #{glDescription}
+					.contents-back
+						a(href="../") Back
 		script(src="../js/main.js")
