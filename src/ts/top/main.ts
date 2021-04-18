@@ -37,7 +37,7 @@ class APP {
 			namespace: 'main',
 			beforeLeave: () => {
 
-				return this.scene.switchInfoVisibility( false );
+				return this.scene.switchInfoVisibility( 'hide' );
 
 			},
 			beforeEnter: async ( data ) => {
@@ -45,7 +45,7 @@ class APP {
 				let skipAnimation = data.current.namespace == '' || data.current.namespace == 'about';
 
 				await this.scene.closeContent( skipAnimation );
-				this.scene.switchInfoVisibility( true );
+				this.scene.switchInfoVisibility( 'all' );
 
 			}
 		},
@@ -54,7 +54,7 @@ class APP {
 			beforeLeave: () => {
 
 				this.scene.closeAbout();
-				return this.scene.switchInfoVisibility( false );
+				return this.scene.switchInfoVisibility( 'hide' );
 
 			},
 			beforeEnter: async ( data ) => {
@@ -81,7 +81,7 @@ class APP {
 				namespace: item.title,
 				beforeLeave: () => {
 
-					return this.scene.switchInfoVisibility( false );
+					return this.scene.switchInfoVisibility( 'hide' );
 
 				},
 				beforeEnter: ( data ) => {

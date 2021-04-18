@@ -81,9 +81,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 		super.onBind( info );
 
 		this.info.aspect.portraitAspect = 0.4;
-		this.initGmanager();
 
+		this.initGmanager();
 		this.initERay();
+
+		this.switchInfoVisibility( 'gl' );
 
 	}
 
@@ -103,6 +105,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 					this.animator.animate( 'loaded1', 1, 1.5, () => {
 
 						this.animator.animate( 'loaded2', 1, 1.5 );
+
+						this.switchInfoVisibility( 'all' );
 
 					} );
 
@@ -379,7 +383,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		return this.animator.animate( 'contentVisibility', 1, this.state.currentContent == '' ? 0 : 6, () => {
 
-			this.switchInfoVisibility( true );
+			this.switchInfoVisibility( 'all' );
 
 			this.dispatchEvent( {
 				type: 'contentOpened'
@@ -419,13 +423,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
-	public switchInfoVisibility( visibility: boolean ) {
+	public switchInfoVisibility( state: 'all' | 'hide' | 'gl' ) {
 
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
 
 			this.gManager.assetManager.addEventListener( 'preAssetsLoaded', () => {
 
-				this.switchInfoVisibility( visibility );
+				this.switchInfoVisibility( state );
 
 			} );
 
@@ -438,7 +442,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
 			callback && callback();
 
-			if ( visibility ) {
+			if ( state == 'all' || state == 'gl' ) {
 
 				return;
 
@@ -447,15 +451,15 @@ export class MainVisualScene extends ORE.BaseLayer {
 		}
 
 		//infoが閉じるときはContentSelecorを停止
-		if ( ! visibility ) {
+		if ( state == 'hide' ) {
 
 			this.contentSelector.enable = false;
 
 		}
 
-		document.body.setAttribute( 'data-info', visibility ? 'true' : 'false' );
+		document.body.setAttribute( 'data-info', state == 'all' ? 'true' : 'false' );
 
-		return this.animator.animate( 'infoVisibility', visibility ? 1.0 : 0.0, 1.0 );
+		return this.animator.animate( 'infoVisibility', state == 'all' || state == 'gl' ? 1.0 : 0.0, 1.0 );
 
 	}
 
@@ -532,8 +536,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	public onTouchStart( args: ORE.TouchEventArgs ) {
 
-		args.event?.preventDefault();
-
 		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 
 		this.contentSelector.catch();
@@ -555,8 +557,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 	}
 
 	public onTouchEnd( args: ORE.TouchEventArgs ) {
-
-		args.event?.preventDefault();
 
 		if ( ! this.gManager.assetManager.mustAssetsLoaded ) return;
 

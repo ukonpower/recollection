@@ -127,14 +127,13 @@ html, body {
 	&-back {
 		position: absolute;
 		display: inline-block;
-		right: 20px; bottom: 45px;
+		right: 20px; bottom: 25px;
 		
 		opacity: 0;
 		transition: 1s;
 		
 		[data-info='true'] & {
 			opacity: 1;
-			transform: translateX(-50%);
 		}
 		
 		a {
@@ -298,6 +297,7 @@ html, body {
 	
 	&-inner{
 		p {
+			text-align: center;
 			letter-spacing: 5px;
 			font-family: 'Noto Serif JP', serif;
 		}
