@@ -67,6 +67,7 @@ class APP {
 				}
 
 				this.scene.openAbout();
+				this.scene.switchInfoVisibility( 'hide' );
 
 			}
 		} );

@@ -106,7 +106,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 						this.animator.animate( 'loaded2', 1, 1.5 );
 
-						this.switchInfoVisibility( 'all' );
+						if ( this.state.currentContent == 'main' ) {
+
+							this.switchInfoVisibility( 'all' );
+
+						}
 
 					} );
 
@@ -322,6 +326,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		this.state.currentContent = 'about';
+
 		this.dispatchEvent( {
 			type: 'aboutWillOpen'
 		} );
@@ -366,8 +372,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
-		this.state.currentContent = contentName;
-
 		this.switchCursorPointer( false );
 
 		let contentIndex = this.world.contents.glList.findIndex( ( gl ) => {
@@ -382,6 +386,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 		} );
 
 		return this.animator.animate( 'contentVisibility', 1, this.state.currentContent == '' ? 0 : 6, () => {
+
+			this.state.currentContent = contentName;
 
 			this.switchInfoVisibility( 'all' );
 
