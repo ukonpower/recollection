@@ -43,10 +43,16 @@ void main(){
 
 		vec2 nUV = uv + (noiseCol.xy - 0.5) * ( 1.0 ) * sin(w * PI);
 
-		float fade = smoothstep( 0.5, 1.0, contentVisibility );
-		float wwidth = contentVisibility;
-		
-		nUV = uv - sin( smoothstep( 0.0, wwidth, -length( cUV ) + fade * ( 1.0 + wwidth) ) * TPI ) * normalize( cUV ) * fade;
+		float fade = smoothstep( 0.3, 1.0, contentVisibility );
+		float wwidth = 3.0;
+
+		float f  = (fade * ( 1.0 + wwidth * 0.9 ) - wwidth );
+		float s = smoothstep( f, f + (wwidth), length( cUV ) ) * TPI;
+		float n = sin( s ) * ( 1.0 - fade);
+		n = clamp( n, 0.0, 1.0 );
+		w = mix( smoothstep( 1.0, 0.0, s ), 1.0, 0.0 );
+
+		nUV = uv - n * normalize( cUV );
 
 		vec4 sceneCol = texture2D( sceneTex, nUV );
 		vec4 contentCol = vec4( 0.0 );
@@ -55,8 +61,7 @@ void main(){
 			
 			vec2 vig = (noiseCol.xy - 0.5) * sin(w * PI) * ( ( float(i) / 3.0 ) * 0.5 + 0.5 );
 			
-			// vig *= 0.0;
-			
+			vig *= smoothstep( 1.0, 0.9, contentVisibility);
 			vec3 rsrc = texture2D( contentTex, nUV + vig * 2.0 ).xyz;
 			vec3 gsrc = texture2D( contentTex, nUV + vig * 1.8 ).xyz;
 			vec3 bsrc = texture2D( contentTex, nUV + vig * 1.5 ).xyz;
@@ -69,8 +74,12 @@ void main(){
 
 		}
 
+		w = mix( w, 1.0, smoothstep( 0.7, 0.9, contentVisibility) );
+
 		contentCol /= 3.0;
 		col = mix( sceneCol, contentCol, w );
+
+		// col.xyz = vec3( n );
 		
 	}
 

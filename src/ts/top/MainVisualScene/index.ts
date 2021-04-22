@@ -474,7 +474,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 		deltaTime = Math.min( deltaTime, 0.1 );
 		this.commonUniforms.time.value = this.time;
 
-		// this.commonUniforms.contentVisibility.value = ( Math.sin( this.commonUniforms.time.value * 1.5 ) * 0.5 + 0.5 ) * 1.0 + 0.0;
+		this.switchInfoVisibility( 'hide' );
+		// this.commonUniforms.contentVisibility.value = ( Math.sin( this.commonUniforms.time.value * 0.8 ) * 0.5 + 0.5 ) * 1.0 + 0.0;
 
 		this.gManager.update( deltaTime );
 		this.updateCameraUnifrorms( deltaTime );
