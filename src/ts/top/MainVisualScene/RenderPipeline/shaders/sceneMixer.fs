@@ -32,7 +32,7 @@ void main(){
 
 	} else {
 
-		cUV.x *= windowAspect;
+		cUV.y /= windowAspect;
 		// cUV *= rotate( -max( 0.0, 1.0 - length( cUV ) ) * 3.0 * (1.0 - contentVisibility) );
 
 		vec2 noiseUV = vec2( atan( cUV.x, cUV.y ) * 0.1, 0.0 );
@@ -57,7 +57,7 @@ void main(){
 		vec4 sceneCol = texture2D( sceneTex, nUV );
 		vec4 contentCol = vec4( 0.0 );
 
-		for( int i = 0; i < 3; i ++ ) {
+		for( int i = 0; i < 1; i ++ ) {
 			
 			vec2 vig = (noiseCol.xy - 0.5) * sin(w * PI) * ( ( float(i) / 3.0 ) * 0.5 + 0.5 );
 			
@@ -76,7 +76,7 @@ void main(){
 
 		w = mix( w, 1.0, smoothstep( 0.7, 0.9, contentVisibility) );
 
-		contentCol /= 3.0;
+		contentCol /= 1.0;
 		col = mix( sceneCol, contentCol, w );
 
 		// col.xyz = vec3( n );
