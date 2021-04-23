@@ -80,6 +80,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		super.onBind( info );
 
+		window.mainVisualRenderer = this.renderer;
 		this.info.aspect.portraitAspect = 0.4;
 
 		this.initGmanager();

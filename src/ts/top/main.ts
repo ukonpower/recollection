@@ -7,6 +7,7 @@ import { GLList } from './MainVisualScene/MainVisualWorld/Contents';
 declare global {
 	interface Window {
 		mainVisualManager: MainVisualManager;
+		mainVisualRenderer: THREE.WebGLRenderer,
 		isSP: boolean;
 	}
 }

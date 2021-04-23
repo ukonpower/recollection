@@ -8,6 +8,7 @@ import { Contents } from './Contents';
 import { Particles } from './Particles';
 
 import { LayerInfo } from '@ore-three-ts';
+import { AboutObj } from './AboutObj';
 export class MainVisualWorld {
 
 	private commonUniforms: ORE.Uniforms;
@@ -20,6 +21,7 @@ export class MainVisualWorld {
 	public contents: Contents;
 	public particle: Particles;
 	public background: Background;
+	public aboutObj: AboutObj;
 
 	constructor( info: LayerInfo, assetManager: AssetManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -44,6 +46,9 @@ export class MainVisualWorld {
 
 		this.particle = new Particles( this.commonUniforms );
 		this.scene.add( this.particle );
+
+		this.aboutObj = new AboutObj( this.commonUniforms );
+		this.scene.add( this.aboutObj );
 
 	}
 
