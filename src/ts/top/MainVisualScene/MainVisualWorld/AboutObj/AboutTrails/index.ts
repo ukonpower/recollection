@@ -20,6 +20,8 @@ declare interface Datas{
 
 export class AboutTrails extends THREE.Object3D {
 
+	private animator: ORE.Animator;
+
 	public enabled: boolean = true;
 	private renderer: THREE.WebGLRenderer;
 	private num: number;
@@ -40,8 +42,19 @@ export class AboutTrails extends THREE.Object3D {
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			dataSize: {
-				value: new THREE.Vector2( 100, 100 )
+				value: new THREE.Vector2( length, num )
 			}
+		} );
+
+		/*------------------------
+			Animator
+		------------------------*/
+
+		this.animator = window.mainVisualManager.animator;
+
+		this.commonUniforms.visibility = this.animator.add( {
+			name: 'trailsVisibility',
+			initValue: 0,
 		} );
 
 		this.num = num;
@@ -138,7 +151,6 @@ export class AboutTrails extends THREE.Object3D {
 
 	}
 
-
 	private createTrails() {
 
 		let geo = new THREE.InstancedBufferGeometry();
@@ -150,7 +162,7 @@ export class AboutTrails extends THREE.Object3D {
 		let uvYArray = [];
 
 		let r = .1;
-		let res = 10;
+		let res = 4;
 		for ( let j = 0; j < this.length; j ++ ) {
 
 			let cNum = j;
@@ -210,18 +222,19 @@ export class AboutTrails extends THREE.Object3D {
 		let uvy = new Float32Array( uvYArray );
 		geo.setAttribute( 'uvy', new THREE.InstancedBufferAttribute( uvy, 1, false, 1 ) );
 
-		let customUni: ORE.Uniforms = {
+		let standard = THREE.ShaderLib.standard.uniforms;
+		this.meshUniforms = ORE.UniformsLib.mergeUniforms( standard, this.commonUniforms );
+		this.meshUniforms = ORE.UniformsLib.mergeUniforms( this.meshUniforms, {
 			dataPos: {
 				value: null
 			},
 			dataVel: {
 				value: null
-			},
-		};
+			} }
+		);
 
-		let standard = THREE.ShaderLib.standard;
-		this.meshUniforms = THREE.UniformsUtils.merge( [ standard.uniforms, customUni ] );
-		this.meshUniforms = ORE.UniformsLib.mergeUniforms( this.meshUniforms, this.commonUniforms );
+		console.log( this.meshUniforms );
+
 
 		this.meshUniforms.roughness.value = 0.5;
 		this.meshUniforms.metalness.value = 0.3;
@@ -242,16 +255,19 @@ export class AboutTrails extends THREE.Object3D {
 
 			this.update();
 
-		}
-		;
+		};
 
 		this.add( mesh );
 
 	}
 
-	public update() {
+	public switchVisibility( visible: boolean ) {
 
-		console.log( this.enabled );
+		this.animator.animate( 'trailsVisibility', visible ? 1 : 0, 2 );
+
+	}
+
+	public update() {
 
 		if ( this.enabled ) {
 

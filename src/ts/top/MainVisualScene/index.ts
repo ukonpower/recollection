@@ -333,7 +333,10 @@ export class MainVisualScene extends ORE.BaseLayer {
 			type: 'aboutWillOpen'
 		} );
 
+
 		this.animator.animate( 'aboutVisibility', 1.0, 1.0, () => {
+
+			this.world.aboutObj.switchVisibility( true );
 
 			document.body.setAttribute( 'data-about', 'true' );
 
@@ -352,6 +355,8 @@ export class MainVisualScene extends ORE.BaseLayer {
 		this.dispatchEvent( {
 			type: 'aboutWillClose'
 		} );
+
+		this.world.aboutObj.switchVisibility( false );
 
 		this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
 
@@ -474,6 +479,9 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		deltaTime = Math.min( deltaTime, 0.1 );
 		this.commonUniforms.time.value = this.time;
+
+		// console.log( this.commonUniforms.aboutVisibility.value );
+
 
 		// this.commonUniforms.contentVisibility.value = ( Math.sin( this.commonUniforms.time.value * 0.8 ) * 0.5 + 0.5 ) * 1.0 + 0.0;
 

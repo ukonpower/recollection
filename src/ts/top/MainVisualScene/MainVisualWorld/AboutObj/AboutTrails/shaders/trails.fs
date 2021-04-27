@@ -9,7 +9,8 @@ uniform vec3 emissive;
 uniform float roughness;
 uniform float metalness;
 uniform float opacity;
-uniform float trailVisibility;
+uniform float visibility;
+varying vec2 vUv;
 
 #ifdef TRANSMISSION
 	uniform float transmission;
@@ -90,6 +91,14 @@ void main() {
 		diffuseColor.a *= saturate( 1. - totalTransmission + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );
 	#endif
 	gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+
+	float vis = visibility * 1.1;
+	float v = smoothstep( vis, vis - 0.1, 1.0 - vUv.x );
+
+	gl_FragColor.w *= v;
+	gl_FragColor.xyz += sin( v * PI ) * vec3( 1.0, 0.8, 0.0 ) * 100.0;
+	
+	// gl_FragColor.w *= visibility;
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>
 	#include <fog_fragment>

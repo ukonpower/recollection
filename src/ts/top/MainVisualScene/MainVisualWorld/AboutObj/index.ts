@@ -16,22 +16,17 @@ export class AboutObj extends THREE.Object3D {
 		} );
 
 		/*------------------------
-			animator
-		------------------------*/
-
-		this.animator = window.mainVisualManager.animator;
-
-		this.commonUniforms.visibility = this.animator.add( {
-    		name: 'aboutVisibility',
-    		initValue: 0,
-    	} );
-
-		/*------------------------
 			Objects
 		------------------------*/
-		this.trails = new AboutTrails( window.mainVisualRenderer, 100, 100, this.commonUniforms );
+		this.trails = new AboutTrails( window.mainVisualRenderer, 40, 100, this.commonUniforms );
 		this.trails.frustumCulled = false;
 		this.add( this.trails );
+
+	}
+
+	public switchVisibility( visible: boolean ) {
+
+		this.trails.switchVisibility( visible );
 
 	}
 
