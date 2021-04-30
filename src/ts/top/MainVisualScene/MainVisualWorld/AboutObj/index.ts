@@ -18,7 +18,7 @@ export class AboutObj extends THREE.Object3D {
 		/*------------------------
 			Objects
 		------------------------*/
-		this.trails = new AboutTrails( window.mainVisualRenderer, 40, 100, this.commonUniforms );
+		this.trails = new AboutTrails( window.mainVisualRenderer, 60, 20, this.commonUniforms );
 		this.trails.frustumCulled = false;
 		this.add( this.trails );
 

@@ -4,8 +4,8 @@ import * as ORE from '@ore-three-ts';
 import comPosition from './shaders/aboutTrailsComputePosition.glsl';
 import comVelocity from './shaders/aboutTrailsComputeVelocity.glsl';
 
-import trailsVert from './shaders/trails.vs';
-import trailsFrag from './shaders/trails.fs';
+import trailsVert from './shaders/aboutTrails.vs';
+import trailsFrag from './shaders/aboutTrails.fs';
 
 declare interface Kernels{
     velocity: ORE.GPUComputationKernel,
@@ -139,9 +139,21 @@ export class AboutTrails extends THREE.Object3D {
 
     	for ( let i = 0; i < this.num; i ++ ) {
 
+			let pos = [
+				( Math.random() - 0.5 ) * 10.0,
+				( Math.random() - 0.5 ) * 10.0,
+				( Math.random() - 0.5 ) * 10.0,
+				0,
+			];
+
     		for ( let j = 0; j < this.length; j ++ ) {
 
-    			dataArray.push( 15.0, 8.0, - 10.0, 0.0 );
+
+				pos.forEach( item => {
+
+					dataArray.push( item );
+
+				} );
 
     		}
 
@@ -233,9 +245,6 @@ export class AboutTrails extends THREE.Object3D {
 			} }
 		);
 
-		console.log( this.meshUniforms );
-
-
 		this.meshUniforms.roughness.value = 0.5;
 		this.meshUniforms.metalness.value = 0.3;
 
@@ -246,18 +255,32 @@ export class AboutTrails extends THREE.Object3D {
 			lights: true,
 			flatShading: true,
 			side: THREE.BackSide,
-			transparent: true
+			transparent: true,
 		} );
 
 		let mesh = new THREE.Mesh( geo, mat );
 		mesh.frustumCulled = false;
-		mesh.onBeforeRender = () => {
+
+		mesh.customDepthMaterial = new THREE.ShaderMaterial( {
+			vertexShader: trailsVert,
+			fragmentShader: trailsFrag,
+			uniforms: this.meshUniforms,
+			defines: {
+				'DEPTH': '',
+				'DEPTH_PACKING': ''
+			}
+		} );
+
+		this.add( mesh );
+
+		/*------------------------
+			add listener
+		------------------------*/
+		window.mainVisualManager.animator.addEventListener( 'update', ( e ) => {
 
 			this.update();
 
-		};
-
-		this.add( mesh );
+		} );
 
 	}
 

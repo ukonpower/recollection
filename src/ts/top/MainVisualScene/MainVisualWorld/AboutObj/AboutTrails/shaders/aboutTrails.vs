@@ -1,10 +1,12 @@
-varying vec3 vViewPosition;
-varying vec3 vNormal;
-varying vec2 vUv;
 attribute float uvx;
 attribute float uvy;
 
 uniform sampler2D dataPos;
+
+varying vec3 vViewPosition;
+varying vec3 vNormal;
+varying vec2 vUv;
+varying vec2 vHighPrecisionZW;
 
 #pragma glslify: import('./constants.glsl' )
 #pragma glslify: atan2 = require('./atan2.glsl' )
@@ -37,6 +39,7 @@ void main() {
     vViewPosition = -mvPosition.xyz;
 	vNormal = normal;
 	vUv = computeUV;
+	vHighPrecisionZW = gl_Position.zw;
 }
 
 

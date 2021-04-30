@@ -22,17 +22,17 @@ void main() {
       snoise( vec4( scale * pos.xyz, 7.225 * seed * 200.0 + time + 0.01 )  ),
       snoise( vec4( scale * pos.xyz, 3.553 * seed + time + 0.01 )  ),
       snoise( vec4( scale * pos.xyz, 1.259 * seed * 10.0 + time + 0.01 )  )
-    ) * 0.4;
+    ) * 0.5;
 
     vec3 gpos = pos - vec3(0.0,0.0,0.0);
     vel += -(gpos)* length(gpos) * 0.01;
 
 	//raymarchObje	
-	vec3 opos = pos - vec3( 0.0, 1.5, 0.0 );
+	vec3 opos = pos - vec3( 0.0, 0.0, 0.0 );
 	vel += smoothstep( 0.0, 0.5, 1.0 - length( opos ) ) * ( opos * 10.0 ) * 0.50;
 
-	vel.x += cos( atan2( pos.x, pos.z ) + 0.4) * 0.1 * length( pos.xz * 2.0 );
-	vel.z -= sin( atan2( pos.x, pos.z ) + 0.4) * 0.1 * length( pos.xz * 2.0 );
+	vel.x += cos( atan2( pos.x, pos.z ) + 0.4) * 0.13 * length( pos.xz * 2.0 );
+	vel.z -= sin( atan2( pos.x, pos.z ) + 0.4) * 0.13 * length( pos.xz * 2.0 );
 
     vel.xyz *= 0.95 - uv.y * 0.02;
 	
