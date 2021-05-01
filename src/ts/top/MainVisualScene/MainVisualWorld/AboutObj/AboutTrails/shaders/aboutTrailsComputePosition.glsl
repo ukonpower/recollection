@@ -8,7 +8,7 @@ void main() {
         vec3 pos = texture2D( dataPos, uv ).xyz;
         vec3 vel = texture2D( dataVel, uv ).xyz;
 
-        pos += vel * 0.01;
+        pos += normalize(vel) * (0.1 + sin( uv.y * 123.234 ) * 0.05);
         gl_FragColor = vec4(pos,1.0);
         
     }else{

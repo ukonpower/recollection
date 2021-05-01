@@ -8,6 +8,7 @@ uniform sampler2D sceneTex;
 uniform samplerCube envMap;
 uniform vec2 resolution;
 uniform float time;
+uniform float aboutVisibility;
 
 uniform float contentNum;
 
@@ -192,6 +193,8 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
 
+		c += smoothstep( 0.5, 1.0 + ( 1.0 - aboutVisibility) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.1, 0.0 ) * aboutVisibility;
+
 		return vec4( c, 1.0 );
 
 	}
@@ -199,6 +202,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 	return vec4( 1.0 );
 
 }
+
 
 vec2 packing16( float value ) { 
 

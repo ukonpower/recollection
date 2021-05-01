@@ -24,15 +24,16 @@ void main() {
       snoise( vec4( scale * pos.xyz, 1.259 * seed * 10.0 + time + 0.01 )  )
     ) * 0.5;
 
-    vec3 gpos = pos - vec3(0.0,0.0,0.0);
-    vel += -(gpos)* length(gpos) * 0.01;
+	//gravity
+    vec3 gpos = pos - vec3(0.0,0.0,-1.5);
+    vel += -(gpos) * length(gpos) * 0.07 * ((sin( uv.y * 25.35234 ) * 0.5 + 0.5 ) * 0.5 + 0.5);
 
 	//raymarchObje	
 	vec3 opos = pos - vec3( 0.0, 0.0, 0.0 );
-	vel += smoothstep( 0.0, 0.5, 1.0 - length( opos ) ) * ( opos * 10.0 ) * 0.50;
+	vel += smoothstep( 1.4, 1.0, length( opos ) ) * ( opos );
 
-	vel.x += cos( atan2( pos.x, pos.z ) + 0.4) * 0.13 * length( pos.xz * 2.0 );
-	vel.z -= sin( atan2( pos.x, pos.z ) + 0.4) * 0.13 * length( pos.xz * 2.0 );
+	vel.x += cos( atan2( pos.x, pos.z ) + 0.4) * 0.3 * length( pos.xz );
+	vel.z -= sin( atan2( pos.x, pos.z ) + 0.4) * 0.3 * length( pos.xz );
 
     vel.xyz *= 0.95 - uv.y * 0.02;
 	

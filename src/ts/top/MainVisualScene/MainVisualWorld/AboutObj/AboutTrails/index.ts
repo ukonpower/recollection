@@ -43,6 +43,9 @@ export class AboutTrails extends THREE.Object3D {
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			dataSize: {
 				value: new THREE.Vector2( length, num )
+			},
+			fadeIn: {
+				value: false
 			}
 		} );
 
@@ -254,7 +257,6 @@ export class AboutTrails extends THREE.Object3D {
 			fragmentShader: trailsFrag,
 			lights: true,
 			flatShading: true,
-			side: THREE.BackSide,
 			transparent: true,
 		} );
 
@@ -268,7 +270,8 @@ export class AboutTrails extends THREE.Object3D {
 			defines: {
 				'DEPTH': '',
 				'DEPTH_PACKING': ''
-			}
+			},
+			side: THREE.DoubleSide
 		} );
 
 		this.add( mesh );
@@ -276,15 +279,21 @@ export class AboutTrails extends THREE.Object3D {
 		/*------------------------
 			add listener
 		------------------------*/
-		window.mainVisualManager.animator.addEventListener( 'update', ( e ) => {
+		this.animator.addEventListener( 'update', ( e ) => {
 
-			this.update();
+			if ( this.animator.get( 'trailsVisibility' ) > 0 ) {
+
+				this.update();
+
+			}
 
 		} );
 
 	}
 
 	public switchVisibility( visible: boolean ) {
+
+		this.commonUniforms.fadeIn.value = visible;
 
 		this.animator.animate( 'trailsVisibility', visible ? 1 : 0, 2 );
 

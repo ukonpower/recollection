@@ -10,6 +10,8 @@ uniform float roughness;
 uniform float metalness;
 uniform float opacity;
 uniform float visibility;
+uniform bool fadeIn;
+varying vec3 vColor;
 varying vec2 vUv;
 
 #ifdef TRANSMISSION
@@ -67,7 +69,7 @@ void main() {
 
 	// visibility
 	float vis = visibility * 1.1;
-	float v = smoothstep( vis, vis - 0.1, 1.0 - vUv.x );
+	float v = smoothstep( vis, vis - 0.1, fadeIn ? 1.0 - vUv.x : vUv.x );
 
 	if( v < 0.1 ) {
 
@@ -114,6 +116,7 @@ void main() {
 
 	gl_FragColor.w *= v;
 	gl_FragColor.xyz += sin( v * PI ) * vec3( 1.0, 0.2, 0.0 );
+	gl_FragColor.xyz += vColor * vUv.x;	
 
 	#include <tonemapping_fragment>
 	#include <encodings_fragment>
