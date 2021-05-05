@@ -1,25 +1,29 @@
 html(lang="en")
 	head
-		include ./_analytics.pug
-		meta(name="viewport", content="width=device-width, initial-scale=1.0")
-		meta(property="og:url", content="https://recollection.ukon.dev/gl/${title}/")
-		meta(property="og:title", content=title)
-		meta(property="og:description", content="Recollection")
-		meta(property="og:image", content=`https://recollection.ukon.dev/gl/${glName}/${glName}.jpg`)
-		meta(name="twitter:card", content="summary_large_image")
-		meta(name="twitter:site", content="@Uksksan")
-		meta(property="og:site_name", content="Recollection")
-		meta(property="og:locale", content="ja_JP")
-		link( href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Ropa+Sans&display=swap", rel="stylesheet" )
-		link( href="../css/style.css", rel="stylesheet" )
+		include ./common/_analytics.pug
+		include ./common/_meta.pug
+
+		meta(property="og:url", content="https://recollection.ukon.dev")
+		meta(property="og:image", content=`https://recollection.ukon.dev/assets/gl/${glFileName}/${glFileName}.jpg`)
+		meta(property="og:title", content=`${glName}`)
+		meta(property="og:description", content=`${glDescription}`)
+
+		meta(name="twitter:image" content=`https://recollection.ukon.dev/assets/gl/${glFileName}/${glFileName}.jpg`)
+		meta(name="twitter:title" content=`${glName}`)
+		meta(name="twitter:description" content=`${glDescription}`)
+
 		title #{glName} | Recollection
 	body
 		.wrapper(data-barba="wrapper")
-			include ./common.pug
+			.canvas-wrap
+				canvas#canvas.canvas
 			.container(data-barba="container" data-barba-namespace=glName)
+				include ./common/_header.pug
 				.contents
-					.contents-title #{glName}
-					.contents-date #{glDate}
-					.contents-description #{glDescription}
-				a(href="../../").back Back 
+					.contents-data
+						.contents-data-title #{glName}
+						.contents-data-date #{glDate}
+						.contents-data-description #{glDescription}
+					.contents-back
+						a(href="../") Back
 		script(src="../js/main.js")

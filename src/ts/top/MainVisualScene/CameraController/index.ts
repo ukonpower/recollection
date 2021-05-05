@@ -7,8 +7,6 @@ export class CameraController {
 
 	private commonUniforms: ORE.Uniforms;
 	private camera: THREE.PerspectiveCamera
-	private cameraBasePos: THREE.Vector3;
-	private cameraTargetPos: THREE.Vector3;
 
 	private cursorPos: THREE.Vector2;
 	public cursorPosDelay: THREE.Vector2;
@@ -16,27 +14,65 @@ export class CameraController {
 
 	private baseCamera: THREE.PerspectiveCamera;
 
+	private posData = {
+		base: {
+			pos: new THREE.Vector3( 0, 0, 3.49641 ),
+			target: new THREE.Vector3( 0, 0, 0 )
+		},
+		about: {
+			pos: new THREE.Vector3( 0, 0, 6.0 ),
+			target: new THREE.Vector3( 0, 0, 0 )
+		}
+	}
+
 	constructor( obj: THREE.PerspectiveCamera, animator: ORE.Animator, parentUniforms?: ORE.Uniforms ) {
 
 		this.camera = obj;
-		this.cameraBasePos = new THREE.Vector3( 0, 0, 3.49641 );
-		this.cameraTargetPos = new THREE.Vector3( 0, 0, 0 );
 		this.baseCamera = new THREE.PerspectiveCamera( 45, 1.0, 0.1, 1000 );
 
+		/*------------------------
+			Animator
+		------------------------*/
 		this.animator = animator;
+
+		this.animator.add( {
+			name: 'cameraPos',
+			initValue: this.posData.base.pos.clone(),
+		} );
+
+		this.animator.add( {
+			name: 'cameraTargetPos',
+			initValue: this.posData.base.target.clone(),
+		} );
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 		} );
 
-		this.init();
-
-	}
-
-	protected init() {
-
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
 		this.cursorPosDelayVel = new THREE.Vector2();
+
+	}
+
+	public changeScene( scene: 'main' | 'about' ) {
+
+		let pos = new THREE.Vector3();
+		let target = new THREE.Vector3();
+
+		if ( scene == 'main' ) {
+
+			pos.copy( this.posData.base.pos );
+			target.copy( this.posData.base.target );
+
+		} else if ( scene == 'about' ) {
+
+			pos.copy( this.posData.about.pos );
+			target.copy( this.posData.about.target );
+
+		}
+
+		this.animator.animate( 'cameraPos', pos, 1.5 );
+		this.animator.animate( 'cameraTargetPos', target, 1.5 );
 
 	}
 
@@ -48,9 +84,13 @@ export class CameraController {
 
 	}
 
-	public update( deltaTime: number, target?: THREE.Vector3 ) {
+	public update( deltaTime: number ) {
 
 		deltaTime = Math.min( 0.3, deltaTime ) * 0.3;
+
+		/*------------------------
+			update hover
+		------------------------*/
 
 		let diff = this.cursorPos.clone().sub( this.cursorPosDelay ).multiplyScalar( deltaTime * 1.0 );
 		diff.multiply( diff.clone().addScalar( 1.0 ) );
@@ -60,18 +100,28 @@ export class CameraController {
 
 		this.cursorPosDelay.add( this.cursorPosDelayVel );
 
+		/*------------------------
+			Position
+		------------------------*/
+
 		let weight = Math.max( 0.0, 1.0 - this.commonUniforms.contentVisibility.value * 1.0 ) * 0.2;
+		let basePos = this.animator.get<THREE.Vector3>( 'cameraPos' );
+
 		this.camera.position.set(
-			this.cameraBasePos.x + this.cursorPosDelay.x * weight,
-			this.cameraBasePos.y + this.cursorPosDelay.y * weight,
-			this.cameraBasePos.z
+			basePos.x + this.cursorPosDelay.x * weight,
+			basePos.y + this.cursorPosDelay.y * weight,
+			basePos.z
 		);
 
-		if ( this.cameraTargetPos ) {
+		/*------------------------
+			Target
+		------------------------*/
 
-			this.camera.lookAt( this.cameraTargetPos );
+		this.camera.lookAt( this.animator.get<THREE.Vector3>( 'cameraTargetPos' ) );
 
-		}
+		/*------------------------
+			Content zoom up
+		------------------------*/
 
 		this.camera.position.z -= this.commonUniforms.contentVisibility.value * 5.0;
 

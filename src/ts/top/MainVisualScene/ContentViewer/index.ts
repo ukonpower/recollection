@@ -1,11 +1,10 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import contentViewerVert from './shaders/contentViewer.vs';
-import contentViewerFrag from './shaders/contentViewer.fs';
 import { BaseGL } from '@gl/BaseGL';
+import EventEmitter from 'wolfy87-eventemitter';
 
-export class ContentViewer extends THREE.EventDispatcher {
+export class ContentViewer extends EventEmitter {
 
 	public contentRenderTarget: THREE.WebGLRenderTarget;
 	public state: {
@@ -52,18 +51,11 @@ export class ContentViewer extends THREE.EventDispatcher {
 
 			this.state.openContent = true;
 
-			this.dispatchEvent( {
-				type: 'loaded',
-				sceneName: sceneName,
-				scene: this.currentScene
-			} );
+			this.emitEvent( 'loaded', [ sceneName, this.currentScene ] );
 
 		} );
 
-		this.dispatchEvent( {
-			type: 'loadstart',
-			sceneName: sceneName
-		} );
+		this.emitEvent( 'loadstart', [ sceneName ] );
 
 	}
 

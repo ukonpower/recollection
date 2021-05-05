@@ -155,15 +155,10 @@ function webpackDev( cb ) {
 
 function pugDev( cb ) {
 
-	let title = options.name || 'Recollection';
-	
-	gulp.src( srcPath + '/pug/index.pug' )
+	gulp.src( [srcPath + '/pug/**/*.pug', '!/**/_*.pug', '!/**/gl.pug'] )
 		.pipe(plumber())
 		.pipe(pug({
 			pretty: true,
-			locals: {
-				title: title,
-			}
 		}))
 		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );
@@ -176,6 +171,7 @@ function pugDev( cb ) {
 		let gl = glList[i];
 		let glName = gl.title;
 		let glDate = gl.data;
+		let glFileName = gl.fileName;
 		let glDescription = gl.description;
 		
 		gulp.src( srcPath + '/pug/gl.pug' )
@@ -185,6 +181,7 @@ function pugDev( cb ) {
 				locals: {
 					glName: glName,
 					glDate: glDate,
+					glFileName: glFileName,
 					glDescription: glDescription
 				}
 			} ) )
