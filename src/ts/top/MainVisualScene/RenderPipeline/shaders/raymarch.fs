@@ -193,7 +193,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
 
-		c += smoothstep( 0.5, 1.0 + ( 1.0 - aboutVisibility) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.1, 0.0 ) * aboutVisibility;
+		c += smoothstep( 0.75, 1.0 + ( 1.0 - aboutVisibility) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.2, 0.0 ) * aboutVisibility;
 
 		return vec4( c, 1.0 );
 

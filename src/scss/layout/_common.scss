@@ -285,9 +285,9 @@ html, body {
 	justify-content: center;
 	align-items: center;
 
-	background: rgba($color: #000, $alpha: 0.2);
+	background: rgba($color: #000, $alpha: 0.4);
 	opacity: 0;
-	transition: opacity .7s;
+	transition: opacity 1.0s;
 
 	[data-about='true'] & {
 
