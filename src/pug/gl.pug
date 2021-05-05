@@ -2,14 +2,16 @@ html(lang="en")
 	head
 		include ./common/_analytics.pug
 		include ./common/_meta.pug
-		meta(property="og:url", content="https://recollection.ukon.dev/gl/${title}/")
-		meta(property="og:title", content=title)
-		meta(property="og:description", content="Recollection")
-		meta(property="og:image", content=`https://recollection.ukon.dev/gl/${glName}/${glName}.jpg`)
-		meta(name="twitter:card", content="summary_large_image")
-		meta(name="twitter:site", content="@Uksksan")
-		meta(property="og:site_name", content="Recollection")
-		meta(property="og:locale", content="ja_JP")
+
+		meta(property="og:url", content="https://recollection.ukon.dev")
+		meta(property="og:image", content=`https://recollection.ukon.dev/assets/gl/${glFileName}/${glFileName}.jpg`)
+		meta(property="og:title", content=`${glName}`)
+		meta(property="og:description", content=`${glDescription}`)
+
+		meta(name="twitter:image" content=`https://recollection.ukon.dev/assets/gl/${glFileName}/${glFilename}.jpg`)
+		meta(name="twitter:title" content=`${glName}`)
+		meta(name="twitter:description" content=`${glDescription}`)
+
 		title #{glName} | Recollection
 	body
 		.wrapper(data-barba="wrapper")

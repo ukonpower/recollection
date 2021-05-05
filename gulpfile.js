@@ -171,6 +171,7 @@ function pugDev( cb ) {
 		let gl = glList[i];
 		let glName = gl.title;
 		let glDate = gl.data;
+		let glFileName = gl.fileName;
 		let glDescription = gl.description;
 		
 		gulp.src( srcPath + '/pug/gl.pug' )
@@ -180,6 +181,7 @@ function pugDev( cb ) {
 				locals: {
 					glName: glName,
 					glDate: glDate,
+					glFileName: glFileName,
 					glDescription: glDescription
 				}
 			} ) )
