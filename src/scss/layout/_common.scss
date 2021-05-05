@@ -40,6 +40,7 @@ html, body {
 
 	@include sp{
 		padding: 20px 20px;
+		padding-top: 10px;
 	}
 	
 	&-title { 
@@ -50,6 +51,8 @@ html, body {
 		
 		@include sp {
 			padding: 15px 0px;
+			padding-top: 10px;
+
 			font-size: 23px;
 		}
 	}
@@ -240,7 +243,7 @@ html, body {
 	border-bottom: 1px solid #999;
 
 	@include sp {
-		left: 15px;
+		left: 20px;
 	}
 
 	opacity: 0;
@@ -311,6 +314,10 @@ html, body {
 		
 		opacity: 0;
 		transition: 1s;
+
+		@include sp{
+			bottom: 40px;
+		}
 		
 		[data-about='true'] & {
 			opacity: 1;
