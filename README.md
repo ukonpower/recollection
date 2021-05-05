@@ -1,4 +1,5 @@
 # Recollection
+<img src="./src/conf/ogp.jpg">
 
 ## Install
 
@@ -6,13 +7,7 @@
 
 ## Devlop
 
-### Top Visual
-
-`$ npx gulp top`
-
-### GL
-
-`$ npx gulp gl --name <GL_NAME>`
+`$ npx gulp`
 
 ## Build
 
