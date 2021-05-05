@@ -62,7 +62,7 @@ vec2 mainObjDist( vec3 p ) {
 		cos( p.x * 4.0 + time ) * 0.5,
 		0.0
 	) * 0.3 * aboutRaymarch;
-	p.xz *= rotate( smoothstep( 0.8, 1.3, length( p ) ) * 5.0 * aboutRaymarch + (aboutOffset * PI * 1.5) );
+	p.xz *= rotate( smoothstep( 0.8, 1.3, length( p ) ) * 4.0 * aboutRaymarch + (aboutOffset * PI * 1.5) );
 
 	p *= 0.7;
 	

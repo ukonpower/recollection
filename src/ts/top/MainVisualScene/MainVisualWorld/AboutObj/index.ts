@@ -8,6 +8,8 @@ export class AboutObj extends THREE.Object3D {
 	private commonUniforms: ORE.Uniforms;
 	private trails: AboutTrails;
 
+	private offsetTimer: number = - 1;
+
 	constructor( parentUniforms: ORE.Uniforms ) {
 
 		super();
@@ -20,14 +22,7 @@ export class AboutObj extends THREE.Object3D {
 		------------------------*/
 		this.animator = window.mainVisualManager.animator;
 
-		setInterval( () => {
 
-			this.animator.animate( 'aboutOffset',
-				this.animator.get<number>( 'aboutOffset' ) + 1.0,
-				3
-			);
-
-		}, 10000 );
 
 		/*------------------------
 			Objects
@@ -43,6 +38,23 @@ export class AboutObj extends THREE.Object3D {
 		this.trails.switchVisibility( visible );
 
 		this.animator.animate( 'aboutRaymarch', visible ? 1 : 0, 2 );
+
+		if ( visible ) {
+
+			this.offsetTimer = window.setInterval( () => {
+
+				this.animator.animate( 'aboutOffset',
+					this.animator.get<number>( 'aboutOffset' ) + 1.0,
+					3
+				);
+
+			}, 10000 );
+
+		} else {
+
+			window.clearInterval( this.offsetTimer );
+
+		}
 
 	}
 
