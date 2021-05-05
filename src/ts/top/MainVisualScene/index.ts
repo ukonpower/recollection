@@ -273,7 +273,11 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.addEventListener( 'contentWillClose', ( e ) => {
 
-			this.world.contents.changeContent( e.contentIndex );
+			if ( e.contentIndex ) {
+
+				this.world.contents.changeContent( e.contentIndex );
+
+			}
 
 		} );
 
@@ -386,11 +390,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	private getContentIndex( contentName:string ) {
 
-		return this.world.contents.glList.findIndex( ( gl ) => {
+		let index = this.world.contents.glList.findIndex( ( gl ) => {
 
 			return gl.title == contentName;
 
 		} );
+
+		return index == - 1 ? null : index;
 
 	}
 
