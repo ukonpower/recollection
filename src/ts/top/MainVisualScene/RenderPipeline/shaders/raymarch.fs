@@ -9,6 +9,8 @@ uniform samplerCube envMap;
 uniform vec2 resolution;
 uniform float time;
 uniform float aboutVisibility;
+uniform float aboutRaymarch;
+uniform float aboutOffset;
 
 uniform float contentNum;
 
@@ -55,6 +57,13 @@ vec2 mainObjDist( vec3 p ) {
 	);
 
 	p += vec3( 0.0, 0.0, 1.5 );
+	p += vec3(
+		sin( vUv.y * 40.0 + time ) * 0.4,
+		cos( p.x * 4.0 + time ) * 0.5,
+		0.0
+	) * 0.3 * aboutRaymarch;
+	p.xz *= rotate( smoothstep( 0.8, 1.3, length( p ) ) * 5.0 * aboutRaymarch + (aboutOffset * PI * 1.5) );
+
 	p *= 0.7;
 	
 	p.xz *= rotate(contentNum * -1.5);
@@ -192,8 +201,7 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 		c.z += nf * texture2D( sceneTex, vUv + normal.xy * 0.12 ).z;
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
-
-		c += smoothstep( 0.75, 1.0 + ( 1.0 - aboutVisibility) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.2, 0.0 ) * aboutVisibility;
+		c += smoothstep( 0.75, 1.0 + ( 1.0 - aboutRaymarch) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.1, 0.0 ) * aboutRaymarch;
 
 		return vec4( c, 1.0 );
 

@@ -26,11 +26,11 @@ void main() {
 
 	//gravity
     vec3 gpos = pos - vec3(0.0,0.0,-1.5);
-    vel += -(gpos) * length(gpos) * 0.07 * ((sin( uv.y * 25.35234 ) * 0.5 + 0.5 ) * 0.5 + 0.5);
+    vel += -(gpos) * length(gpos) * 0.05 * ((sin( uv.y * 25.35234 ) * 0.5 + 0.5 ) * 0.5 + 0.5);
 
 	//raymarchObje	
 	vec3 opos = pos - vec3( 0.0, 0.0, 0.0 );
-	vel += smoothstep( 1.4, 1.0, length( opos ) ) * ( opos );
+	vel += smoothstep( 1.9, 1.5, length( opos ) ) * ( opos );
 
 	vel.x += cos( atan2( pos.x, pos.z ) + 0.4) * 0.3 * length( pos.xz );
 	vel.z -= sin( atan2( pos.x, pos.z ) + 0.4) * 0.3 * length( pos.xz );

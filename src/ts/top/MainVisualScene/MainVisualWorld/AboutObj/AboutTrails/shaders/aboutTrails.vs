@@ -2,6 +2,7 @@ attribute float uvx;
 attribute float uvy;
 
 uniform sampler2D dataPos;
+uniform float aboutOffset;
 
 varying vec3 vViewPosition;
 varying vec3 vNormal;
@@ -48,7 +49,9 @@ void main() {
 	vNormal = normal;
 	vUv = computeUV;
 	vHighPrecisionZW = gl_Position.zw;
-	vColor = hsv2rgb( vec3( 0.5 +  sin( uvy * 643.5432 ) * 0.08, 1.0, 1.0 ));
+
+	vColor = hsv2rgb( vec3( 0.9 + sin( uvy * 643.5432 ) * 0.1 + aboutOffset * 0.473, 1.0, 1.0 ));
+
 }
 
 

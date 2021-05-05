@@ -156,6 +156,16 @@ export class MainVisualScene extends ORE.BaseLayer {
 			initValue: 0
 		} );
 
+		this.commonUniforms.aboutRaymarch = this.animator.add( {
+			name: 'aboutRaymarch',
+			initValue: 0,
+		} );
+
+		this.commonUniforms.aboutOffset = this.animator.add( {
+			name: 'aboutOffset',
+			initValue: Math.random() * 10.0,
+		} );
+
 		this.commonUniforms.loading = this.animator.add( {
 			name: 'loading',
 			initValue: 0,

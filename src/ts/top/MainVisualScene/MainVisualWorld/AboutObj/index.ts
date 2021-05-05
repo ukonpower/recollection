@@ -16,6 +16,20 @@ export class AboutObj extends THREE.Object3D {
 		} );
 
 		/*------------------------
+			Animator
+		------------------------*/
+		this.animator = window.mainVisualManager.animator;
+
+		setInterval( () => {
+
+			this.animator.animate( 'aboutOffset',
+				this.animator.get<number>( 'aboutOffset' ) + 1.0,
+				3
+			);
+
+		}, 10000 );
+
+		/*------------------------
 			Objects
 		------------------------*/
 		this.trails = new AboutTrails( window.mainVisualRenderer, 60, 20, this.commonUniforms );
@@ -27,6 +41,8 @@ export class AboutObj extends THREE.Object3D {
 	public switchVisibility( visible: boolean ) {
 
 		this.trails.switchVisibility( visible );
+
+		this.animator.animate( 'aboutRaymarch', visible ? 1 : 0, 2 );
 
 	}
 
