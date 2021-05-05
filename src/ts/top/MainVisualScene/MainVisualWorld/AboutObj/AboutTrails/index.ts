@@ -258,6 +258,9 @@ export class AboutTrails extends THREE.Object3D {
 			lights: true,
 			flatShading: true,
 			transparent: true,
+			extensions: {
+				derivatives: true
+			}
 		} );
 
 		let mesh = new THREE.Mesh( geo, mat );
@@ -267,9 +270,13 @@ export class AboutTrails extends THREE.Object3D {
 			vertexShader: trailsVert,
 			fragmentShader: trailsFrag,
 			uniforms: this.meshUniforms,
+			flatShading: true,
+			extensions: {
+				derivatives: true
+			},
 			defines: {
 				'DEPTH': '',
-				'DEPTH_PACKING': ''
+				'DEPTH_PACKING': THREE.RGBADepthPacking
 			},
 			side: THREE.DoubleSide
 		} );
