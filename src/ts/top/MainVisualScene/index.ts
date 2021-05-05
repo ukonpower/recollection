@@ -271,6 +271,16 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		} );
 
+		this.addEventListener( 'contentWillClose', ( e ) => {
+
+			if ( e.contentIndex ) {
+
+				this.world.contents.changeContent( e.contentIndex );
+
+			}
+
+		} );
+
 		/*------------------------
 			RenderPipeline
 		------------------------*/
@@ -378,6 +388,18 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 	}
 
+	private getContentIndex( contentName:string ) {
+
+		let index = this.world.contents.glList.findIndex( ( gl ) => {
+
+			return gl.title == contentName;
+
+		} );
+
+		return index == - 1 ? null : index;
+
+	}
+
 	public openContent( contentName: string ) {
 
 		if ( ! this.gManager.assetManager.preAssetsLoaded ) {
@@ -390,22 +412,14 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.switchCursorPointer( false );
 
-		let contentIndex = this.world.contents.glList.findIndex( ( gl ) => {
-
-			return gl.title == contentName;
-
-		} );
-
 		this.dispatchEvent( {
 			type: 'contentWillOpen',
-			contentIndex: contentIndex
+			contentIndex: this.getContentIndex( contentName )
 		} );
 
 		return this.animator.animate( 'contentVisibility', 1, this.state.currentContent == '' ? 0 : 6, () => {
 
 			this.state.currentContent = contentName;
-
-			this.switchInfoVisibility( 'all' );
 
 			this.dispatchEvent( {
 				type: 'contentOpened'
@@ -429,10 +443,13 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		}
 
+		let contentIndex = this.getContentIndex( this.state.currentContent );
+
 		this.state.currentContent = 'main';
 
 		this.dispatchEvent( {
-			type: 'contentWillClose'
+			type: 'contentWillClose',
+			contentIndex: contentIndex
 		} );
 
 		return this.animator.animate( 'contentVisibility', 0, skipAnimation ? 0 : 4, () => {
@@ -463,12 +480,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			let callback = this.animator.getVariableObject( 'infoVisibility' ).onAnimationFinished;
 			callback && callback();
-
-			if ( state == 'all' || state == 'gl' ) {
-
-				return;
-
-			}
 
 		}
 

@@ -46,7 +46,12 @@ class APP {
 				let skipAnimation = data.current.namespace == '' || data.current.namespace == 'about';
 
 				await this.scene.closeContent( skipAnimation );
-				this.scene.switchInfoVisibility( 'all' );
+
+				if ( ! skipAnimation ) {
+
+					this.scene.switchInfoVisibility( 'all' );
+
+				}
 
 			}
 		},
@@ -86,9 +91,12 @@ class APP {
 					return this.scene.switchInfoVisibility( 'hide' );
 
 				},
-				beforeEnter: ( data ) => {
+				beforeEnter: async ( data ) => {
 
-					this.scene.openContent( data.next.namespace );
+					await this.scene.openContent( data.next.namespace );
+
+					this.scene.switchInfoVisibility( 'all' );
+
 
 				}
 			} );
