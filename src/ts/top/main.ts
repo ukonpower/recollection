@@ -47,7 +47,7 @@ class APP {
 
 				await this.scene.closeContent( skipAnimation );
 
-				if ( ! skipAnimation ) {
+				if ( ! ( data.current.namespace == '' ) ) {
 
 					this.scene.switchInfoVisibility( 'all' );
 
@@ -128,6 +128,7 @@ class APP {
 		this.controller.addLayer( this.scene, {
 			name: 'SceneController',
 			canvas: canvas,
+			// context: canvas.getContext( 'webgl' )
 		} );
 
 	}

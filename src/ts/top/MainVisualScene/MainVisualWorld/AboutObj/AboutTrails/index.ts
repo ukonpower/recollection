@@ -70,6 +70,8 @@ export class AboutTrails extends THREE.Object3D {
 		l.position.set( 1, 1, 1 );
 		this.add( l );
 
+		this.visible = false;
+
 	}
 
 	initGPUComputationController() {
@@ -296,13 +298,29 @@ export class AboutTrails extends THREE.Object3D {
 
 		} );
 
+		this.switchVisibility( false );
+
 	}
 
 	public switchVisibility( visible: boolean ) {
 
 		this.commonUniforms.fadeIn.value = visible;
 
-		this.animator.animate( 'trailsVisibility', visible ? 1 : 0, 2 );
+		if ( visible ) {
+
+			this.visible = true;
+
+		}
+
+		this.animator.animate( 'trailsVisibility', visible ? 1 : 0, 2, () => {
+
+			if ( ! visible ) {
+
+				this.visible = false;
+
+			}
+
+		} );
 
 	}
 
@@ -322,7 +340,6 @@ export class AboutTrails extends THREE.Object3D {
 			this.meshUniforms.dataVel.value = this.datas.velocity.buffer.texture;
 
 		}
-
 
 	}
 

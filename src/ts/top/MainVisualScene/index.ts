@@ -378,7 +378,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.world.aboutObj.switchVisibility( false );
 
-		this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
+		return this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
 
 			this.dispatchEvent( {
 				type: 'aboutClosed'
