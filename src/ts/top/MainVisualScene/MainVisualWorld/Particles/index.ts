@@ -35,6 +35,9 @@ export class Particles extends THREE.Points {
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			range: {
 				value: range
+			},
+			particleSize: {
+				value: 1.0
 			}
 		} );
 
@@ -55,6 +58,12 @@ export class Particles extends THREE.Points {
 
 		this.renderOrder = 999;
 		this.commonUniforms = uni;
+
+	}
+
+	public resize( layerInfo: ORE.LayerInfo ) {
+
+		this.commonUniforms.particleSize.value = layerInfo.size.windowSize.y / 70;
 
 	}
 

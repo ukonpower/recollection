@@ -2,6 +2,7 @@ attribute float num;
 uniform float time;
 uniform vec3 range;
 uniform float contentNum;
+uniform float particleSize;
 
 void main( void ) {
 
@@ -16,6 +17,6 @@ void main( void ) {
 	vec4 mvPosition = modelViewMatrix * vec4( pos, 1.0 );
 	gl_Position = projectionMatrix * mvPosition;
 
-	gl_PointSize = 20.0 + sin( num * 0.74435 ) * 10.0;
+	gl_PointSize = particleSize * ( 1.0 + sin( num * 0.74435 ) * 0.2 );
 
 }

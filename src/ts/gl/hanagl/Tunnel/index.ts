@@ -42,8 +42,10 @@ export class Tunnel extends THREE.Object3D {
 			uniforms: this.uniforms,
 			lights: true,
 			side: THREE.DoubleSide,
-			flatShading: true,
 			transparent: true,
+			defines: {
+    			'FLAT_SHADED': ''
+    		}
 		} );
 
 		let point = new THREE.Points( geo, mat );

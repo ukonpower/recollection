@@ -72,9 +72,11 @@ export class Flower extends THREE.Object3D {
     		vertexShader: vert,
     		fragmentShader: frag,
     		uniforms: this.uni,
-    		flatShading: true,
     		lights: true,
-    		side: THREE.DoubleSide
+    		side: THREE.DoubleSide,
+    		defines: {
+    			'FLAT_SHADED': ''
+    		}
     	} );
 
     	let flower = new THREE.Mesh( geo, mat );

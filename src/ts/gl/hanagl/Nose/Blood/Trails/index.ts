@@ -196,8 +196,9 @@ export class BloodTrails extends THREE.Object3D {
     		vertexShader: vert,
     		fragmentShader: frag,
     		lights: true,
-    		flatShading: true,
-    		// depthTest: false,
+    		defines: {
+    			'FLAT_SHADED': ''
+    		}
     	} );
 
     	let obj = new THREE.Mesh( geo, mat );

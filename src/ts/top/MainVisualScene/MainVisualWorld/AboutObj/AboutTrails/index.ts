@@ -258,7 +258,6 @@ export class AboutTrails extends THREE.Object3D {
 			vertexShader: trailsVert,
 			fragmentShader: trailsFrag,
 			lights: true,
-			flatShading: true,
 			transparent: true,
 			extensions: {
 				derivatives: true
@@ -272,7 +271,6 @@ export class AboutTrails extends THREE.Object3D {
 			vertexShader: trailsVert,
 			fragmentShader: trailsFrag,
 			uniforms: this.meshUniforms,
-			flatShading: true,
 			extensions: {
 				derivatives: true
 			},
