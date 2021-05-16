@@ -1,9 +1,9 @@
 [
 	{
-		"title": "Something",
-		"fileName": "something",
+		"title": "Extraneous",
+		"fileName": "extraneous",
 		"data": "2021-05-16",
-		"description": "something"
+		"description": "Awareness behind the glass, born from it."
 	},
 	{
 		"title": "Complex",
@@ -15,6 +15,6 @@
 		"title": "Flower",
 		"fileName": "flower",
 		"data": "2021-01-26",
-		"description": "Simple shapes, restful movements。"
+		"description": "Simple shapes, restful movements."
 	}
 ]
