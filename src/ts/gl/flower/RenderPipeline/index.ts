@@ -40,7 +40,7 @@ export class RenderPipeline {
 		[keys:string]: THREE.WebGLRenderTarget
 	};
 
-	constructor( renderer: THREE.WebGLRenderer, bloomResolutionRatio: number = 0.5, bloomRenderCount: number = 5, parentUniforms?: ORE.Uniforms ) {
+	constructor( renderer: THREE.WebGLRenderer, bloomResolutionRatio: number = 0.5, bloomRenderCount: number = 2, parentUniforms?: ORE.Uniforms ) {
 
 		this.renderer = renderer;
 		this.bloomResolutionRatio = bloomResolutionRatio;
@@ -59,6 +59,7 @@ export class RenderPipeline {
 
 		this.renderTargets = {
 			rt1: new THREE.WebGLRenderTarget( 0, 0, {
+				format: THREE.RGBFormat,
 				stencilBuffer: false,
 				generateMipmaps: false,
 				depthBuffer: true,
@@ -66,6 +67,7 @@ export class RenderPipeline {
 				magFilter: THREE.LinearFilter
 			} ),
 			rt2: new THREE.WebGLRenderTarget( 0, 0, {
+				format: THREE.RGBFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -73,6 +75,7 @@ export class RenderPipeline {
 				magFilter: THREE.LinearFilter
 			} ),
 			rt3: new THREE.WebGLRenderTarget( 0, 0, {
+				format: THREE.RGBFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -84,6 +87,7 @@ export class RenderPipeline {
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ] = new THREE.WebGLRenderTarget( 0, 0, {
+				format: THREE.RGBFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -92,6 +96,7 @@ export class RenderPipeline {
 			} );
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ] = new THREE.WebGLRenderTarget( 0, 0, {
+				format: THREE.RGBFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,

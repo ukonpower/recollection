@@ -1,21 +1,14 @@
 [
 	{
-		"title": "FlashBack",
-		"fileName": "example",
+		"title": "Complex",
+		"fileName": "complex",
 		"data": "2021-01-26",
-		"description": "descriptionだよ"
+		"description": "I can't tell the difference. I'm halfway there."
 	},
 	{
 		"title": "Flower",
 		"fileName": "flower",
 		"data": "2021-01-26",
-		"description": "descriptionだよ"
-	},
-	
-	{
-		"title": "Complex",
-		"fileName": "complex",
-		"data": "2021-01-26",
-		"description": "descriptionだよ"
+		"description": "Simple shapes, restful movements。"
 	}
 ]

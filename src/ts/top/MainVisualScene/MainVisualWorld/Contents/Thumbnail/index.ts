@@ -11,6 +11,7 @@ export class Thumbnail extends THREE.Mesh {
 	private glList: GLList;
 
 	private commonUniforms: ORE.Uniforms;
+	private animator: ORE.Animator;
 
 	constructor( glList: GLList, parentUniforms?: ORE.Uniforms ) {
 

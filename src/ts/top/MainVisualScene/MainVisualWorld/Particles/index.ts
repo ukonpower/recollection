@@ -4,21 +4,13 @@ import * as ORE from '@ore-three-ts';
 import particlesVert from './shaders/particles.vs';
 import particlesFrag from './shaders/particles.fs';
 
-export class Particles extends THREE.Mesh {
+export class Particles extends THREE.Points {
 
 	private commonUniforms: ORE.Uniforms;
 
 	constructor( parentUniforms?: ORE.Uniforms ) {
 
-		let size = 0.1;
 		let range = new THREE.Vector3( 10, 5.0, 10 );
-
-		let originGeo = new THREE.PlaneBufferGeometry( size, size );
-
-		let geo = new THREE.InstancedBufferGeometry();
-		geo.setAttribute( 'position', originGeo.getAttribute( 'position' ) );
-		geo.setAttribute( 'uv', originGeo.getAttribute( 'uv' ) );
-		geo.setIndex( originGeo.getIndex() );
 
 		let num = 70;
 		let offsetPosArray: number[] = [];
@@ -36,12 +28,16 @@ export class Particles extends THREE.Mesh {
 
 		}
 
-		geo.setAttribute( 'offsetPos', new THREE.InstancedBufferAttribute( new Float32Array( offsetPosArray ), 3 ) );
-		geo.setAttribute( 'num', new THREE.InstancedBufferAttribute( new Float32Array( numArray ), 1 ) );
+		let geo = new THREE.BufferGeometry();
+		geo.setAttribute( 'position', new THREE.BufferAttribute( new Float32Array( offsetPosArray ), 3 ) );
+		geo.setAttribute( 'num', new THREE.BufferAttribute( new Float32Array( numArray ), 1 ) );
 
 		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			range: {
 				value: range
+			},
+			particleSize: {
+				value: 1.0
 			}
 		} );
 
@@ -62,6 +58,12 @@ export class Particles extends THREE.Mesh {
 
 		this.renderOrder = 999;
 		this.commonUniforms = uni;
+
+	}
+
+	public resize( layerInfo: ORE.LayerInfo ) {
+
+		this.commonUniforms.particleSize.value = layerInfo.size.windowSize.y / 70;
 
 	}
 

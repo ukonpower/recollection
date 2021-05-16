@@ -7,6 +7,7 @@ import { GLList } from './MainVisualScene/MainVisualWorld/Contents';
 declare global {
 	interface Window {
 		mainVisualManager: MainVisualManager;
+		mainVisualRenderer: THREE.WebGLRenderer,
 		isSP: boolean;
 	}
 }
@@ -29,36 +30,78 @@ class APP {
 
 		let views: IView[] = [];
 
+		/*------------------------
+			Open Main
+		------------------------*/
 
-		for ( let i = - 1; i < glList.length; i ++ ) {
+		views.push( {
+			namespace: 'main',
+			beforeLeave: () => {
 
-			let glName = i < 0 ? 'main' : glList[ i ].title;
+				return this.scene.switchInfoVisibility( 'hide' );
+
+			},
+			beforeEnter: async ( data ) => {
+
+				let skipAnimation = data.current.namespace == '' || data.current.namespace == 'about';
+
+				await this.scene.closeContent( skipAnimation );
+
+				if ( ! ( data.current.namespace == '' ) ) {
+
+					this.scene.switchInfoVisibility( 'all' );
+
+				}
+
+			}
+		},
+		{
+			namespace: 'about',
+			beforeLeave: () => {
+
+				this.scene.closeAbout();
+				return this.scene.switchInfoVisibility( 'hide' );
+
+			},
+			beforeEnter: async ( data ) => {
+
+				if ( data.current.namespace != '' && ! /(main|about)/.test( data.current.namespace ) ) {
+
+					await this.scene.closeContent();
+
+
+				}
+
+				this.scene.openAbout();
+				this.scene.switchInfoVisibility( 'hide' );
+
+			}
+		} );
+
+		/*------------------------
+			Open GLs
+		------------------------*/
+
+		glList.forEach( item => {
 
 			views.push( {
-				namespace: glName,
+				namespace: item.title,
 				beforeLeave: () => {
 
-					return this.scene.switchInfoVisibility( false );
+					return this.scene.switchInfoVisibility( 'hide' );
 
 				},
-				beforeEnter: ( data ) => {
+				beforeEnter: async ( data ) => {
 
-					let open = data.next.namespace != 'main';
+					await this.scene.openContent( data.next.namespace );
 
-					if ( open ) {
+					this.scene.switchInfoVisibility( 'all' );
 
-						this.scene.openContent( data.next.namespace );
-
-					} else {
-
-						this.scene.closeContent();
-
-					}
 
 				}
 			} );
 
-		}
+		} );
 
 		barba.init( {
 			transitions: [
@@ -85,6 +128,7 @@ class APP {
 		this.controller.addLayer( this.scene, {
 			name: 'SceneController',
 			canvas: canvas,
+			pixelRatio: Math.max( 1.0, window.devicePixelRatio * 0.5 ) * 0.8
 		} );
 
 	}

@@ -19,7 +19,7 @@ void main(){
 	vec2 uv = vUv;
 	vec2 cuv = vUv * 2.0 - 1.0;
 
-	float w = max(.0,length(cuv)) * 0.03;
+	float w = max(.0,length(cuv)) * 0.1;
     vec2 vig = cuv * w;
     for(int i = 0; i < N; i++){
         vig *= 1.0 + float(i) * 0.01;
@@ -61,7 +61,7 @@ void main(){
 	}
 	#pragma unroll_loop_end
 
-	c += random( uv ) * 0.1 * c;
+	c -= random( uv ) * 0.15 * c;
 
 	c *= smoothstep( -1.5, 0.5, 1.0 - length( cuv ) );
 

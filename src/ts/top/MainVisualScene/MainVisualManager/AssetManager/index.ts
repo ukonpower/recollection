@@ -59,9 +59,6 @@ export class AssetManager extends ORE.EventDispatcher {
 		this.mustLoadTexturesInfo = [
 			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/ground-roughness.jpg', name: 'groundRoughness', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/ground-color.jpg', name: 'groundColor', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/ground-normal.jpg', name: 'groundNormal', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/smaa/smaa-area.png', name: 'smaaArea', param: { flipY: false, minFilter: THREE.LinearFilter, generateMipmaps: false, format: THREE.RGBFormat } },
 			{ path: this.basePath + '/smaa/smaa-search.png', name: 'smaaSearch', param: { flipY: false, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, generateMipmaps: false } },
 		];
@@ -72,7 +69,7 @@ export class AssetManager extends ORE.EventDispatcher {
 			let name = glList[ i ].fileName;
 
 			this.mustLoadTexturesInfo.push( {
-				path: '/assets/gl/' + name + '/' + name + '.jpg',
+				path: '/assets/scene/img/thumbnails/' + name + '.jpg',
 				name: name
 			} );
 
