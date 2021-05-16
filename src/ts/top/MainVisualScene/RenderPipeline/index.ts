@@ -38,6 +38,7 @@ export class RenderPipeline {
 
 	private bloomResolutionRatio: number;
 	private bloomRenderCount: number;
+	private brightness: number;
 
 	private raymarch: ORE.PostProcessing;
 	private mix: ORE.PostProcessing;
@@ -55,12 +56,13 @@ export class RenderPipeline {
 		[keys:string]: THREE.WebGLRenderTarget
 	};
 
-	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, bloomResolutionRatio: number = 0.5, bloomRenderCount: number = 5, parentUniforms?: ORE.Uniforms ) {
+	constructor( assetManager: AssetManager, renderer: THREE.WebGLRenderer, parentUniforms?: ORE.Uniforms ) {
 
 		this.assetManager = assetManager;
 		this.renderer = renderer;
-		this.bloomResolutionRatio = bloomResolutionRatio;
-		this.bloomRenderCount = bloomRenderCount;
+		this.bloomResolutionRatio = 0.5;
+		this.bloomRenderCount = 5.0;
+		this.brightness = 0.3;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 		} );
@@ -278,7 +280,7 @@ export class RenderPipeline {
 				lensTex: this.assetManager.textures.lensDirt,
 				noiseTex: this.assetManager.textures.noise,
 				brightness: {
-					value: 0.2
+					value: this.brightness
 				},
 			} ),
 			defines: {
@@ -300,9 +302,8 @@ export class RenderPipeline {
 
 	public resize( pixelWindowSize: THREE.Vector2 ) {
 
-		// let highScale = 1.0 / Math.max( 1.0, window.devicePixelRatio * 0.5 );
 		let highScale = 1.0;
-		let lowScale = 0.9;
+		let lowScale = 0.7;
 
 		this.renderTargets.sceneDepth.setSize( pixelWindowSize.x, pixelWindowSize.y );
 		this.renderTargets.raymarch.setSize( pixelWindowSize.x * lowScale, pixelWindowSize.y * lowScale );

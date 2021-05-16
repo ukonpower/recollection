@@ -285,7 +285,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			RenderPipeline
 		------------------------*/
 
-		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
+		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, this.commonUniforms );
 
 		/*------------------------
 			Camera
