@@ -76,6 +76,9 @@ export class Flower extends THREE.Object3D {
     		side: THREE.DoubleSide,
     		defines: {
     			'FLAT_SHADED': ''
+    		},
+    		extensions: {
+    			derivatives: true
     		}
     	} );
 

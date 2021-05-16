@@ -45,6 +45,9 @@ export class Tunnel extends THREE.Object3D {
 			transparent: true,
 			defines: {
     			'FLAT_SHADED': ''
+    		},
+    		extensions: {
+    			derivatives: true
     		}
 		} );
 

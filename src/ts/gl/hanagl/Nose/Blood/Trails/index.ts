@@ -198,6 +198,9 @@ export class BloodTrails extends THREE.Object3D {
     		lights: true,
     		defines: {
     			'FLAT_SHADED': ''
+    		},
+    		extensions: {
+    			derivatives: true
     		}
     	} );
 
