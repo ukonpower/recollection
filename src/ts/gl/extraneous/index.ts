@@ -5,12 +5,14 @@ import { RenderPipeline } from './RenderPipeline';
 import { BaseGL } from '../BaseGL';
 import { ExtraneousGlobalManager } from './ExtraneousGlobalManager';
 import { CameraController } from './CameraController';
+import { ExtraneousWorld } from './ExtraneousWorld';
 
 export default class FlowerScene extends BaseGL {
 
 	private gManager: ExtraneousGlobalManager
 	private renderPipeline: RenderPipeline;
 	private cameraController: CameraController;
+	private world: ExtraneousWorld;
 
 	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget, parentUniforms: ORE.Uniforms ) {
 
@@ -53,6 +55,12 @@ export default class FlowerScene extends BaseGL {
 		------------------------*/
 		this.cameraController = new CameraController( this.camera, this.scene, this.gManager );
 
+		/*------------------------
+			World
+		------------------------*/
+		this.world = new ExtraneousWorld( this.scene, this.commonUniforms );
+		this.scene.add( this.world );
+
 	}
 
 	public animate( deltaTime: number ) {
@@ -66,7 +74,7 @@ export default class FlowerScene extends BaseGL {
 
 		if ( this.cameraController ) {
 
-			this.cameraController.update( deltaTime );
+			this.cameraController.update( deltaTime, this.time );
 
 		}
 

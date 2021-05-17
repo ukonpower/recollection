@@ -72,7 +72,7 @@ export class CameraController {
 
 	}
 
-	public update( deltaTime: number ) {
+	public update( deltaTime: number, time: number ) {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
@@ -89,6 +89,8 @@ export class CameraController {
 			this.camera.lookAt( this.cameraTargetPos );
 
 		}
+
+		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 3.0 ) * Math.sin( time * 2.0 ) * 0.01, Math.sin( time * 3.0 ) * 0.01 ) ) );
 
 	}
 
