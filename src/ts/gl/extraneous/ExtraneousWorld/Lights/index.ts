@@ -17,7 +17,7 @@ export class Lights extends THREE.Object3D {
 			let light = lights.children[ i ];
 
 			let pLight = new THREE.PointLight();
-			pLight.intensity = 7.0;
+			pLight.intensity = 4.0;
 			pLight.distance = 10;
 			pLight.position.copy( light.position );
 			this.add( pLight );
