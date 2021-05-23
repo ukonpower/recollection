@@ -1,8 +1,9 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 import { ExtraneousGlobalManager } from '../ExtraneousGlobalManager';
+import EventEmitter from 'wolfy87-eventemitter';
 
-export class CameraController {
+export class CameraController extends EventEmitter {
 
 	private animator: ORE.Animator;
 
@@ -19,6 +20,8 @@ export class CameraController {
 	private baseCamera: THREE.PerspectiveCamera;
 
 	constructor( camera: THREE.PerspectiveCamera, scene: THREE.Object3D, gManager: ExtraneousGlobalManager ) {
+
+		super();
 
 		this.camera = camera;
 		this.cameraData = scene.getObjectByName( 'CameraData' );
@@ -58,6 +61,7 @@ export class CameraController {
 		this.animator.setValue( 'cameraPos', this.cameraData.getObjectByName( 'CameraStart' ).position );
 		this.animator.animate( 'cameraPos', this.cameraData.getObjectByName( 'CameraEnd' ).position, 7, () => {
 
+			this.emitEvent( 'nextDay' );
 			this.animateCameraPos();
 
 		} );
@@ -89,6 +93,7 @@ export class CameraController {
 			this.camera.lookAt( this.cameraTargetPos );
 
 		}
+
 
 		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 3.0 ) * Math.sin( time * 2.0 ) * 0.01, Math.sin( time * 3.0 ) * 0.01 ) ) );
 

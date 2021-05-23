@@ -61,6 +61,12 @@ export default class FlowerScene extends BaseGL {
 		this.world = new ExtraneousWorld( this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
+		this.cameraController.addOnceListener( 'nextDay', () => {
+
+			this.world.nextDay();
+
+		} );
+
 	}
 
 	public animate( deltaTime: number ) {
@@ -78,7 +84,11 @@ export default class FlowerScene extends BaseGL {
 
 		}
 
+		if ( this.world ) {
 
+			this.world.update( deltaTime );
+
+		}
 
 		this.renderPipeline.render( this.scene, this.camera, this.renderTarget );
 
