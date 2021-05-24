@@ -47,9 +47,9 @@ export class RenderPipeline {
 	constructor( renderer: THREE.WebGLRenderer, parentUniforms?: ORE.Uniforms ) {
 
 		this.renderer = renderer;
-		this.bloomResolutionRatio = 0.5;
+		this.bloomResolutionRatio = 0.3;
 		this.bloomRenderCount = 5;
-		this.brightness = 0.08;
+		this.brightness = 0.15;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( {
 		}, parentUniforms );

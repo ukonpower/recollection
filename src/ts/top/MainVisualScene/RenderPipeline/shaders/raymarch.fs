@@ -66,7 +66,7 @@ vec2 mainObjDist( vec3 p ) {
 
 	p *= 0.7;
 	
-	p.xz *= rotate(contentNum * -1.5);
+	p.xz *= rotate(contentNum * 1.5);
 	vec3 mp = p;
 
 	p.xy *= rotate(time * 0.2);

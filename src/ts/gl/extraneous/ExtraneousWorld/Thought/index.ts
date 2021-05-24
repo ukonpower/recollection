@@ -55,6 +55,8 @@ export class Thought {
 
 		} );
 
+		this.nextDay();
+
 	}
 
 	public nextDay() {

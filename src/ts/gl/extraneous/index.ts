@@ -41,13 +41,13 @@ export default class FlowerScene extends BaseGL {
 			Light
 		------------------------*/
 		let light = new THREE.PointLight();
-		light.intensity = 0.2;
+		light.intensity = 0.3;
 		light.position.set( 0.0, 2.0, 0.0 );
 		this.scene.add( light );
 
 		let dlight = new THREE.DirectionalLight();
 		dlight.position.set( 1, 1, 1 );
-		dlight.intensity = 0.1;
+		dlight.intensity = 0.02;
 		this.scene.add( dlight );
 
 		/*------------------------
@@ -61,7 +61,7 @@ export default class FlowerScene extends BaseGL {
 		this.world = new ExtraneousWorld( this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
-		this.cameraController.addOnceListener( 'nextDay', () => {
+		this.cameraController.addListener( 'nextDay', () => {
 
 			this.world.nextDay();
 
