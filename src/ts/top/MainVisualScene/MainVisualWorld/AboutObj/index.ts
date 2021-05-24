@@ -48,7 +48,7 @@ export class AboutObj extends THREE.Object3D {
 					3
 				);
 
-			}, 10000 );
+			}, 5000 );
 
 		} else {
 
