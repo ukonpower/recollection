@@ -1,14 +1,20 @@
 [
 	{
+		"title": "Extraneous",
+		"fileName": "extraneous",
+		"data": "2021-05-25",
+		"description": "Awareness behind the glass, born from it."
+	},
+	{
 		"title": "Complex",
 		"fileName": "complex",
-		"data": "2021-01-26",
+		"data": "2020-4-7",
 		"description": "I can't tell the difference. I'm halfway there."
 	},
 	{
 		"title": "Flower",
 		"fileName": "flower",
-		"data": "2021-01-26",
-		"description": "Simple shapes, restful movements。"
+		"data": "2019-5-22",
+		"description": "Simple shapes, restful movements."
 	}
 ]

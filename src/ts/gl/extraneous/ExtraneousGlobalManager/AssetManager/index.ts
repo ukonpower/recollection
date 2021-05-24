@@ -3,21 +3,20 @@ import * as ORE from '@ore-three-ts';
 
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
 import { VideoTextureCreator } from './VideoTextureCreator';
-import { GLList } from '../../MainVisualWorld/Contents';
 
 declare interface TextureParam {
-	mapping?: THREE.Mapping;
-	wrapS?: THREE.Wrapping;
-	wrapT?: THREE.Wrapping;
-	magFilter?: THREE.TextureFilter;
-	minFilter?: THREE.TextureFilter;
-	format?: THREE.PixelFormat;
-	type?: THREE.TextureDataType;
-	anisotropy?: number;
-	encoding?: THREE.TextureEncoding;
-	generateMipmaps?: boolean;
-	flipY?: boolean;
+	premultiplyAlpha?: boolean
+	mapping?: THREE.Mapping
+	wrapS?: THREE.Wrapping
+	wrapT?: THREE.Wrapping
+	magFilter?: THREE.TextureFilter
+	minFilter?: THREE.TextureFilter
+	format?: THREE.PixelFormat
+	type?: THREE.TextureDataType
+	anisotropy?: number
+	encoding?: THREE.TextureEncoding
 }
+
 
 declare interface TextureInfo {
 	path: string;
@@ -29,7 +28,7 @@ declare interface TextureInfo {
 
 export class AssetManager extends ORE.EventDispatcher {
 
-	private basePath = '/assets';
+	private basePath = '../assets/gl/extraneous/scene/';
 
 	public preLoadingManager: THREE.LoadingManager;
 	public mustLoadingManager: THREE.LoadingManager;
@@ -44,44 +43,30 @@ export class AssetManager extends ORE.EventDispatcher {
 	private mustLoadTexturesInfo: TextureInfo[];
 	private subLoadTexturesInfo: TextureInfo[];
 
-	public gltfScene: THREE.Group;
+	public gltfScene: THREE.Group | null = null;
 	public textures: ORE.Uniforms = {};
+
+	public get isLoaded() {
+
+		return this.mustAssetsLoaded;
+
+	}
 
 	constructor() {
 
 		super();
 
-		this.gltfPath = this.basePath + '/scene/scene.glb';
+		this.gltfPath = this.basePath + 'extraneous.glb';
 
-		this.preLoadTexturesInfo = [
-		];
+		this.preLoadTexturesInfo = [];
 
-		this.mustLoadTexturesInfo = [
-			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/smaa/smaa-area.png', name: 'smaaArea', param: { flipY: false, minFilter: THREE.LinearFilter, generateMipmaps: false, format: THREE.RGBFormat } },
-			{ path: this.basePath + '/smaa/smaa-search.png', name: 'smaaSearch', param: { flipY: false, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, generateMipmaps: false } },
-		];
-
-		let glList: GLList = require( '@gl/gl.json' );
-		for ( let i = 0; i < glList.length; i ++ ) {
-
-			let name = glList[ i ].fileName;
-
-			this.mustLoadTexturesInfo.push( {
-				path: '/assets/gl/' + name + '/' + name + '.jpg',
-				name: name
-			} );
-
-		}
+		this.mustLoadTexturesInfo = [];
 
 		this.subLoadTexturesInfo = [];
 
-		this.initLoadingManager();
-
-	}
-
-	private initLoadingManager( ) {
+		/*------------------------
+			InitLoadingManager
+		------------------------*/
 
 		this.preLoadingManager = new THREE.LoadingManager(
 			() => {
@@ -100,11 +85,6 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.dispatchEvent( { type: 'mustAssetsLoaded' } );
 
-			},
-			( url: string, num: number, total: number ) => {
-
-				this.dispatchEvent( { type: 'mustAssetsProcess', num: num, total: total } );
-
 			}
 		);
 
@@ -115,14 +95,11 @@ export class AssetManager extends ORE.EventDispatcher {
 
 				this.dispatchEvent( { type: 'subAssetsLoaded' } );
 
-			},
+			}
 		);
 
 	}
-
 	public load() {
-
-		this.registerTextures();
 
 		this.loadPreAssets(
 			() => {
@@ -133,21 +110,6 @@ export class AssetManager extends ORE.EventDispatcher {
 
 			}
 		);
-
-	}
-
-	private registerTextures() {
-
-		let textures = this.preLoadTexturesInfo.concat( this.mustLoadTexturesInfo ).concat( this.subLoadTexturesInfo );
-
-		for ( let i = 0; i < textures.length; i ++ ) {
-
-			let info = textures[ i ];
-
-			this.textures[ info.name ] = { value: null };
-
-		}
-
 
 	}
 
@@ -234,6 +196,8 @@ export class AssetManager extends ORE.EventDispatcher {
 
 			let info = infos[ i ];
 
+			this.textures[ info.name ] = { value: null };
+
 			if ( info.isVideoTexutre ) {
 
 				let creator = new VideoTextureCreator( info.path, info.videoSubImgPath );
@@ -269,13 +233,16 @@ export class AssetManager extends ORE.EventDispatcher {
 
 		if ( param ) {
 
-			let keys = Object.keys( param );
-
-			for ( let i = 0; i < keys.length; i ++ ) {
-
-				tex[ keys[ i ] ] = param[ keys[ i ] ];
-
-			}
+			tex.premultiplyAlpha = param.premultiplyAlpha || false;
+			tex.mapping = param.mapping || THREE.Texture.DEFAULT_MAPPING;
+			tex.wrapS = param.wrapS || THREE.ClampToEdgeWrapping;
+			tex.wrapT = param.wrapT || THREE.ClampToEdgeWrapping;
+			tex.magFilter = param.magFilter || THREE.LinearFilter;
+			tex.minFilter = param.minFilter || THREE.LinearFilter;
+			tex.format = param.format || THREE.RGBAFormat;
+			tex.type = param.type || THREE.UnsignedByteType;
+			tex.anisotropy = param.anisotropy || 1;
+			tex.encoding = param.encoding || THREE.LinearEncoding;
 
 		}
 

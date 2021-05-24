@@ -273,7 +273,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.addEventListener( 'contentWillClose', ( e ) => {
 
-			if ( e.contentIndex ) {
+			if ( e.contentIndex != null ) {
 
 				this.world.contents.changeContent( e.contentIndex );
 
@@ -500,11 +500,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		deltaTime = Math.min( deltaTime, 0.1 );
 		this.commonUniforms.time.value = this.time;
-
-		// console.log( this.commonUniforms.aboutVisibility.value );
-
-
-		// this.commonUniforms.contentVisibility.value = ( Math.sin( this.commonUniforms.time.value * 0.8 ) * 0.5 + 0.5 ) * 1.0 + 0.0;
 
 		this.gManager.update( deltaTime );
 		this.updateCameraUnifrorms( deltaTime );
