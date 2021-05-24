@@ -273,7 +273,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.addEventListener( 'contentWillClose', ( e ) => {
 
-			if ( e.contentIndex ) {
+			if ( e.contentIndex != null ) {
 
 				this.world.contents.changeContent( e.contentIndex );
 
