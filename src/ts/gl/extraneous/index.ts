@@ -73,16 +73,15 @@ export default class FlowerScene extends BaseGL {
 
 		this.gManager.animator.update( deltaTime );
 
-		let m = 1.0 - this.commonUniforms.contentVisibility.value;
-
-		this.camera.position.set( 0, 0, 3 + ( m ) * 3.0 );
-		this.camera.rotation.z = m * 1.4;
-
 		if ( this.cameraController ) {
 
 			this.cameraController.update( deltaTime, this.time );
 
 		}
+
+		let m = 1.0 - this.commonUniforms.contentVisibility.value;
+		this.camera.position.z += m;
+		this.camera.rotation.z += m * 1.4;
 
 		if ( this.world ) {
 
