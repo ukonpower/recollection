@@ -237,7 +237,8 @@ function setModeDevelopment( cb ) {
 function setModeProduction( cb ) {
 
 	webpackMode = 'production';
-
+	webpackConfDev.watch = false
+	
 	cb();
 	
 }
