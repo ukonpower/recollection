@@ -66,7 +66,7 @@ vec2 mainObjDist( vec3 p ) {
 
 	p *= 0.7;
 	
-	p.xz *= rotate(contentNum * -1.5);
+	p.xz *= rotate(contentNum * 1.5);
 	vec3 mp = p;
 
 	p.xy *= rotate(time * 0.2);
@@ -201,7 +201,12 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 		c.z += nf * texture2D( sceneTex, vUv + normal.xy * 0.12 ).z;
 
 		c += smoothstep( -0.5, 0.5, ( 1.0 - abs( depth - ( 20.0 * contentVisibility ) ) ) );
-		c += smoothstep( 0.75, 1.0 + ( 1.0 - aboutRaymarch) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.1, 0.0 ) * aboutRaymarch;
+
+		if( aboutRaymarch > 0.0 ) {
+
+			c += smoothstep( 0.75, 1.0 + ( 1.0 - aboutRaymarch) * 0.1, dot( normalize( -rayPos ), normal  ) ) * vec3( 1.0, 0.1, 0.0 ) * aboutRaymarch;
+
+		}
 
 		return vec4( c, 1.0 );
 

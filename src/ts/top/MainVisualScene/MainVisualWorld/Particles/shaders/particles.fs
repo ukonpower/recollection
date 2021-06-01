@@ -1,9 +1,10 @@
 uniform float loaded2;
-varying vec2 vUv;
 
 void main( void ) {
 
-	vec2 cuv = vUv * 2.0 - 1.0;
+	vec2 uv = gl_PointCoord.xy;
+
+	vec2 cuv = uv * 2.0 - 1.0;
 
 	float alpha = smoothstep( 0.0, 1.0, length( cuv ) );
 	alpha = exp( alpha * - 10.0 ) * 0.2;

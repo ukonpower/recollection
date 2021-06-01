@@ -55,6 +55,7 @@ export class MainVisualWorld {
 	public resize( layerInfo: ORE.LayerInfo ) {
 
 		this.contents.resize( layerInfo );
+		this.particle.resize( layerInfo );
 
 	}
 

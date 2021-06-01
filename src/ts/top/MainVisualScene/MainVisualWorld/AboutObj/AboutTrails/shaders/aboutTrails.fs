@@ -111,6 +111,7 @@ void main() {
 	#include <lights_fragment_end>
 	#include <aomap_fragment>
 	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+	outgoingLight *= 1.8;
 	#ifdef TRANSMISSION
 		diffuseColor.a *= saturate( 1. - totalTransmission + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );
 	#endif

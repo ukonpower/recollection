@@ -299,10 +299,61 @@ html, body {
 	}
 	
 	&-inner{
+		width: 90%;
 		p {
 			text-align: center;
 			letter-spacing: 5px;
 			font-family: 'Noto Serif JP', serif;
+			width: 100%;
+			margin: 0 auto;
+
+			@include sp{
+				letter-spacing: 4px;
+				line-height: 28px;
+			}
+			
+			@include pc {
+
+				br {
+					display: none;
+				}
+			}
+		}
+	}
+	
+
+	&-sns {
+		position: absolute;
+		right: 20px;
+		bottom: 20px;
+
+		a {
+			font-family:'Bebas Neue', serif;
+			text-decoration: none;
+			margin-bottom: 10px;
+			font-weight: normal;
+			margin-right: 10px;
+
+			font-size: 20px;
+			color: #ccc;
+
+			@include sp {
+				font-size: 16px;
+			}
+		}
+
+		@include sp {
+			right: 10px;
+			bottom: 25px;
+			transform-origin: right bottom;
+			transform: rotate(-90deg) translateX(100%);
+		}
+		
+		opacity: 0;
+		transition: opacity 1s;
+
+		[data-about='true'] & {
+			opacity: 1;
 		}
 	}
 

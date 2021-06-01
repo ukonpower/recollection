@@ -99,7 +99,7 @@ export class ContentSelector extends THREE.Object3D {
 
 		}
 
-		this.commonUniforms.contentNum.value = this.value;
+		this.commonUniforms.contentNum.value = ( this.contentNum - 1.0 ) - this.value;
 		this.commonUniforms.contentFade.value = this.value >= 0 ? ( this.value % 1 ) : 1.0 + this.value % 1;
 
 		this.checkCurrentContent();

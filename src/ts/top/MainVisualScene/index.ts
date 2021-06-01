@@ -273,7 +273,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.addEventListener( 'contentWillClose', ( e ) => {
 
-			if ( e.contentIndex ) {
+			if ( e.contentIndex != null ) {
 
 				this.world.contents.changeContent( e.contentIndex );
 
@@ -285,7 +285,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 			RenderPipeline
 		------------------------*/
 
-		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, 0.5, 5.0, this.commonUniforms );
+		this.renderPipeline = new RenderPipeline( this.gManager.assetManager, this.renderer, this.commonUniforms );
 
 		/*------------------------
 			Camera
@@ -378,7 +378,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		this.world.aboutObj.switchVisibility( false );
 
-		this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
+		return this.animator.animate( 'aboutVisibility', 0.0, 1.0, () => {
 
 			this.dispatchEvent( {
 				type: 'aboutClosed'
@@ -500,11 +500,6 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 		deltaTime = Math.min( deltaTime, 0.1 );
 		this.commonUniforms.time.value = this.time;
-
-		// console.log( this.commonUniforms.aboutVisibility.value );
-
-
-		// this.commonUniforms.contentVisibility.value = ( Math.sin( this.commonUniforms.time.value * 0.8 ) * 0.5 + 0.5 ) * 1.0 + 0.0;
 
 		this.gManager.update( deltaTime );
 		this.updateCameraUnifrorms( deltaTime );
