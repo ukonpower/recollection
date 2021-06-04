@@ -3,7 +3,13 @@
 
 ## Install
 
+### install packages
 `$ npm install`
+
+
+### init submodule
+`$ git submodule init`  
+`$ git submodule update`
 
 ## Devlop
 
