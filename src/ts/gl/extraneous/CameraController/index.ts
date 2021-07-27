@@ -101,7 +101,7 @@ export class CameraController extends EventEmitter {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.camera.fov = this.baseCamera.fov + layerInfo.aspect.portraitWeight * 20;
+		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 20;
 		this.camera.updateProjectionMatrix();
 
 	}
