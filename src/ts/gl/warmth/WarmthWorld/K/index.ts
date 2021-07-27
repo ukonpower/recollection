@@ -1,24 +1,21 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import thoughtVert from './shaders/thought.vs';
-import thoughtFrag from './shaders/thought.fs';
+import kVert from './shaders/k.vs';
+import kFrag from './shaders/k.fs';
 
-export class K {
+export class K extends THREE.Mesh {
 
 	private commonUniforms: ORE.Uniforms;
-	private mesh: THREE.Mesh;
 
-	constructor( parent: THREE.Object3D, parentUniforms: ORE.Uniforms ) {
+	constructor( parentUniforms: ORE.Uniforms ) {
 
-		this.mesh = parent.getObjectByName( 'K' ) as THREE.Mesh;
-
-		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 			modelMatrixInverse: {
 				value: new THREE.Matrix4()
 			},
 			scale: {
-				value: this.mesh.scale
+				value: new THREE.Vector3( 1.0, 1.0, 1.0 )
 			},
 			rnd: {
 				value: Math.random()
@@ -28,19 +25,23 @@ export class K {
 			}
 		} );
 
-		this.mesh.material = new THREE.ShaderMaterial( {
-			vertexShader: thoughtVert,
-			fragmentShader: thoughtFrag,
-			uniforms: this.commonUniforms,
+		let geo = new THREE.SphereBufferGeometry();
+		let mat = new THREE.ShaderMaterial( {
+			vertexShader: kVert,
+			fragmentShader: kFrag,
+			uniforms: uni,
 			transparent: true
 		} );
 
-		this.mesh.onBeforeRender = () => {
+		super( geo, mat );
 
-			this.commonUniforms.modelMatrixInverse.value.copy( this.mesh.matrixWorld.clone().invert() );
+		this.commonUniforms = uni;
+
+		this.onBeforeRender = () => {
+
+			this.commonUniforms.modelMatrixInverse.value.copy( this.matrixWorld.clone().invert() );
 
 		};
-
 
 	}
 

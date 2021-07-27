@@ -34,7 +34,9 @@ export class WarmthWorld extends THREE.Object3D {
 		aLight.intensity = 0.1;
 		this.scene.add( aLight );
 
-		this.k = new K( this.scene, this.commonUniforms );
+		this.k = new K( this.commonUniforms );
+		this.k.position.set( - 0.8, 0.5, - 3, );
+		this.scene.add( this.k );
 
 		this.floor = new Floor( this.scene, this.commonUniforms );
 
