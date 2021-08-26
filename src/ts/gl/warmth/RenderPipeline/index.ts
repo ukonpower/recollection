@@ -47,9 +47,9 @@ export class RenderPipeline {
 	constructor( renderer: THREE.WebGLRenderer, parentUniforms?: ORE.Uniforms ) {
 
 		this.renderer = renderer;
-		this.bloomResolutionRatio = 0.3;
+		this.bloomResolutionRatio = 0.4;
 		this.bloomRenderCount = 5;
-		this.brightness = 0.15;
+		this.brightness = 0.17;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( {
 		}, parentUniforms );
@@ -86,7 +86,7 @@ export class RenderPipeline {
 			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ] = new THREE.WebGLRenderTarget( 0, 0, {
 				depthBuffer: false,
 				stencilBuffer: false,
-				generateMipmaps: false,
+				generateMipmaps: true,
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter
 			} );
@@ -156,7 +156,7 @@ export class RenderPipeline {
 					value: null
 				},
 				blurRange: {
-					value: 1.0
+					value: 0.8
 				},
 				renderCount: {
 					value: this.bloomRenderCount
@@ -270,11 +270,11 @@ export class RenderPipeline {
 
 			uni.count.value = i;
 
-			uni.direction.value = false;
+			uni.direction.value = true;
 			target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
 			this.bloomBlurPP.render( null, target );
 
-			uni.direction.value = true;
+			uni.direction.value = false;
 			uni.backbuffer.value = target.texture;
 			target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
 			this.bloomBlurPP.render( null, target );
@@ -331,7 +331,7 @@ export class RenderPipeline {
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
 			let size = pixelWindowSize.clone().multiplyScalar( this.bloomResolutionRatio );
-			size.divideScalar( ( i + 1 ) * 2 );
+			size.divideScalar( ( i + 1.0 ) * 2 );
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ].setSize( size.x, size.y );
 			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ].setSize( size.x, size.y );

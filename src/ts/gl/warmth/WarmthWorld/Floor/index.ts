@@ -99,6 +99,7 @@ export class Floor extends EventEmitter {
 
 
 		this.refRenderTarget = new THREE.WebGLRenderTarget( 1, 1 );
+		this.refRenderTarget.texture.magFilter = THREE.LinearFilter;
 		this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
 		this.mesh.onBeforeRender = ( renderer, scene, camera, geometry, material, group ) => {

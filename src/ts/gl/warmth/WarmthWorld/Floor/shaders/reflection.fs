@@ -107,7 +107,9 @@ void main() {
 
 	vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
 
-	vec3 ref = texture2DProj( reflectionTex, refUV ).xyz;
+	vec4 ruv = refUV;
+
+	vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
 
 	float f = dot( normalize( vViewPosition ), normal );
 	f = fresnel( 0.1, f );
