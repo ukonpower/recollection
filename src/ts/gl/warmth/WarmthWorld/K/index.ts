@@ -43,6 +43,20 @@ export class K extends THREE.Mesh {
 
 		};
 
+		let cubemapLoader = new THREE.CubeTextureLoader();
+		cubemapLoader.load( [
+			'/assets/scene/img/env/px.jpg',
+			'/assets/scene/img/env/nx.jpg',
+			'/assets/scene/img/env/py.jpg',
+			'/assets/scene/img/env/ny.jpg',
+			'/assets/scene/img/env/pz.jpg',
+			'/assets/scene/img/env/nz.jpg',
+		], ( tex ) => {
+
+			this.commonUniforms.envMap.value = tex;
+
+		} );
+
 	}
 
 	public update( deltaTime: number ) {

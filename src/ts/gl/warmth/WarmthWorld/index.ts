@@ -4,6 +4,7 @@ import { K } from './K';
 import { AmbientLight, DirectionalLight, PointLight } from 'three';
 import { Floor } from './Floor';
 import { Particles } from './Particles';
+import { Fan } from './Fan';
 
 export class WarmthWorld extends THREE.Object3D {
 
@@ -13,6 +14,7 @@ export class WarmthWorld extends THREE.Object3D {
 	private k: K;
 	private floor: Floor
 	private particles: Particles;
+	private fan: Fan;
 
 	constructor( scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -42,16 +44,20 @@ export class WarmthWorld extends THREE.Object3D {
 		this.scene.add( this.k );
 
 		this.particles = new Particles( this.commonUniforms );
-		this.particles.position.set( 0, 0, - 10 );
+		this.particles.position.set( 0, 0, 2 );
 		this.scene.add( this.particles );
 
 		this.floor = new Floor( this.scene, this.commonUniforms );
 
+		this.fan = new Fan( this.scene, this.commonUniforms );
+
 	}
 
-	public update( deltaTime: number ) {
+	public update( deltaTime: number, time: number ) {
 
 		this.k.update( deltaTime );
+
+		this.fan.update( deltaTime, time );
 
 	}
 

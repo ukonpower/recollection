@@ -72,7 +72,7 @@ export default class WarmthScene extends BaseGL {
 
 		if ( this.world ) {
 
-			this.world.update( deltaTime );
+			this.world.update( deltaTime, this.time );
 
 		}
 
@@ -117,6 +117,12 @@ export default class WarmthScene extends BaseGL {
 	}
 
 	public onTouchMove( args: ORE.TouchEventArgs ) {
+
+		if ( this.cameraController ) {
+
+			this.cameraController.updateCursor( args.normalizedPosition );
+
+		}
 
 	}
 

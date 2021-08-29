@@ -10,9 +10,9 @@ export class Particles extends THREE.Points {
 
 	constructor( parentUniforms?: ORE.Uniforms ) {
 
-		let range = new THREE.Vector3( 10, 10, 10 );
+		let range = new THREE.Vector3( 4, 3, 1 );
 
-		let num = 70;
+		let num = 1000;
 		let offsetPosArray: number[] = [];
 		let numArray: number[] = [];
 
@@ -46,6 +46,7 @@ export class Particles extends THREE.Points {
 			fragmentShader: particlesFrag,
 			uniforms: uni,
 			transparent: true,
+			blending: THREE.AdditiveBlending
 		} );
 
 		super( geo, mat );
@@ -56,7 +57,7 @@ export class Particles extends THREE.Points {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.commonUniforms.particleSize.value = layerInfo.size.windowSize.y / 70;
+		this.commonUniforms.particleSize.value = layerInfo.size.windowSize.y / 50;
 
 	}
 

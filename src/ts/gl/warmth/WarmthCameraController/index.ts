@@ -13,6 +13,8 @@ export class WarmthCameraController {
 
 	private baseCamera: THREE.PerspectiveCamera;
 
+	private spWeight: number = 0.0;
+
 	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D ) {
 
 		this.camera = obj;
@@ -29,7 +31,7 @@ export class WarmthCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.1, 0.1 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.1, 0.05 );
 
 	}
 
@@ -53,7 +55,7 @@ export class WarmthCameraController {
 
 		if ( this.cameraTargetPos ) {
 
-			this.camera.lookAt( this.cameraTargetPos );
+			this.camera.lookAt( this.cameraTargetPos.clone().add( new THREE.Vector3( - this.spWeight * 0.2, 0.0, 0.0 ) ) );
 
 		}
 
@@ -61,7 +63,9 @@ export class WarmthCameraController {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 20.0;
+		this.spWeight = layerInfo.size.portraitWeight;
+
+		this.camera.fov = this.baseCamera.fov + 5 + layerInfo.size.portraitWeight * 35.0;
 		this.camera.updateProjectionMatrix();
 
 	}

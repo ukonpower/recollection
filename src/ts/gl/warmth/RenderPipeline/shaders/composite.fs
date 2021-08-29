@@ -28,9 +28,13 @@ void main(){
 	
     for(int i = 0; i < N; i++){
         float w = 0.1 + float(i) * 0.01;
-        c.x += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
-        c.y += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w * 2.0 ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
-        c.z += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w * 3.0 ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
+        // c.x += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
+        // c.y += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w * 2.0 ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
+        // c.z += dot( texture2D(sceneTex,lens_distortion( uv - 0.5, w * 3.0 ) + 0.5).xyz, vec3(0.299, 0.587, 0.114));
+		
+        c.x += texture2D(sceneTex,lens_distortion( uv - 0.5, w ) + 0.5).x;
+        c.y += texture2D(sceneTex,lens_distortion( uv - 0.5, w * 2.0 ) + 0.5).y;
+        c.z += texture2D(sceneTex,lens_distortion( uv - 0.5, w * 3.0 ) + 0.5).z;
 
     }
     c /= float(N);
@@ -49,7 +53,7 @@ void main(){
 
 	c *= smoothstep( -0.5, 0.5, 1.0 - length( cuv ) );
 
-	c.xyz *= mix( vec3( 1.0, 0.9, 0.7 ), vec3( 0.8, 0.86,1.0 ), smoothstep( 0.0, 1.7, length( cuv + vec2( 0.2, 0.0 ) ) ));
+	c.xyz *= mix( vec3( 1.0, 0.9, 0.7 ), vec3( 0.75, 1.05,1.0 ), smoothstep( 0.0, 1.7, length( cuv + vec2( 0.3, 0.0 ) ) ));
 
 	gl_FragColor = vec4( c, 1.0 );
 
