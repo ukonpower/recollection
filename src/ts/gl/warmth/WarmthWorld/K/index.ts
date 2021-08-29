@@ -25,7 +25,7 @@ export class K extends THREE.Mesh {
 			}
 		} );
 
-		let geo = new THREE.SphereBufferGeometry();
+		let geo = new THREE.SphereBufferGeometry( 1.0, );
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: kVert,
 			fragmentShader: kFrag,

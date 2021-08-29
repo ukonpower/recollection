@@ -16,20 +16,10 @@ varying vec2 vUv;
 
 #define U(z,w) (mix(z,w,step(w.x,z.x)))
 
-float sdCone( in vec3 p, in vec2 c, float h )
+float sdCone( vec3 p, vec2 c, float h )
 {
-	// c is the sin/cos of the angle, h is height
-	// Alternatively pass q instead of (c,h),
-	// which is the point at the base in 2D
-	vec2 q = h*vec2(c.x/c.y,-1.0);
-
-	vec2 w = vec2( length(p.xz), p.y );
-	vec2 a = w - q*clamp( dot(w,q)/dot(q,q), 0.0, 1.0 );
-	vec2 b = w - q*vec2( clamp( w.x/q.x, 0.0, 1.0 ), 1.0 );
-	float k = sign( q.y );
-	float d = min(dot( a, a ),dot(b, b));
-	float s = max( k*(w.x*q.y-w.y*q.x),k*(w.y-q.y)  );
-	return sqrt(d)*sign(s);
+  float q = length(p.xz);
+  return max(dot(c.xy,vec2(q,p.y)),-h-p.y);
 }
 
 float sdTorus( vec3 p, vec2 t )
@@ -74,15 +64,35 @@ float sdPyramid( vec3 p, float h)
   return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));
 }
 
-vec2 ring( vec3 p ) {
+vec2 fold(in vec2 p, in float s)
+{
+    float a = PI / s - atan(p.x, p.y);
+    float n = TPI / s;
+    a = floor(a / n) * n;
+    p *= rotate(a);
+    return p;    
+}
 
-	vec3 np = p;
 
-	np += vec3( 0.6, 0.0, 0.0 );
+vec2 ring( vec3 pos ) {
 
-	np *= 5.0;
+	vec3 p = pos;
+
+	p.zy *= rotate( HPI / 2.0);
+	p.xy *= rotate( time );
+	p.xz *= rotate( time );
+
+
+	p.xz = fold( p.xz, 8.0 );
+	p += vec3( 0.0, 0.0, -0.4 );
+
+	p *= 8.0;
+
 	
-	float d = sdPyramid( np, 1.0 );
+	vec3 pp = p;
+	pp.zy *= rotate( HPI );
+	
+	float d = sdCone( pp, vec2( 0.1, 0.03), 1.0 );
 
 	return vec2( d, 1.0 );
 
@@ -171,7 +181,7 @@ void main( void ) {
 		dist = D( rayPos );		
 		rayPos += dist.x * rayDir;
 
-		if( dist.x < 0.01 ) {
+		if( dist.x < 0.0001 ) {
 
 			vec3 n = N( rayPos, 0.0001 );
 			vec3 normal = normalize(modelMatrix * vec4( n, 0.0 )).xyz;
