@@ -43,82 +43,24 @@ float sdBox( vec3 p, vec3 b )
   
 }
 
-float sdPyramid( vec3 p, float h)
-{
-  float m2 = h*h + 0.25;
-    
-  p.xz = abs(p.xz);
-  p.xz = (p.z>p.x) ? p.zx : p.xz;
-  p.xz -= 0.5;
-
-  vec3 q = vec3( p.z, h*p.y - 0.5*p.x, h*p.x + 0.5*p.y);
-   
-  float s = max(-q.x,0.0);
-  float t = clamp( (q.y-0.5*p.z)/(m2+0.25), 0.0, 1.0 );
-    
-  float a = m2*(q.x+s)*(q.x+s) + q.y*q.y;
-  float b = m2*(q.x+0.5*t)*(q.x+0.5*t) + (q.y-m2*t)*(q.y-m2*t);
-    
-  float d2 = min(q.y,-q.x*m2-q.y*0.5) > 0.0 ? 0.0 : min(a,b);
-    
-  return sqrt( (d2+q.z*q.z)/m2 ) * sign(max(q.z,-p.y));
-}
-
-vec3 fold(in vec2 p, in float s)
-{
-    float a = PI / s - atan(p.x, p.y);
-    float n = TPI / s;
-    a = floor(a / n) * n;
-    p *= rotate(a);
-
-    return vec3( p, a );    
-}
-
-
-vec2 kler( vec3 pos ) {
+vec2 o( vec3 pos ) {
 
 	vec3 p = pos;
 
 	p.xy *= rotate( PI );
-
-	p.xy *= rotate( -0.5 + sin( time - p.y * 2.0  ) * 0.2 );
-
 
 	for( float i = 0.0; i < 2.0; i++ ) {
 
 		p.x = abs( p.x ) - 0.001;		
 		p.xy *= rotate( 0.05 );
 
-		p.xz *= rotate( time + p.y * 10.0 );
+		p.xz *= rotate( time + p.y * 2.0 );
 		
 	}
 	
-	p.y += 0.3;
+	// p.y += 0.4;
 
-	float d = sdCone( p, vec2( 1.0, 0.05 ), 0.5 );
-
-	return vec2( d, 1.0 );
-
-}
-
-vec2 ring( vec3 pos ) {
-
-	vec3 p = pos;
-
-	p.zy *= rotate( HPI / 5.0 + ( sin( time ) ) * 0.1 );
-	p.xy *= rotate( (sin( time ) * 0.5 - 0.5 ) * 0.7 );
-	p.xz *= rotate( time );
-
-	float sub = 8.0;
-
-	vec3 f = fold( p.xz, sub );
-	p.xz = f.xy;
-	p += vec3( 0.0, 0.0, -0.4 - (sin( time ) * 0.5 + 0.5) * 0.07 );
-
-	vec3 pp = p;
-	pp.zy *= rotate( HPI );
-	
-	float d = sdSphere( pp, 0.05 + sin( f.z * 10.0 + time * 4.0) * 0.03  );
+	float d = sdCone( p, vec2( 1.0, 0.02 ), 3.0 );
 
 	return vec2( d, 1.0 );
 
@@ -128,13 +70,7 @@ vec2 D( vec3 p ) {
 
 	vec2 res = vec2( 0.0 );
 
-	// noise sphere
-	res = vec2( sdSphere( p, 0.5 + noise4D( vec4( p * 5.0, time ) ) * 0.1 ) , 0.0 );
-
-	// ring
-	res = U( res, ring( p ) );
-
-	res = U( res, kler( p ) );
+	res = o( p );
 
 	return res;
 
@@ -204,8 +140,6 @@ void main( void ) {
 
 	for( int i = 0; i < 32; i++ ) {
 
-		// if( !checkInBox( rayPos, vec3( 1.0 ) ) ) break;
-
 		dist = D( rayPos );		
 		rayPos += dist.x * rayDir;
 
@@ -222,9 +156,8 @@ void main( void ) {
 		
 	}
 
-	// if( c.w < 1.0 ) discard;
+	if( c.w < 1.0 ) discard;
 
-
-	gl_FragColor = vec4( 1.0 );
+	gl_FragColor = c;
 
 }

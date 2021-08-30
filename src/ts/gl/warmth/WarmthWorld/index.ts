@@ -59,8 +59,6 @@ export class WarmthWorld extends THREE.Object3D {
 
 	public update( deltaTime: number, time: number ) {
 
-		this.k.update( deltaTime );
-
 		this.fan.update( deltaTime, time );
 
 	}

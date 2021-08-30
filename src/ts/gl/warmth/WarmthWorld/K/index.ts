@@ -12,36 +12,38 @@ export class K extends THREE.Mesh {
 
 	constructor( parentUniforms: ORE.Uniforms ) {
 
-		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		let commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+			rnd: {
+				value: Math.random()
+			},
+			envMap: {
+				value: null
+			} } );
+
+		let kUni = ORE.UniformsLib.mergeUniforms( commonUniforms, {
 			modelMatrixInverse: {
 				value: new THREE.Matrix4()
 			},
 			scale: {
 				value: new THREE.Vector3( 1.0, 1.0, 1.0 )
 			},
-			rnd: {
-				value: Math.random()
-			},
-			envMap: {
-				value: null
-			}
 		} );
 
 		let geo = new THREE.SphereBufferGeometry( 1.0, );
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: kVert,
 			fragmentShader: kFrag,
-			uniforms: uni,
+			uniforms: kUni,
 			transparent: true
 		} );
 
 		super( geo, mat );
 
-		this.commonUniforms = uni;
+		this.commonUniforms = commonUniforms;
 
 		this.onBeforeRender = () => {
 
-			this.commonUniforms.modelMatrixInverse.value.copy( this.matrixWorld.clone().invert() );
+			kUni.modelMatrixInverse.value.copy( this.matrixWorld.clone().invert() );
 
 		};
 
@@ -60,32 +62,43 @@ export class K extends THREE.Mesh {
 		} );
 
 		/*-------------------------------
-			origin
+			o
 		-------------------------------*/
 
 		let oSize = 3.0;
 
-		let ogeo = new THREE.CylinderBufferGeometry( 0.5, 0.0, oSize );
-		ogeo.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, oSize / 2.0 + 0.3, 0.0 ) );
+		let ogeo = new THREE.BoxBufferGeometry( 1.0, oSize, 1.0 );
+		ogeo.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, oSize / 2.0, 0.0 ) );
+
+		let oUni = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+			modelMatrixInverse: {
+				value: new THREE.Matrix4()
+			},
+		} );
 
 		let o = new THREE.Mesh(
 			ogeo,
 			new THREE.ShaderMaterial( {
 				vertexShader: kVert,
 				fragmentShader: oFrag,
-				uniforms: this.commonUniforms,
+				uniforms: oUni,
 				transparent: false
 			} )
 		);
-		o.position.set( 0.0, 0.0, 0.0 );
-		o.rotation.set( 0.0, 0.0, - 0.5 );
-		this.add( o );
 
-	}
+		o.position.set( 0.0, 0.3, 0.0 );
 
-	public update( deltaTime: number ) {
+		let oParent = new THREE.Object3D();
+		this.add( oParent );
 
-		// this.mesh.quaternion.copy( new THREE.Quaternion().setFromEuler( new THREE.Euler( 0, - deltaTime * 0.4, 0.0 ) ).multiply( this.mesh.quaternion ) );
+		oParent.rotation.set( 0, 0, - 0.6 );
+		oParent.add( o );
+
+		o.onBeforeRender = () => {
+
+			oUni.modelMatrixInverse.value.copy( o.matrixWorld.clone().invert() );
+
+		};
 
 	}
 
