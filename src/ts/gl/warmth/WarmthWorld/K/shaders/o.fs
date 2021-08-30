@@ -74,6 +74,33 @@ vec3 fold(in vec2 p, in float s)
     return vec3( p, a );    
 }
 
+
+vec2 kler( vec3 pos ) {
+
+	vec3 p = pos;
+
+	p.xy *= rotate( PI );
+
+	p.xy *= rotate( -0.5 + sin( time - p.y * 2.0  ) * 0.2 );
+
+
+	for( float i = 0.0; i < 2.0; i++ ) {
+
+		p.x = abs( p.x ) - 0.001;		
+		p.xy *= rotate( 0.05 );
+
+		p.xz *= rotate( time + p.y * 10.0 );
+		
+	}
+	
+	p.y += 0.3;
+
+	float d = sdCone( p, vec2( 1.0, 0.05 ), 0.5 );
+
+	return vec2( d, 1.0 );
+
+}
+
 vec2 ring( vec3 pos ) {
 
 	vec3 p = pos;
@@ -106,6 +133,8 @@ vec2 D( vec3 p ) {
 
 	// ring
 	res = U( res, ring( p ) );
+
+	res = U( res, kler( p ) );
 
 	return res;
 
@@ -193,9 +222,9 @@ void main( void ) {
 		
 	}
 
-	if( c.w < 1.0 ) discard;
+	// if( c.w < 1.0 ) discard;
 
 
-	gl_FragColor = vec4( c.xyz, 1.0 );
+	gl_FragColor = vec4( 1.0 );
 
 }

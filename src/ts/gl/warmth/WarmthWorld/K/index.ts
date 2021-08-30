@@ -4,6 +4,8 @@ import * as ORE from '@ore-three-ts';
 import kVert from './shaders/k.vs';
 import kFrag from './shaders/k.fs';
 
+import oFrag from './shaders/o.fs';
+
 export class K extends THREE.Mesh {
 
 	private commonUniforms: ORE.Uniforms;
@@ -56,6 +58,28 @@ export class K extends THREE.Mesh {
 			this.commonUniforms.envMap.value = tex;
 
 		} );
+
+		/*-------------------------------
+			origin
+		-------------------------------*/
+
+		let oSize = 3.0;
+
+		let ogeo = new THREE.CylinderBufferGeometry( 0.5, 0.0, oSize );
+		ogeo.applyMatrix4( new THREE.Matrix4().makeTranslation( 0, oSize / 2.0 + 0.3, 0.0 ) );
+
+		let o = new THREE.Mesh(
+			ogeo,
+			new THREE.ShaderMaterial( {
+				vertexShader: kVert,
+				fragmentShader: oFrag,
+				uniforms: this.commonUniforms,
+				transparent: false
+			} )
+		);
+		o.position.set( 0.0, 0.0, 0.0 );
+		o.rotation.set( 0.0, 0.0, - 0.5 );
+		this.add( o );
 
 	}
 
