@@ -5,6 +5,7 @@ import { AmbientLight, DirectionalLight, PointLight } from 'three';
 import { Floor } from './Floor';
 import { Particles } from './Particles';
 import { Fan } from './Fan';
+import { Curtain } from './Curtain';
 
 export class WarmthWorld extends THREE.Object3D {
 
@@ -15,6 +16,7 @@ export class WarmthWorld extends THREE.Object3D {
 	private floor: Floor
 	private particles: Particles;
 	private fan: Fan;
+	private curtain: Curtain;
 
 	constructor( scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -50,6 +52,8 @@ export class WarmthWorld extends THREE.Object3D {
 		this.floor = new Floor( this.scene, this.commonUniforms );
 
 		this.fan = new Fan( this.scene, this.commonUniforms );
+
+		this.curtain = new Curtain( this.scene, this.commonUniforms );
 
 	}
 
