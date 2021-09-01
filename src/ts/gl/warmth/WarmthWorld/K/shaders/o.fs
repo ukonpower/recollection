@@ -22,27 +22,6 @@ float sdCone( vec3 p, vec2 c, float h )
   return max(dot(c.xy,vec2(q,p.y)),-h-p.y);
 }
 
-float sdTorus( vec3 p, vec2 t )
-{
-  vec2 q = vec2(length(p.xz)-t.x,p.y);
-  return length(q)-t.y;
-}
-
-float sdSphere( vec3 p, float s )
-{
-
-	return length( p ) - s / 2.0;
-  
-}
-
-float sdBox( vec3 p, vec3 b )
-{
-	vec3 q = abs(p) - b;
-
-	return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-  
-}
-
 vec2 o( vec3 pos ) {
 
 	vec3 p = pos;
@@ -57,12 +36,10 @@ vec2 o( vec3 pos ) {
 		p.xz *= rotate( time + p.y * 2.0 );
 		
 	}
-	
-	// p.y += 0.4;
 
 	float d = sdCone( p, vec2( 1.0, 0.02 ), 3.0 );
 
-	return vec2( d, 1.0 );
+	return vec2( d, 0.0 );
 
 }
 
@@ -112,16 +89,9 @@ vec3 material( float mat, vec3 pos, vec3 dir, vec3 normal ) {
 
 		float f = fresnel( dvh );
 		
-		c = textureCube( envMap, reflect( dir, normal ) ).xyz * f * 1.5;
-
-	} else if( mat == 1.0 ) {
-
-		c = vec3( 1.0 );
-		
-	} else {
-
-		c = vec3( clamp( dot( normal, vec3( 1.0, 1.0, 1.0 ) ), 0.0, 1.0  ) );
-		c += 0.4;
+		// c = mix( vec3( 1.0 ), vec3( 0.7, 0.9, 1.0 ), smoothstep( 0.0, 0.6, f ) );
+		c = mix( vec3( 1.0 ), vec3( 1.0, 0.6, 0.7 ), smoothstep( 0.0, 0.5, f ) );
+		// c += textureCube( envMap, reflect( dir, normal ) ).xyz * f * 1.5;
 
 	}
 

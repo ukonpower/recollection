@@ -49,11 +49,11 @@ void main(){
 	}
 	#pragma unroll_loop_end
 
-	c -= random( uv ) * 0.15 * c;
+	c -= random( uv ) * 0.2 * c;
 
-	c *= smoothstep( -0.5, 0.5, 1.0 - length( cuv ) );
+	c *= smoothstep( -0.6, 0.4, 1.0 - length( cuv ) );
 
-	c.xyz *= mix( vec3( 1.0, 0.9, 0.7 ), vec3( 0.75, 1.05,1.0 ), smoothstep( 0.0, 1.7, length( cuv + vec2( 0.3, 0.0 ) ) ));
+	c.xyz *= mix( vec3( 1.0, 0.9, 0.7 ), vec3( 0.70, 1.0,1.1 ), smoothstep( 0.0, 1.7, length( cuv + vec2( 0.3, 0.0 ) ) ));
 
 	gl_FragColor = vec4( c, 1.0 );
 
