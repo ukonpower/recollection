@@ -191,9 +191,9 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 		float dvh = dot( v, normal );
 
 		float f = fresnel( dvh );
-		float nf = (0.5 - smoothstep( 0.0, 0.03, f) * 1.0 );
+		float nf = (0.9 - smoothstep( 0.0, 0.03, f) * 1.5 );
 
-		vec3 c = vec3( GGX( normal, hv, 0.4 ) * 0.3 );
+		vec3 c = vec3( GGX( normal, hv, 0.1 ) * 0.01 );
 		c += textureCube( envMap, reflect( rayDir.xyz, normal ) ).xyz * f * 1.5;
 
 		c.x += nf * texture2D( sceneTex, vUv + normal.xy * 0.1 ).x;
