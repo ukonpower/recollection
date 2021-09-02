@@ -84,7 +84,7 @@ export default class FlowerScene extends BaseGL {
 
 		super.onResize();
 
-		this.camera.fov = 40 + this.info.aspect.portraitWeight * 30;
+		this.camera.fov = 40 + this.info.size.portraitWeight * 30;
 		this.camera.updateProjectionMatrix();
 
 		this.renderPipeline.resize( this.info.size.canvasPixelSize );

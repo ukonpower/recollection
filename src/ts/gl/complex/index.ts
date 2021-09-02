@@ -93,7 +93,7 @@ export default class Complex extends BaseGL {
 
 		super.onResize();
 
-		this.camera.fov = 40 + this.info.aspect.portraitWeight * 20;
+		this.camera.fov = 40 + this.info.size.portraitWeight * 20;
 		this.camera.updateProjectionMatrix();
 
 		this.windowSize.set( window.innerWidth, window.innerHeight );

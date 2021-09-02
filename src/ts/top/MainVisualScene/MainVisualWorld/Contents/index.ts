@@ -70,7 +70,7 @@ export class Contents {
 
 		for ( let i = 0; i < this.layoutControllers.length; i ++ ) {
 
-			this.layoutControllers[ i ].updateTransform( layerInfo.aspect.portraitWeight );
+			this.layoutControllers[ i ].updateTransform( layerInfo.size.portraitWeight );
 
 		}
 
