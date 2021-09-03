@@ -31,7 +31,7 @@ export class WarmthCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.1, 0.05 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.15, 0.05 );
 
 	}
 
@@ -43,7 +43,7 @@ export class WarmthCameraController {
 
 	}
 
-	public update( deltaTime: number ) {
+	public update( deltaTime: number, time: number ) {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
@@ -58,6 +58,8 @@ export class WarmthCameraController {
 			this.camera.lookAt( this.cameraTargetPos.clone().add( new THREE.Vector3( - this.spWeight * 0.2, 0.0, 0.0 ) ) );
 
 		}
+
+		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.003, Math.sin( time * 2.0 ) * 0.003 ) ) );
 
 	}
 
