@@ -62,7 +62,7 @@ export default class WarmthScene extends BaseGL {
 
 		if ( this.cameraController ) {
 
-			this.cameraController.update( deltaTime );
+			this.cameraController.update( deltaTime, this.time );
 
 		}
 
