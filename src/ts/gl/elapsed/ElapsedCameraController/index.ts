@@ -31,7 +31,7 @@ export class ElapsedCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.15, 0.05 );
+		this.cameraMoveWeight = new THREE.Vector2( 3, 0.5 );
 
 	}
 

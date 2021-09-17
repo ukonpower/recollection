@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
+import baseVert from './shaders/base.vs';
+import baseFrag from './shaders/base.fs';
+
 export class ElapsedWorld extends THREE.Object3D {
 
 	private scene: THREE.Scene;
@@ -18,6 +21,13 @@ export class ElapsedWorld extends THREE.Object3D {
 		let light = new THREE.DirectionalLight();
 		light.position.set( 1, 1, 1 );
 		this.scene.add( light );
+
+		let sphere = scene.getObjectByName( 'Sphere' ) as THREE.Mesh;
+		sphere.material = new THREE.ShaderMaterial( {
+			vertexShader: baseVert,
+			fragmentShader: baseFrag,
+			uniforms: this.commonUniforms,
+		} );
 
 	}
 
