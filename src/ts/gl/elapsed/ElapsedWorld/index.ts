@@ -1,8 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import baseVert from './shaders/base.vs';
-import baseFrag from './shaders/base.fs';
+import { PowerMesh } from './PowerMesh';
 
 export class ElapsedWorld extends THREE.Object3D {
 
@@ -22,12 +21,16 @@ export class ElapsedWorld extends THREE.Object3D {
 		light.position.set( 1, 1, 1 );
 		this.scene.add( light );
 
-		let sphere = scene.getObjectByName( 'Sphere' ) as THREE.Mesh;
-		sphere.material = new THREE.ShaderMaterial( {
-			vertexShader: baseVert,
-			fragmentShader: baseFrag,
-			uniforms: this.commonUniforms,
-		} );
+		let baseSphere = ( this.scene.getObjectByName( 'Sphere' ) as THREE.Mesh );
+		baseSphere.visible = false;
+
+		let sphere = new PowerMesh( baseSphere );
+		this.scene.add( sphere );
+
+		let box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshStandardMaterial() );
+		box.position.set( 2, 0.5, 0 );
+		this.scene.add( box );
+
 
 	}
 
