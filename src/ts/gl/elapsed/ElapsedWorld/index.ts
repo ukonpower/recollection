@@ -21,16 +21,47 @@ export class ElapsedWorld extends THREE.Object3D {
 		light.position.set( 1, 1, 1 );
 		this.scene.add( light );
 
-		let baseSphere = ( this.scene.getObjectByName( 'Sphere' ) as THREE.Mesh );
-		baseSphere.visible = false;
+		let meshes: PowerMesh[] = [];
 
-		let sphere = new PowerMesh( baseSphere );
-		this.scene.add( sphere );
+		this.scene.getObjectByName( 'Scene' ).traverse( obj => {
 
-		let box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshStandardMaterial() );
-		box.position.set( 2, 0.5, 0 );
-		this.scene.add( box );
+			if ( ( obj as THREE.Mesh ).isMesh ) {
 
+				let base = obj as THREE.Mesh;
+				base.visible = false;
+
+				let powerMesh = new PowerMesh( base, this.commonUniforms );
+				this.scene.add( powerMesh );
+
+				meshes.push( powerMesh );
+
+			}
+
+		} );
+
+		// let box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshStandardMaterial() );
+		// box.position.set( 2, 0.5, 0 );
+		// this.scene.add( box );
+
+		let cubemapLoader = new THREE.CubeTextureLoader();
+		cubemapLoader.load( [
+			'/assets/scene/img/env/px.jpg',
+			'/assets/scene/img/env/nx.jpg',
+			'/assets/scene/img/env/py.jpg',
+			'/assets/scene/img/env/ny.jpg',
+			'/assets/scene/img/env/pz.jpg',
+			'/assets/scene/img/env/nz.jpg',
+		], ( tex ) => {
+
+			this.scene.background = tex;
+
+			meshes.forEach( item=>{
+
+				item.envMapUpdate = true;
+
+			} );
+
+		} );
 
 	}
 

@@ -21,8 +21,11 @@ export default class ElapsedScene extends BaseGL {
 		this.gManager = new ElapsedGlobalManager();
 
 		this.gManager.assetManager.load( { assets: [
-			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' }
+			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' },
+			{ name: 'roughness', path: '../assets/gl/elapsed/scene/roughness.png', type: 'tex' }
 		] } );
+
+		this.commonUniforms.roughnessMap = this.gManager.assetManager.getTex( 'roughness' );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
 

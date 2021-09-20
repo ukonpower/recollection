@@ -1,12 +1,22 @@
 uniform float time;
-uniform samplerCube envMap;
+
+uniform sampler2D envMap;
+uniform float maxLodLevel;
+
+uniform sampler2D roughnessMap;
 
 varying vec2 vUv;
 varying vec3 vNormal;
+varying vec3 vViewNormal;
 varying vec3 vViewPos;
 varying vec3 vWorldPos;
 
 #pragma glslify: import('./constants.glsl' )
+
+// TextureCubeUV
+#define ENVMAP_TYPE_CUBE_UV
+vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAMMA_FACTOR ) ); }
+#include <cube_uv_reflection_fragment>
 
 float ggx( float dNH, float roughness ) {
 	
@@ -49,10 +59,10 @@ float fresnel( float d ) {
 
 void main( void ) {
 
+	vec3 worldNormal = normalize( (vec4( vNormal, 0.0 ) * viewMatrix).xyz );
 	vec3 normal = normalize( vNormal );
 	vec3 viewDir = normalize( vViewPos );
-	vec3 lightPos = vec3( 10.0, 10.0, 10.0 );
-	vec3 lightDir = normalize( lightPos - vWorldPos );
+	vec3 lightDir = normalize( vec3( 1.0, 1.0, 1.0 ) );
 	vec3 halfVec = normalize( lightDir + normal );
 	vec3 worldViewDir = normalize( vWorldPos - cameraPosition );
 
@@ -61,28 +71,35 @@ void main( void ) {
 	float dNV = clamp( dot( normal, viewDir ), 0.0, 1.0 );
 	float dNL = clamp( dot( normal, lightDir), 0.0, 1.0 );
 
-	float roughness = 0.2;
+	float roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
+	roughness = clamp(roughness, 0.000001, 1.0);
+
+	vec3 albedo = vec3( 1.0 );
+	float metalness = 0.0;
+
+	vec3 diffuseColor = mix( albedo, vec3( 0.0, 0.0, 0.0 ), metalness );
+	vec3 specularColor = mix( vec3( 1.0, 1.0, 1.0 ), albedo, metalness );
 
 	// diffuse
-
-	float diffuse = lambert( dNL );
+	vec3 diffuse = diffuseColor * lambert( dNL );
 
 	// specular
-
 	float D = ggx( dNH, roughness );
 	float G = gSmith( dNV, dNL, roughness );
 	float F = fresnel( dLH );
-
-	float specular = ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ); 
-
-	// f
-	float f = diffuse * ( 1.0 - F ) + specular;
+	vec3 specular = specularColor * ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ); 
 
 	vec3 c = vec3( 0.0 );
-	c += f;
-	c = textureCube( envMap, reflect( worldViewDir, normal ) ).xyz;
+	c += diffuse * ( 1.0 - F ) + specular;
 
-	gl_FragColor = vec4( vec3( c ), 1.0 );
+	// env
+	vec3 refDir = reflect( worldViewDir, worldNormal );
+	refDir.x *= -1.0;
+	float EF = mix( fresnel( dNV ), 1.0, metalness );
+	c += textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - metalness ) * diffuseColor * ( 1.0 - EF ) ;
+	c += specularColor * textureCubeUV( envMap, refDir, roughness ).xyz * EF * PI;
+
+	gl_FragColor = vec4( vec3(c), 1.0);
 
 
 }
