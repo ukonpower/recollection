@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
 import powerVert from './shaders/power.vs';
-import powerFrag from './shaders/power.fs';
+import powerFrag from './shaders/powerLight.fs';
 
 export class PowerMesh extends THREE.Mesh {
 
@@ -28,6 +28,8 @@ export class PowerMesh extends THREE.Mesh {
 			},
 		} );
 
+		uni = ORE.UniformsLib.mergeUniforms( uni, THREE.UniformsLib.lights );
+
 		/*-------------------------------
 			Geometry
 		-------------------------------*/
@@ -52,9 +54,7 @@ export class PowerMesh extends THREE.Mesh {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			uniforms: uni,
-			extensions: {
-				shaderTextureLOD: true
-			}
+			lights: true
 		} );
 
 		super( geo, mat );

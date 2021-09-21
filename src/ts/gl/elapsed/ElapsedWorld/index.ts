@@ -18,7 +18,11 @@ export class ElapsedWorld extends THREE.Object3D {
 		} );
 
 		let light = new THREE.DirectionalLight();
-		light.position.set( 1, 1, 1 );
+		light.position.set( 1, 1, 0 );
+		this.scene.add( light );
+
+		light = new THREE.DirectionalLight();
+		light.position.set( - 1, 1, 0 );
 		this.scene.add( light );
 
 		let meshes: PowerMesh[] = [];
