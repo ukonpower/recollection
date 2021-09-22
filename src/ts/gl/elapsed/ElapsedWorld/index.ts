@@ -2,28 +2,47 @@ import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
 import { PowerMesh } from './PowerMesh';
+import { ShadowMapper } from './ShadowMapper';
 
 export class ElapsedWorld extends THREE.Object3D {
 
+	private renderer: THREE.WebGLRenderer;
 	private scene: THREE.Scene;
 	private commonUniforms: ORE.Uniforms;
 
-	constructor( scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
+	private lights: THREE.Light[] = []
+	private shadowMapper: ShadowMapper;
+
+	constructor( renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
 		super();
 
+		this.renderer = renderer;
 		this.scene = scene;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
 		} );
 
-		let light = new THREE.DirectionalLight();
-		light.position.set( 1, 1, 0 );
-		this.scene.add( light );
+		/*-------------------------------
+			Lights
+		-------------------------------*/
+
+		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( - 1, 1, 0 );
+		light.position.set( 1, 1, 0 );
 		this.scene.add( light );
+		this.lights.push( light );
+
+		/*-------------------------------
+			ShadowMapper
+		-------------------------------*/
+
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 10, light );
+
+		/*-------------------------------
+			Meshes
+		-------------------------------*/
 
 		let meshes: PowerMesh[] = [];
 
@@ -42,10 +61,6 @@ export class ElapsedWorld extends THREE.Object3D {
 			}
 
 		} );
-
-		// let box = new THREE.Mesh( new THREE.BoxBufferGeometry(), new THREE.MeshStandardMaterial() );
-		// box.position.set( 2, 0.5, 0 );
-		// this.scene.add( box );
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
@@ -70,6 +85,16 @@ export class ElapsedWorld extends THREE.Object3D {
 	}
 
 	public update( deltaTime: number, time: number ) {
+
+		this.lights.forEach( ( item, index ) => {
+
+			let p = item.position;
+
+			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), deltaTime * ( ( index + 1.0 ) * 0.5 ) ) );
+
+		} );
+
+		this.shadowMapper.update( this.scene );
 
 	}
 

@@ -10,8 +10,13 @@ varying vec3 vNormal;
 varying vec3 vViewNormal;
 varying vec3 vViewPos;
 varying vec3 vWorldPos;
+varying vec2 vHighPrecisionZW;
+
 
 #pragma glslify: import('./constants.glsl' )
+
+#include <packing>
+
 
 // Types
 
@@ -45,7 +50,6 @@ struct DirectionalLight {
 };
 
 uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
-
 
 // TextureCubeUV
 #define ENVMAP_TYPE_CUBE_UV
@@ -129,6 +133,15 @@ void main( void ) {
 	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
 	geo.normal = normalize( vNormal );
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
+
+	#ifdef DEPTH
+
+	float fragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;
+	gl_FragColor = packDepthToRGBA( fragCoordZ );
+	
+	return;
+	
+	#endif
 
 	Material mat;
 	mat.albedo = vec3( 1.0 );

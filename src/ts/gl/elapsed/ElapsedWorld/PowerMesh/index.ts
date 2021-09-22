@@ -59,6 +59,15 @@ export class PowerMesh extends THREE.Mesh {
 
 		super( geo, mat );
 
+		this.customDepthMaterial = new THREE.ShaderMaterial( {
+			vertexShader: powerVert,
+			fragmentShader: powerFrag,
+			uniforms: uni,
+			defines: {
+				'DEPTH': ""
+			}
+		} );
+
 		this.commonUniforms = uni;
 
 		/*-------------------------------

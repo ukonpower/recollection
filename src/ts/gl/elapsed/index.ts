@@ -45,10 +45,6 @@ export default class ElapsedScene extends BaseGL {
 	private initScene() {
 
 		/*------------------------
-			Light
-		------------------------*/
-
-		/*------------------------
 			CameraController
 		------------------------*/
 		this.cameraController = new ElapsedCameraController( this.camera, this.scene );
@@ -56,7 +52,7 @@ export default class ElapsedScene extends BaseGL {
 		/*------------------------
 			World
 		------------------------*/
-		this.world = new ElapsedWorld( this.scene, this.commonUniforms );
+		this.world = new ElapsedWorld( this.renderer, this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
 		this.renderer.outputEncoding = THREE.LinearEncoding;
