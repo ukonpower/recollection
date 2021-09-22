@@ -13,6 +13,40 @@ varying vec3 vWorldPos;
 
 #pragma glslify: import('./constants.glsl' )
 
+// Types
+
+struct Geometry {
+	vec3 pos;
+	vec3 posWorld;
+	vec3 viewDir;
+	vec3 viewDirWorld;
+	vec3 normal;
+	vec3 normalWorld;
+};
+
+struct Light {
+	vec3 direction;
+	vec3 color;
+};
+
+struct Material {
+	vec3 albedo;
+	vec3 diffuseColor;
+	vec3 specularColor;
+	float metalness;
+	float roughness;
+};
+
+// Directional Light
+
+struct DirectionalLight {
+	vec3 direction;
+	vec3 color;
+};
+
+uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+
+
 // TextureCubeUV
 #define ENVMAP_TYPE_CUBE_UV
 vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAMMA_FACTOR ) ); }
@@ -57,49 +91,82 @@ float fresnel( float d ) {
 
 }
 
-void main( void ) {
+vec3 RE( Geometry geo, Material mat, Light light) {
 
-	vec3 worldNormal = normalize( (vec4( vNormal, 0.0 ) * viewMatrix).xyz );
-	vec3 normal = normalize( vNormal );
-	vec3 viewDir = normalize( vViewPos );
-	vec3 lightDir = normalize( vec3( 1.0, 1.0, 1.0 ) );
-	vec3 halfVec = normalize( lightDir + normal );
-	vec3 worldViewDir = normalize( vWorldPos - cameraPosition );
+	vec3 lightDir = normalize( light.direction );
+	vec3 halfVec = normalize( geo.viewDir + lightDir );
 
 	float dLH = clamp( dot( lightDir, halfVec ), 0.0, 1.0 );
-	float dNH = clamp( dot( normal, halfVec ), 0.0, 1.0 );
-	float dNV = clamp( dot( normal, viewDir ), 0.0, 1.0 );
-	float dNL = clamp( dot( normal, lightDir), 0.0, 1.0 );
-
-	float roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
-	roughness = clamp(roughness, 0.000001, 1.0);
-
-	vec3 albedo = vec3( 1.0 );
-	float metalness = 0.0;
-
-	vec3 diffuseColor = mix( albedo, vec3( 0.0, 0.0, 0.0 ), metalness );
-	vec3 specularColor = mix( vec3( 1.0, 1.0, 1.0 ), albedo, metalness );
+	float dNH = clamp( dot( geo.normal, halfVec ), 0.0, 1.0 );
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );
 
 	// diffuse
-	vec3 diffuse = diffuseColor * lambert( dNL );
+
+	vec3 diffuse = lambert( dNL ) * mat.diffuseColor;
 
 	// specular
-	float D = ggx( dNH, roughness );
-	float G = gSmith( dNV, dNL, roughness );
+
+	float D = ggx( dNH, mat.roughness );
+	float G = gSmith( dNV, dNL, mat.roughness );
 	float F = fresnel( dLH );
-	vec3 specular = specularColor * ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ); 
+	
+	vec3 specular = ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor; 
 
 	vec3 c = vec3( 0.0 );
 	c += diffuse * ( 1.0 - F ) + specular;
 
+	return c;
+
+}
+
+void main( void ) {
+
+	Geometry geo;
+	geo.pos = vViewPos;
+	geo.posWorld = vWorldPos;
+	geo.viewDir = normalize( geo.pos );
+	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
+	geo.normal = normalize( vNormal );
+	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
+
+	Material mat;
+	mat.albedo = vec3( 1.0 );
+	mat.roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
+	mat.roughness = clamp(mat.roughness, 0.000001, 1.0);
+	mat.metalness = 0.0;
+
+	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
+	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
+
+	vec3 c = vec3( 0.0 );
+
+	#if NUM_DIR_LIGHTS > 0
+
+	Light light;
+
+	#pragma unroll_loop_start
+		for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
+
+			light.direction = directionalLights[i].direction;
+			light.color = directionalLights[i].color;
+
+			c += RE( geo, mat, light );
+			
+		}
+	#pragma unroll_loop_end
+
+	#endif
+
 	// env
-	vec3 refDir = reflect( worldViewDir, worldNormal );
+	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
-	float EF = mix( fresnel( dNV ), 1.0, metalness );
-	c += textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - metalness ) * diffuseColor * ( 1.0 - EF ) ;
-	c += specularColor * textureCubeUV( envMap, refDir, roughness ).xyz * EF * PI;
 
-	gl_FragColor = vec4( vec3(c), 1.0);
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
+	c += mat.diffuseColor * textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF * TPI;
 
+	gl_FragColor = vec4( vec3(c), 1.0 );
 
 }

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
 import powerVert from './shaders/power.vs';
-import powerFrag from './shaders/powerLight.fs';
+import powerFrag from './shaders/power.fs';
 
 export class PowerMesh extends THREE.Mesh {
 
