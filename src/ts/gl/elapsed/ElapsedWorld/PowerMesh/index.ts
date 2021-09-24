@@ -59,13 +59,16 @@ export class PowerMesh extends THREE.Mesh {
 
 		super( geo, mat );
 
-		this.customDepthMaterial = new THREE.ShaderMaterial( {
+		this.userData.mat = mat;
+
+		this.userData.depthMat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			uniforms: uni,
 			defines: {
 				'DEPTH': ""
-			}
+			},
+			side: THREE.DoubleSide
 		} );
 
 		this.commonUniforms = uni;
@@ -100,13 +103,19 @@ export class PowerMesh extends THREE.Mesh {
 
 		this.envMapUpdate = true;
 
-		this.onBeforeRender = ( renderer, scene ) => {
+		this.onBeforeRender = ( renderer, scene, camera ) => {
 
-			this.visible = false;
+			/*-------------------------------
+				EnvMap
+			-------------------------------*/
 
-			if ( this.envMapUpdate ) {
+			if ( this.envMapUpdate && ! camera.userData.shadowCamera ) {
+
+				this.visible = false;
 
 				this.envMapCamera.update( renderer, scene );
+
+				this.visible = true;
 
 				let pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
@@ -117,8 +126,6 @@ export class PowerMesh extends THREE.Mesh {
 				this.envMapUpdate = false;
 
 			}
-
-			this.visible = true;
 
 		};
 

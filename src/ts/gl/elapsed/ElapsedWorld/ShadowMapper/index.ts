@@ -17,7 +17,10 @@ export class ShadowMapper {
 		this.resolution = resolution;
 		this.size = size;
 		this.light = light;
+
 		this.camera = new THREE.OrthographicCamera( size / 2.0, - size / 2.0, size / 2.0, - size / 2.0 );
+		this.camera.userData.shadowCamera = true;
+		this.camera.userData.shadowCameraLight = this.light;
 
 		this.renderTarget = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y );
 
@@ -34,10 +37,9 @@ export class ShadowMapper {
 
 			if ( mesh.isMesh && mesh.visible ) {
 
-				if ( mesh.customDepthMaterial ) {
+				if ( mesh.userData.depthMat ) {
 
-					mesh.userData.mat = mesh.material;
-					mesh.material = mesh.customDepthMaterial;
+					mesh.material = mesh.userData.depthMat;
 
 				} else {
 
@@ -50,13 +52,15 @@ export class ShadowMapper {
 
 		} );
 
+		let bgMem = scene.background;
+		scene.background = null;
 
 		let renderTargetMem = this.renderer.getRenderTarget();
 		this.renderer.setRenderTarget( this.renderTarget );
-
 		this.renderer.render( scene, this.camera );
-
 		this.renderer.setRenderTarget( renderTargetMem );
+
+		scene.background = bgMem;
 
 		scene.traverse( obj=>{
 
