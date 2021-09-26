@@ -1,28 +1,13 @@
 uniform float time;
-
-uniform sampler2D envMap;
-uniform float maxLodLevel;
-
-uniform sampler2D roughnessMap;
-
 varying vec2 vUv;
-varying vec3 vNormal;
-varying vec3 vViewNormal;
-varying vec3 vViewPos;
-varying vec3 vWorldPos;
-varying vec2 vHighPrecisionZW;
-
-// shadowMap
-uniform sampler2D shadowMapDepth;
-varying vec2 vShadowMapUV;
-varying float vShadowMapDepth;
 
 #pragma glslify: import('./constants.glsl' )
 
 #include <packing>
 
-
-// Types
+/*-------------------------------
+	Types
+-------------------------------*/
 
 struct Geometry {
 	vec3 pos;
@@ -46,7 +31,9 @@ struct Material {
 	float roughness;
 };
 
-// Directional Light
+/*-------------------------------
+	Lights
+-------------------------------*/
 
 struct DirectionalLight {
 	vec3 direction;
@@ -55,10 +42,26 @@ struct DirectionalLight {
 
 uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
 
-// TextureCubeUV
+/*-------------------------------
+	EnvMap
+-------------------------------*/
+
+uniform sampler2D envMap;
+uniform float maxLodLevel;
+
 #define ENVMAP_TYPE_CUBE_UV
 vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAMMA_FACTOR ) ); }
 #include <cube_uv_reflection_fragment>
+
+/*-------------------------------
+	RE
+-------------------------------*/
+
+varying vec3 vNormal;
+varying vec3 vViewNormal;
+varying vec3 vViewPos;
+varying vec3 vWorldPos;
+uniform sampler2D roughnessMap;
 
 float ggx( float dNH, float roughness ) {
 	
@@ -128,15 +131,51 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 
 }
 
-void main( void ) {
+/*-------------------------------
+	ShadowMap
+-------------------------------*/
 
-	Geometry geo;
-	geo.pos = vViewPos;
-	geo.posWorld = vWorldPos;
-	geo.viewDir = normalize( geo.pos );
-	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
-	geo.normal = normalize( vNormal );
-	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
+uniform sampler2D shadowMapTex;
+varying vec2 vShadowMapUV;
+varying float vShadowMapGeoDepth;
+varying vec2 vHighPrecisionZW;
+
+float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
+
+	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
+	float shadow = step( vShadowMapGeoDepth - shadowMapTexDepth, 0.00001 );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
+
+	return shadow;
+	
+}
+
+float shadowMapPCF() {
+
+	float shadow = 0.0;
+	float d = 0.003;
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, -d ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, -d ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, -d ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, 0.0 ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, 0.0 ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, 0.0 ) );
+
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, d ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, d ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, d ) );
+
+	return shadow;
+
+}
+
+/*-------------------------------
+	Main
+-------------------------------*/
+
+void main( void ) {
 
 	#ifdef DEPTH
 
@@ -145,6 +184,14 @@ void main( void ) {
 	return;
 	
 	#endif
+
+	Geometry geo;
+	geo.pos = vViewPos;
+	geo.posWorld = vWorldPos;
+	geo.viewDir = normalize( geo.pos );
+	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
+	geo.normal = normalize( vNormal );
+	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
 
 	Material mat;
 	mat.albedo = vec3( 1.0 );
@@ -156,10 +203,7 @@ void main( void ) {
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
 
 	// shadowMap
-	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapDepth, vShadowMapUV ) );
-	float shadow = step( vShadowMapDepth - shadowMapTexDepth, 0.00001 );
-	shadow = mix( 1.0, shadow, step( abs( vShadowMapUV.x - 0.5 ), 0.5 ) );
-	shadow = mix( 1.0, shadow, step( abs( vShadowMapUV.y - 0.5 ), 0.5 ) );
+	float shadow = shadowMapPCF();
 
 	vec3 c = vec3( 0.0 );
 
@@ -186,7 +230,7 @@ void main( void ) {
 	refDir.x *= -1.0;
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	c += mat.diffuseColor * textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	// c += mat.diffuseColor * textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
 	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 
 	gl_FragColor = vec4( c, 1.0 );

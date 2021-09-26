@@ -144,7 +144,7 @@ export class PowerMesh extends THREE.Mesh {
 
 				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
 				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
-				this.commonUniforms.shadowMapDepth = camera.userData.shadowMapDepth;
+				this.commonUniforms.shadowMapTex = camera.userData.shadowMapTex;
 
 			}
 

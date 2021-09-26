@@ -9,7 +9,7 @@ varying vec3 vWorldPos;
 varying vec2 vHighPrecisionZW;
 
 varying vec2 vShadowMapUV;
-varying float vShadowMapDepth;
+varying float vShadowMapGeoDepth;
 
 void main( void ) {
 
@@ -25,7 +25,7 @@ void main( void ) {
 
 	vec4 shadowMapPosition = projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) );
 	vShadowMapUV = shadowMapPosition.xy * 0.5 + 0.5;
-	vShadowMapDepth = shadowMapPosition.z * 0.5 + 0.5;
-	// vShadowMapDepth = 
+	vShadowMapGeoDepth = shadowMapPosition.z * 0.5 + 0.5;
+	// vShadowMapGeoDepth = 
 
 }

@@ -38,7 +38,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 10, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 512, 512 ), 10, light );
 
 		/*-------------------------------
 			Meshes
