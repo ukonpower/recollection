@@ -144,8 +144,8 @@ float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shado
 
 	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
 	float shadow = step( vShadowMapGeoDepth - shadowMapTexDepth, 0.00001 );
-	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
-	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
+	// shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
+	// shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
 	return shadow;
 	
@@ -154,7 +154,7 @@ float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shado
 float shadowMapPCF() {
 
 	float shadow = 0.0;
-	float d = 0.003;
+	float d = 0.002;
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, -d ) );
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, -d ) );
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, -d ) );
@@ -166,6 +166,8 @@ float shadowMapPCF() {
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, d ) );
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, d ) );
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, d ) );
+
+	shadow /= 9.0;
 
 	return shadow;
 
