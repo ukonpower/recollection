@@ -12,6 +12,10 @@ varying vec3 vViewPos;
 varying vec3 vWorldPos;
 varying vec2 vHighPrecisionZW;
 
+// shadowMap
+uniform sampler2D shadowMapDepth;
+varying vec2 vShadowMapUV;
+varying float vShadowMapDepth;
 
 #pragma glslify: import('./constants.glsl' )
 
@@ -145,11 +149,17 @@ void main( void ) {
 	Material mat;
 	mat.albedo = vec3( 1.0 );
 	mat.roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
-	mat.roughness = clamp(mat.roughness, 0.000001, 1.0);
+	mat.roughness = clamp(mat.roughness, 0.000001, 1.0) * 0.8;
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
+
+	// shadowMap
+	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapDepth, vShadowMapUV ) );
+	float shadow = step( vShadowMapDepth - shadowMapTexDepth, 0.00001 );
+	shadow = mix( 1.0, shadow, step( abs( vShadowMapUV.x - 0.5 ), 0.5 ) );
+	shadow = mix( 1.0, shadow, step( abs( vShadowMapUV.y - 0.5 ), 0.5 ) );
 
 	vec3 c = vec3( 0.0 );
 
@@ -163,7 +173,7 @@ void main( void ) {
 			light.direction = directionalLights[i].direction;
 			light.color = directionalLights[i].color;
 
-			c += RE( geo, mat, light );
+			c += RE( geo, mat, light ) * shadow;
 			
 		}
 	#pragma unroll_loop_end
@@ -177,8 +187,8 @@ void main( void ) {
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 	c += mat.diffuseColor * textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
-	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF * TPI;
+	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 
-	gl_FragColor = vec4( vec3(c), 1.0 );
+	gl_FragColor = vec4( c, 1.0 );
 
 }

@@ -26,6 +26,15 @@ export class PowerMesh extends THREE.Mesh {
 			maxLodLevel: {
 				value: 0
 			},
+			modelViewMatrixLight: {
+				value: new THREE.Matrix4()
+			},
+			projectionMatrixLight: {
+				value: new THREE.Matrix4()
+			},
+			shadowMapDepth: {
+				value: null
+			}
 		} );
 
 		uni = ORE.UniformsLib.mergeUniforms( uni, THREE.UniformsLib.lights );
@@ -124,6 +133,18 @@ export class PowerMesh extends THREE.Mesh {
 				this.commonUniforms.envMap.value = envMapRT.texture;
 
 				this.envMapUpdate = false;
+
+			}
+
+			/*-------------------------------
+				ShadowMap Depth
+			-------------------------------*/
+
+			if ( camera.userData.shadowCamera ) {
+
+				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
+				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
+				this.commonUniforms.shadowMapDepth = camera.userData.shadowMapDepth;
 
 			}
 

@@ -30,7 +30,7 @@ export class ElapsedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( 1, 1, 0 );
+		light.position.set( 10, 3, 0 );
 		this.scene.add( light );
 		this.lights.push( light );
 
