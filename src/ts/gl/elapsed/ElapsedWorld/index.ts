@@ -3,6 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 import { PowerMesh } from './PowerMesh';
 import { ShadowMapper } from './ShadowMapper';
+import { PowerReflectionMesh } from './PowerReflectMesh';
 
 export class ElapsedWorld extends THREE.Object3D {
 
@@ -12,6 +13,8 @@ export class ElapsedWorld extends THREE.Object3D {
 
 	private lights: THREE.Light[] = []
 	private shadowMapper: ShadowMapper;
+
+	private reflectionMeshes: PowerReflectionMesh[] = []
 
 	constructor( renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -53,10 +56,26 @@ export class ElapsedWorld extends THREE.Object3D {
 				let base = obj as THREE.Mesh;
 				base.visible = false;
 
-				let powerMesh = new PowerMesh( base, this.commonUniforms );
-				this.scene.add( powerMesh );
+				let mesh: PowerMesh | PowerReflectionMesh | null = null;
 
-				meshes.push( powerMesh );
+				if ( base.name == 'Plane' ) {
+
+					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
+					this.reflectionMeshes.push( refMesh );
+					mesh = refMesh;
+
+				} else {
+
+					mesh = new PowerMesh( base, this.commonUniforms );
+
+				}
+
+				if ( mesh ) {
+
+					this.scene.add( mesh );
+					meshes.push( mesh );
+
+				}
 
 			}
 
@@ -99,6 +118,8 @@ export class ElapsedWorld extends THREE.Object3D {
 	}
 
 	public resize( layerInfo: ORE.LayerInfo ) {
+
+		this.reflectionMeshes.forEach( item=>item.resize( layerInfo ) );
 
 	}
 

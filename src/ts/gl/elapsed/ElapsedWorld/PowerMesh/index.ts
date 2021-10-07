@@ -6,11 +6,11 @@ import powerFrag from './shaders/power.fs';
 
 export class PowerMesh extends THREE.Mesh {
 
-	private commonUniforms: ORE.Uniforms;
+	protected commonUniforms: ORE.Uniforms;
 
 	// envMap
-	private envMapRenderTarget: THREE.WebGLCubeRenderTarget;
-	private envMapCamera: THREE.CubeCamera;
+	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
+	protected envMapCamera: THREE.CubeCamera;
 	public envMapUpdate: boolean;
 
 	constructor( geometry: THREE.BufferGeometry, parentUniforms?: ORE.Uniforms );
@@ -40,7 +40,7 @@ export class PowerMesh extends THREE.Mesh {
 			}
 		} );
 
-		uni = ORE.UniformsLib.mergeUniforms( uni, THREE.UniformsLib.lights );
+		uni = ORE.UniformsLib.mergeUniforms( uni, THREE.UniformsUtils.clone( THREE.UniformsLib.lights ) );
 
 		/*-------------------------------
 			Geometry
@@ -66,7 +66,7 @@ export class PowerMesh extends THREE.Mesh {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			uniforms: uni,
-			lights: true
+			lights: true,
 		} );
 
 		super( geo, mat );
@@ -78,7 +78,7 @@ export class PowerMesh extends THREE.Mesh {
 			fragmentShader: powerFrag,
 			uniforms: uni,
 			defines: {
-				'DEPTH': ""
+				'DEPTH': "",
 			},
 			side: THREE.DoubleSide
 		} );
@@ -155,6 +155,5 @@ export class PowerMesh extends THREE.Mesh {
 		};
 
 	}
-
 
 }

@@ -59,7 +59,7 @@ export class ElapsedCameraController {
 
 		}
 
-		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.003, Math.sin( time * 2.0 ) * 0.003 ) ) );
+		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.005, Math.sin( time * 2.0 ) * 0.005 ) ) );
 
 	}
 

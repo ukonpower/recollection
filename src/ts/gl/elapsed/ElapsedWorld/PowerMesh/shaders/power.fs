@@ -242,6 +242,7 @@ void main( void ) {
 			light.color = directionalLights[i].color;
 
 			c += RE( geo, mat, light ) * shadow;
+			// c += RE( geo, mat, light );
 			
 		}
 	#pragma unroll_loop_end
@@ -257,6 +258,8 @@ void main( void ) {
 
 	c += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
 	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+
+	// c = vec3( shadow );
 
 	gl_FragColor = vec4( c, 1.0 );
 
