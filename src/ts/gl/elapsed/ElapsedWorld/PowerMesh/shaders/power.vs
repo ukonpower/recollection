@@ -1,6 +1,13 @@
 uniform mat4 modelViewMatrixLight;
 uniform mat4 projectionMatrixLight;
 
+#ifdef REFLECTPLANE
+
+	uniform mat4 textureMatrix;
+	varying vec4 vRefUV;
+	
+#endif
+
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vViewNormal;
@@ -23,9 +30,14 @@ void main( void ) {
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
 
+	#ifdef REFLECTPLANE
+
+		vRefUV = textureMatrix * vec4( position, 1.0 );
+		
+	#endif
+
 	vec4 shadowMapPosition = projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) );
 	vShadowMapUV = shadowMapPosition.xy * 0.5 + 0.5;
 	vShadowMapGeoDepth = shadowMapPosition.z * 0.5 + 0.5;
-	// vShadowMapGeoDepth = 
 
 }

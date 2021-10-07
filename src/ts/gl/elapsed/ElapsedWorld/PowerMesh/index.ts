@@ -4,7 +4,7 @@ import * as ORE from '@ore-three-ts';
 import powerVert from './shaders/power.vs';
 import powerFrag from './shaders/power.fs';
 
-export class PowerMesh extends THREE.Mesh {
+export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
 
 	protected commonUniforms: ORE.Uniforms;
 
@@ -117,6 +117,21 @@ export class PowerMesh extends THREE.Mesh {
 
 		this.onBeforeRender = ( renderer, scene, camera ) => {
 
+			this.dispatchEvent( {
+				type: 'beforeRender',
+				renderer,
+				scene,
+				camera
+			} );
+
+		};
+
+		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
+
+			let renderer = e.renderer;
+			let scene = e.scene;
+			let camera = e.camera;
+
 			/*-------------------------------
 				EnvMap
 			-------------------------------*/
@@ -152,7 +167,7 @@ export class PowerMesh extends THREE.Mesh {
 
 			}
 
-		};
+		} );
 
 	}
 

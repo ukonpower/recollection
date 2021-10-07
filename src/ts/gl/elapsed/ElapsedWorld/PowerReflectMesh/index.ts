@@ -52,6 +52,9 @@ export class PowerReflectionMesh extends PowerMesh {
 
 		super( geoMesh as THREE.BufferGeometry, uni );
 
+		this.material.defines.REFLECTPLANE = '';
+		this.material.needsUpdate = true;
+
 		this.reflectorPlane = new THREE.Plane();
 		this.normal = new THREE.Vector3();
 		this.reflectorWorldPosition = new THREE.Vector3();
@@ -60,7 +63,7 @@ export class PowerReflectionMesh extends PowerMesh {
 		this.lookAtPosition = new THREE.Vector3( 0, 0, - 1 );
 		this.clipPlane = new THREE.Vector4();
 		this.textureMatrix = this.commonUniforms.textureMatrix.value;
-		this.clipBias = 0.0;
+		this.clipBias = 0.1;
 
 		this.view = new THREE.Vector3();
 		this.target = new THREE.Vector3();
@@ -76,16 +79,20 @@ export class PowerReflectionMesh extends PowerMesh {
 		this.refRenderTarget.texture.magFilter = THREE.LinearFilter;
 		this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
-		this.onBeforeRender = ( renderer, scene, camera ) => {
+		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
-			if ( camera.userData.shadowCamera ) return;
+			let renderer = e.renderer;
+			let scene = e.scene;
+			let camera = e.camera;
+
+			// if ( camera.userData.shadowCamera ) return;
 
 			this.reflectorWorldPosition.setFromMatrixPosition( this.matrixWorld );
 			this.cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
 
 			this.rotationMatrix.extractRotation( this.matrixWorld );
 
-			this.normal.set( 0, 1, 0 );
+			this.normal.set( 0, 1.0, 0 );
 			this.normal.applyMatrix4( this.rotationMatrix );
 
 			this.view.subVectors( this.reflectorWorldPosition, this.cameraWorldPosition );
@@ -129,6 +136,7 @@ export class PowerReflectionMesh extends PowerMesh {
 				0.0, 0.0, 0.5, 0.5,
 				0.0, 0.0, 0.0, 1.0
 			);
+
 			this.textureMatrix.multiply( this.virtualCamera.projectionMatrix );
 			this.textureMatrix.multiply( this.virtualCamera.matrixWorldInverse );
 			this.textureMatrix.multiply( this.matrixWorld );
@@ -148,7 +156,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			this.q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
 
 			// Calculate the scaled plane vector
-			this.clipPlane.multiplyScalar( 2.0 / this.clipPlane.dot( this.q ) );
+			// this.clipPlane.multiplyScalar( 2.0 / this.clipPlane.dot( this.q ) );
 
 			// Replacing the third row of the projection matrix
 			projectionMatrix.elements[ 2 ] = this.clipPlane.x;
@@ -172,7 +180,9 @@ export class PowerReflectionMesh extends PowerMesh {
 
 			this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
 
-		};
+
+
+		} );
 
 	}
 

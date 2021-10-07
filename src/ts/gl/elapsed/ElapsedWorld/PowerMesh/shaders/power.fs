@@ -1,6 +1,14 @@
 uniform float time;
 varying vec2 vUv;
 
+#ifdef REFLECTPLANE
+
+	varying vec4 vRefUV;
+	uniform sampler2D reflectionTex;
+	uniform mat4 textureMatrix;
+	
+#endif
+
 #pragma glslify: import('./constants.glsl' )
 
 #include <packing>
@@ -176,7 +184,6 @@ float shadowMapPCF( float shadowRadius ) {
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, d.y ) );
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, d.y ) );
 
-
 	shadow /= 16.0;
 
 	return shadow;
@@ -242,7 +249,6 @@ void main( void ) {
 			light.color = directionalLights[i].color;
 
 			c += RE( geo, mat, light ) * shadow;
-			// c += RE( geo, mat, light );
 			
 		}
 	#pragma unroll_loop_end
@@ -253,13 +259,21 @@ void main( void ) {
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
-
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 
 	c += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
-	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+	
+	#ifdef REFLECTPLANE
+	
+	vec4 ruv = vRefUV;
+	vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
+	c += mat.specularColor * ref * EF;
 
-	// c = vec3( shadow );
+	#else
+	
+	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+	
+	#endif
 
 	gl_FragColor = vec4( c, 1.0 );
 
