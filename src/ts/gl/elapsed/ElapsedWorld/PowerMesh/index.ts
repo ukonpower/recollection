@@ -34,6 +34,9 @@ export class PowerMesh extends THREE.Mesh {
 			},
 			shadowMapDepth: {
 				value: null
+			},
+			shadowMapResolution: {
+				value: new THREE.Vector2()
 			}
 		} );
 
@@ -145,6 +148,7 @@ export class PowerMesh extends THREE.Mesh {
 				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
 				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
 				this.commonUniforms.shadowMapTex = camera.userData.shadowMapTex;
+				this.commonUniforms.shadowMapResolution.value.copy( camera.userData.shadowMapResolution );
 
 			}
 

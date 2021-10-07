@@ -19,8 +19,11 @@ export class ShadowMapper {
 		this.light = light;
 
 		this.camera = new THREE.OrthographicCamera( - size / 2.0, size / 2.0, size / 2.0, - size / 2.0 );
+
+		// LightCamera
 		this.camera.userData.shadowCamera = true;
 		this.camera.userData.shadowCameraLight = this.light;
+		this.camera.userData.shadowMapResolution = this.resolution;
 		this.camera.userData.shadowMapTex = {
 			value: null
 		};

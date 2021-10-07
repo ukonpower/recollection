@@ -136,6 +136,7 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 -------------------------------*/
 
 uniform sampler2D shadowMapTex;
+uniform vec2 shadowMapResolution;
 varying vec2 vShadowMapUV;
 varying float vShadowMapGeoDepth;
 varying vec2 vHighPrecisionZW;
@@ -143,9 +144,9 @@ varying vec2 vHighPrecisionZW;
 float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
 
 	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-	float shadow = step( vShadowMapGeoDepth - shadowMapTexDepth, 0.00001 );
-	// shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
-	// shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
+	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
 	return shadow;
 	
@@ -154,20 +155,31 @@ float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shado
 float shadowMapPCF() {
 
 	float shadow = 0.0;
-	float d = 0.002;
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, -d ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, -d ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, -d ) );
+	vec2 d = 1.0 / shadowMapResolution;
+	vec2 hd = d / 2.0;
 	
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, 0.0 ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, 0.0 ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, 0.0 ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -d.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -hd.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, hd.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, d.y ) );
 
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d, d ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( 0.0, d ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d, d ) );
 
-	shadow /= 9.0;
+	shadow /= 16.0;
 
 	return shadow;
 
@@ -199,6 +211,7 @@ void main( void ) {
 	mat.albedo = vec3( 1.0 );
 	mat.roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
 	mat.roughness = clamp(mat.roughness, 0.000001, 1.0) * 0.8;
+	mat.roughness = 1.0;
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
@@ -232,7 +245,8 @@ void main( void ) {
 	refDir.x *= -1.0;
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	// c += mat.diffuseColor * textureCubeUV( envMap, refDir, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+
+	c += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
 	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 
 	gl_FragColor = vec4( c, 1.0 );
