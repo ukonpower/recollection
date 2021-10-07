@@ -113,11 +113,9 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );
 
 	// diffuse
-
 	vec3 diffuse = lambert( dNL ) * mat.diffuseColor;
 
 	// specular
-
 	float D = ggx( dNH, mat.roughness );
 	float G = gSmith( dNV, dNL, mat.roughness );
 	float F = fresnel( dLH );
@@ -152,10 +150,10 @@ float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shado
 	
 }
 
-float shadowMapPCF() {
+float shadowMapPCF( float shadowRadius ) {
 
 	float shadow = 0.0;
-	vec2 d = 1.0 / shadowMapResolution;
+	vec2 d = (1.0 / shadowMapResolution) * shadowRadius;
 	vec2 hd = d / 2.0;
 	
 	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -d.y ) );
@@ -185,6 +183,18 @@ float shadowMapPCF() {
 
 }
 
+float shadowMapPCSS() {
+
+	float geoDepth = vShadowMapGeoDepth;
+	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, vShadowMapUV ) );
+
+	float shadow = shadowMapPCF( 1.0 + abs(geoDepth - shadowMapTexDepth) );
+
+	return shadow;
+
+}
+
+
 /*-------------------------------
 	Main
 -------------------------------*/
@@ -211,14 +221,13 @@ void main( void ) {
 	mat.albedo = vec3( 1.0 );
 	mat.roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
 	mat.roughness = clamp(mat.roughness, 0.000001, 1.0) * 0.8;
-	mat.roughness = 1.0;
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
 
 	// shadowMap
-	float shadow = shadowMapPCF();
+	float shadow = shadowMapPCSS();
 
 	vec3 c = vec3( 0.0 );
 
