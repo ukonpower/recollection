@@ -3,7 +3,7 @@ varying vec2 vUv;
 
 #ifdef REFLECTPLANE
 
-	varying vec4 vRefUV;
+	varying vec2 vRefUV;
 	uniform sampler2D reflectionTex;
 	uniform mat4 textureMatrix;
 	
@@ -60,6 +60,80 @@ uniform float maxLodLevel;
 #define ENVMAP_TYPE_CUBE_UV
 vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAMMA_FACTOR ) ); }
 #include <cube_uv_reflection_fragment>
+
+/*-------------------------------
+	Reflection
+-------------------------------*/
+
+#ifdef REFLECTPLANE
+
+	uniform vec3 a;
+
+#endif
+
+/*-------------------------------
+	ShadowMap
+-------------------------------*/
+
+uniform sampler2D shadowMapTex;
+uniform vec2 shadowMapResolution;
+varying vec2 vShadowMapUV;
+varying float vShadowMapGeoDepth;
+varying vec2 vHighPrecisionZW;
+
+float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
+
+	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
+	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
+	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
+
+	return shadow;
+	
+}
+
+float shadowMapPCF( float shadowRadius ) {
+
+	float shadow = 0.0;
+	vec2 d = (1.0 / shadowMapResolution) * shadowRadius;
+	vec2 hd = d / 2.0;
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -d.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -hd.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, hd.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, hd.y ) );
+	
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, d.y ) );
+	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, d.y ) );
+
+	shadow /= 16.0;
+
+	return shadow;
+
+}
+
+float shadowMapPCSS() {
+
+	float geoDepth = vShadowMapGeoDepth;
+	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, vShadowMapUV ) );
+
+	float shadow = shadowMapPCF( 1.0 + abs(geoDepth - shadowMapTexDepth) );
+
+	return shadow;
+
+}
 
 /*-------------------------------
 	RE
@@ -138,71 +212,6 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 }
 
 /*-------------------------------
-	ShadowMap
--------------------------------*/
-
-uniform sampler2D shadowMapTex;
-uniform vec2 shadowMapResolution;
-varying vec2 vShadowMapUV;
-varying float vShadowMapGeoDepth;
-varying vec2 vHighPrecisionZW;
-
-float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
-
-	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
-	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
-	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
-
-	return shadow;
-	
-}
-
-float shadowMapPCF( float shadowRadius ) {
-
-	float shadow = 0.0;
-	vec2 d = (1.0 / shadowMapResolution) * shadowRadius;
-	vec2 hd = d / 2.0;
-	
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -d.y ) );
-	
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -hd.y ) );
-	
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, hd.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, hd.y ) );
-	
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, d.y ) );
-	shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, d.y ) );
-
-	shadow /= 16.0;
-
-	return shadow;
-
-}
-
-float shadowMapPCSS() {
-
-	float geoDepth = vShadowMapGeoDepth;
-	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, vShadowMapUV ) );
-
-	float shadow = shadowMapPCF( 1.0 + abs(geoDepth - shadowMapTexDepth) );
-
-	return shadow;
-
-}
-
-
-/*-------------------------------
 	Main
 -------------------------------*/
 
@@ -265,11 +274,11 @@ void main( void ) {
 	
 	#ifdef REFLECTPLANE
 	
-	vec4 ruv = vRefUV;
-	vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
-	c += mat.specularColor * ref * EF;
-
-	c = ref;
+	// vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
+	// c = texture2D( reflectionTex, vRefUV ).xyz;
+	// c += mat.specularColor * ref * EF;
+	// c.xy = vRefUV;
+	// c = ref;
 
 	#else
 	

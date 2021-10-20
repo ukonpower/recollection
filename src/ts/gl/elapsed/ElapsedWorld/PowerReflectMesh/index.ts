@@ -62,6 +62,9 @@ export class PowerReflectionMesh extends PowerMesh {
 			textureMatrix: {
 				value: new THREE.Matrix4()
 			},
+			mipMapResolution: {
+				value: new THREE.Vector2( 1, 1 )
+			}
 		} );
 
 		super( geoMesh as THREE.BufferGeometry, uni );
@@ -108,25 +111,26 @@ export class PowerReflectionMesh extends PowerMesh {
 		uvArray.push( 1.0, 0.0 );
 		uvArray.push( 0.0, 0.0 );
 
-		indexArray.push( 0, 2, 1, 0, 2, 3 );
+		indexArray.push( 0, 2, 1, 0, 3, 2 );
 
 		p.set( s, 0 );
 
-		for ( let i = 0; i < 5; i ++ ) {
+		for ( let i = 0; i < 7; i ++ ) {
 
 			s *= 0.5;
 
-			posArray.push( p.x, p.y, 0 );
-			posArray.push( p.x + s, p.y, 0 );
-			posArray.push( p.x + s, p.y - s, 0 );
-			posArray.push( p.x, p.y - s, 0 );
+			posArray.push( p.x,		p.y,		0 );
+			posArray.push( p.x + s, p.y,		0 );
+			posArray.push( p.x + s, p.y - s,	0 );
+			posArray.push( p.x,		p.y - s, 	0 );
 
 			uvArray.push( 0.0, 1.0 );
 			uvArray.push( 1.0, 1.0 );
 			uvArray.push( 1.0, 0.0 );
 			uvArray.push( 0.0, 0.0 );
 
-			indexArray.push( 0, 1, 2, 0, 2, 3 );
+			let indexOffset = ( i + 0.0 ) * 4;
+			indexArray.push( indexOffset + 0, indexOffset + 2, indexOffset + 1, indexOffset + 0, indexOffset + 3, indexOffset + 2 );
 
 			p.y = p.y - s;
 
@@ -136,8 +140,8 @@ export class PowerReflectionMesh extends PowerMesh {
 		let uvAttr = new THREE.BufferAttribute( new Float32Array( uvArray ), 2 );
 		let indexAttr = new THREE.BufferAttribute( new Uint16Array( indexArray ), 1 );
 
-		let gs = 2.0 * ( 1.0 / 1.5 );
-		posAttr.applyMatrix4( new THREE.Matrix4().makeScale( gs, gs, gs ) );
+		let gs = 1;
+		posAttr.applyMatrix4( new THREE.Matrix4().makeScale( ( 1.0 / 1.5 ), gs, gs ) );
 		posAttr.applyMatrix4( new THREE.Matrix4().makeTranslation( - 1.0, 1.0, 0 ) );
 
 		this.mipmapGeo.setAttribute( 'position', posAttr );
@@ -278,9 +282,13 @@ export class PowerReflectionMesh extends PowerMesh {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.renderTargets.ref.setSize( 512, 512 );
-		this.renderTargets.mipmap.setSize( 512 * 1.5, 512 );
+		let size = 512;
+		this.renderTargets.ref.setSize( size, size );
 		this.commonUniforms.canvasResolution.value.copy( layerInfo.size.canvasPixelSize );
+
+		let mipMapSize = new THREE.Vector2( size * 1.5, size );
+		this.renderTargets.mipmap.setSize( mipMapSize.x, mipMapSize.y );
+		this.commonUniforms.mipMapResolution.value.copy( mipMapSize );
 
 	}
 

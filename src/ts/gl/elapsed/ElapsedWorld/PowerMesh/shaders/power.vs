@@ -4,7 +4,7 @@ uniform mat4 projectionMatrixLight;
 #ifdef REFLECTPLANE
 
 	uniform mat4 textureMatrix;
-	varying vec4 vRefUV;
+	varying vec2 vRefUV;
 	
 #endif
 
@@ -32,7 +32,8 @@ void main( void ) {
 
 	#ifdef REFLECTPLANE
 
-		vRefUV = textureMatrix * vec4( position, 1.0 );
+		vec4 ruv = textureMatrix * vec4( position, 1.0 );
+		vRefUV = ruv.xy;
 		
 	#endif
 
