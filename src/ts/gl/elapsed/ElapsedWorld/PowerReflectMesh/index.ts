@@ -1,18 +1,32 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import EventEmitter from 'wolfy87-eventemitter';
-
-import reflectionVert from './shaders/reflection.vs';
-import reflectionFrag from './shaders/reflection.fs';
-
-import powerVert from './shaders/power.vs';
-import powerFrag from './shaders/power.fs';
 import { PowerMesh } from '../PowerMesh';
+
+import mipmapVert from './shaders/mipmap.vs';
+import mipmapFrag from './shaders/mipmap.fs';
 
 export class PowerReflectionMesh extends PowerMesh {
 
-	private refRenderTarget: THREE.WebGLRenderTarget;
+	/*-------------------------------
+		RenderTarget
+	-------------------------------*/
+
+	private renderTargets: {
+		ref: THREE.WebGLRenderTarget,
+		mipmap: THREE.WebGLRenderTarget
+	}
+
+	/*-------------------------------
+		Mipmap
+	-------------------------------*/
+
+	private mipmapGeo: THREE.BufferGeometry;
+	private mipmapPP: ORE.PostProcessing;
+
+	/*-------------------------------
+		Reflection Camera
+	-------------------------------*/
 
 	private lookAtPosition: THREE.Vector3;
 	private rotationMatrix: THREE.Matrix4;
@@ -72,12 +86,76 @@ export class PowerReflectionMesh extends PowerMesh {
 		this.virtualCamera = new THREE.PerspectiveCamera();
 
 		/*-------------------------------
-			Reflection
+			MipMap
 		-------------------------------*/
 
-		this.refRenderTarget = new THREE.WebGLRenderTarget( 1, 1 );
-		this.refRenderTarget.texture.magFilter = THREE.LinearFilter;
-		this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
+		this.mipmapGeo = new THREE.BufferGeometry();
+
+		let posArray = [];
+		let uvArray = [];
+		let indexArray = [];
+
+		let p = new THREE.Vector2( 0, 0 );
+		let s = 2.0;
+
+		posArray.push( p.x, p.y, 0 );
+		posArray.push( p.x + s, p.y, 0 );
+		posArray.push( p.x + s, p.y - s, 0 );
+		posArray.push( p.x, p.y - s, 0 );
+
+		uvArray.push( 0.0, 1.0 );
+		uvArray.push( 1.0, 1.0 );
+		uvArray.push( 1.0, 0.0 );
+		uvArray.push( 0.0, 0.0 );
+
+		indexArray.push( 0, 2, 1, 0, 2, 3 );
+
+		p.set( s, 0 );
+
+		for ( let i = 0; i < 5; i ++ ) {
+
+			s *= 0.5;
+
+			posArray.push( p.x, p.y, 0 );
+			posArray.push( p.x + s, p.y, 0 );
+			posArray.push( p.x + s, p.y - s, 0 );
+			posArray.push( p.x, p.y - s, 0 );
+
+			uvArray.push( 0.0, 1.0 );
+			uvArray.push( 1.0, 1.0 );
+			uvArray.push( 1.0, 0.0 );
+			uvArray.push( 0.0, 0.0 );
+
+			indexArray.push( 0, 1, 2, 0, 2, 3 );
+
+			p.y = p.y - s;
+
+		}
+
+		let posAttr = new THREE.BufferAttribute( new Float32Array( posArray ), 3 );
+		let uvAttr = new THREE.BufferAttribute( new Float32Array( uvArray ), 2 );
+		let indexAttr = new THREE.BufferAttribute( new Uint16Array( indexArray ), 1 );
+
+		let gs = 2.0 * ( 1.0 / 1.5 );
+		posAttr.applyMatrix4( new THREE.Matrix4().makeScale( gs, gs, gs ) );
+		posAttr.applyMatrix4( new THREE.Matrix4().makeTranslation( - 1.0, 1.0, 0 ) );
+
+		this.mipmapGeo.setAttribute( 'position', posAttr );
+		this.mipmapGeo.setAttribute( 'uv', uvAttr );
+		this.mipmapGeo.setIndex( indexAttr );
+
+		/*-------------------------------
+			RenderTargets
+		-------------------------------*/
+
+		this.renderTargets = {
+			ref: new THREE.WebGLRenderTarget( 1, 1 ),
+			mipmap: new THREE.WebGLRenderTarget( 1, 1 ),
+		};
+
+		/*-------------------------------
+			Reflection
+		-------------------------------*/
 
 		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
@@ -167,7 +245,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			//render
 			let currentRenderTarget = renderer.getRenderTarget();
 
-			renderer.setRenderTarget( this.refRenderTarget );
+			renderer.setRenderTarget( this.renderTargets.ref );
 			this.visible = false;
 			this.dispatchEvent( { type: 'onBeforeRender' } );
 
@@ -178,9 +256,21 @@ export class PowerReflectionMesh extends PowerMesh {
 			this.visible = true;
 			this.dispatchEvent( { type: 'onAfterRender' } );
 
-			this.commonUniforms.reflectionTex.value = this.refRenderTarget.texture;
+			/*-------------------------------
+				MipMapPP
+			-------------------------------*/
 
+			if ( this.mipmapPP == null ) {
 
+				this.mipmapPP = new ORE.PostProcessing( renderer, {
+					fragmentShader: mipmapFrag,
+					side: THREE.DoubleSide
+				}, this.mipmapGeo );
+
+			}
+
+			this.mipmapPP.render( { tex: this.renderTargets.ref.texture }, this.renderTargets.mipmap );
+			this.commonUniforms.reflectionTex.value = this.renderTargets.mipmap.texture;
 
 		} );
 
@@ -188,7 +278,8 @@ export class PowerReflectionMesh extends PowerMesh {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.refRenderTarget.setSize( 512, 512 );
+		this.renderTargets.ref.setSize( 512, 512 );
+		this.renderTargets.mipmap.setSize( 512 * 1.5, 512 );
 		this.commonUniforms.canvasResolution.value.copy( layerInfo.size.canvasPixelSize );
 
 	}

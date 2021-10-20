@@ -269,6 +269,8 @@ void main( void ) {
 	vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
 	c += mat.specularColor * ref * EF;
 
+	c = ref;
+
 	#else
 	
 	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
