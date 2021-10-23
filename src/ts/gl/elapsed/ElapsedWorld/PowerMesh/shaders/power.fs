@@ -3,9 +3,8 @@ varying vec2 vUv;
 
 #ifdef REFLECTPLANE
 
-	varying vec2 vRefUV;
 	uniform sampler2D reflectionTex;
-	uniform mat4 textureMatrix;
+	uniform vec2 renderResolution;
 	
 #endif
 
@@ -219,9 +218,9 @@ void main( void ) {
 
 	#ifdef DEPTH
 
-	float fragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;
-	gl_FragColor = packDepthToRGBA( fragCoordZ );
-	return;
+		float fragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;
+		gl_FragColor = packDepthToRGBA( fragCoordZ );
+		return;
 	
 	#endif
 
@@ -249,40 +248,41 @@ void main( void ) {
 
 	#if NUM_DIR_LIGHTS > 0
 
-	Light light;
+		Light light;
 
-	#pragma unroll_loop_start
-		for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
+		#pragma unroll_loop_start
+			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
-			light.direction = directionalLights[i].direction;
-			light.color = directionalLights[i].color;
+				light.direction = directionalLights[i].direction;
+				light.color = directionalLights[i].color;
 
-			c += RE( geo, mat, light ) * shadow;
-			
-		}
-	#pragma unroll_loop_end
+				c += RE( geo, mat, light ) * shadow;
+				
+			}
+		#pragma unroll_loop_end
 
 	#endif
 
 	// env
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
+
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
-	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 
+	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
 	c += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
 	
 	#ifdef REFLECTPLANE
 	
-	// vec3 ref = texture2DProj( reflectionTex, ruv ).xyz;
-	// c = texture2D( reflectionTex, vRefUV ).xyz;
-	// c += mat.specularColor * ref * EF;
-	// c.xy = vRefUV;
-	// c = ref;
-
+		vec2 refUV = gl_FragCoord.xy / renderResolution;
+		refUV.x = 1.0 - refUV.x;
+		
+		vec3 ref = texture2D( reflectionTex, refUV ).xyz;
+		c.xyz = ref.xyz;
+	
 	#else
 	
-	c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+		c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 	
 	#endif
 

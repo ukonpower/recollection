@@ -14,8 +14,6 @@ export class ElapsedWorld extends THREE.Object3D {
 	private lights: THREE.Light[] = []
 	private shadowMapper: ShadowMapper;
 
-	private reflectionMeshes: PowerReflectionMesh[] = []
-
 	constructor( renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
 		super();
@@ -61,7 +59,6 @@ export class ElapsedWorld extends THREE.Object3D {
 				if ( base.name == 'Plane' ) {
 
 					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
-					this.reflectionMeshes.push( refMesh );
 					mesh = refMesh;
 
 				} else {
@@ -118,8 +115,6 @@ export class ElapsedWorld extends THREE.Object3D {
 	}
 
 	public resize( layerInfo: ORE.LayerInfo ) {
-
-		this.reflectionMeshes.forEach( item=>item.resize( layerInfo ) );
 
 	}
 

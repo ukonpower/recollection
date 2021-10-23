@@ -56,7 +56,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			reflectionTex: {
 				value: null
 			},
-			canvasResolution: {
+			renderResolution: {
 				value: new THREE.Vector2( 1, 1 )
 			},
 			textureMatrix: {
@@ -163,9 +163,9 @@ export class PowerReflectionMesh extends PowerMesh {
 
 		this.addEventListener( 'beforeRender', ( e: THREE.Event ) => {
 
-			let renderer = e.renderer;
-			let scene = e.scene;
-			let camera = e.camera;
+			let renderer = e.renderer as THREE.WebGLRenderer;
+			let scene = e.scene as THREE.Scene;
+			let camera = e.camera as THREE.Camera;
 
 			// if ( camera.userData.shadowCamera ) return;
 
@@ -276,15 +276,18 @@ export class PowerReflectionMesh extends PowerMesh {
 			this.mipmapPP.render( { tex: this.renderTargets.ref.texture }, this.renderTargets.mipmap );
 			this.commonUniforms.reflectionTex.value = this.renderTargets.mipmap.texture;
 
+			renderer.getSize( this.commonUniforms.renderResolution.value );
+
 		} );
+
+		this.resize();
 
 	}
 
-	public resize( layerInfo: ORE.LayerInfo ) {
+	private resize() {
 
 		let size = 512;
 		this.renderTargets.ref.setSize( size, size );
-		this.commonUniforms.canvasResolution.value.copy( layerInfo.size.canvasPixelSize );
 
 		let mipMapSize = new THREE.Vector2( size * 1.5, size );
 		this.renderTargets.mipmap.setSize( mipMapSize.x, mipMapSize.y );
