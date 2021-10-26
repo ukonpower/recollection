@@ -64,11 +64,35 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 	Reflection
 -------------------------------*/
 
+#define REF_MIPMAP_LEVEL 7.0
+
 #ifdef REFLECTPLANE
 
 	uniform vec3 a;
 
+	vec2 getRefMipmapUV( vec2 uv, float level ) {
+
+		vec2 ruv = uv;
+
+		if( level > 0.0 ) {
+
+			ruv.x *= 1.0 / ( 3.0 * ( pow( 2.0, level ) / 2.0 ) );
+			ruv.y *= 1.0 / ( pow( 2.0, level ) );
+			ruv.y += 1.0 / ( pow( 2.0, level ) );
+			ruv.x += 1.0 / 1.5;
+		
+		} else {
+
+			ruv.x /= 1.5;
+			
+		}
+
+		return ruv;
+
+	}
+
 #endif
+
 
 /*-------------------------------
 	ShadowMap
@@ -275,11 +299,20 @@ void main( void ) {
 	#ifdef REFLECTPLANE
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
-		refUV.x = 1.0 - refUV.x;
+
+		float l = mat.roughness * REF_MIPMAP_LEVEL;
+		float offset1 = floor( l );
+		float offset2 = offset1 + 1.0;
+		float blend = mod( l, 1.0 );
 		
-		vec3 ref = texture2D( reflectionTex, refUV ).xyz;
-		c.xyz = ref.xyz;
-	
+		vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
+		vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
+
+		vec3 ref1 = texture2D( reflectionTex, ruv1 ).xyz;
+		vec3 ref2 = texture2D( reflectionTex, ruv2 ).xyz;
+
+		c += mix( ref1, ref2, blend ) * EF;
+
 	#else
 	
 		c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;

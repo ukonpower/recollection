@@ -106,10 +106,10 @@ export class PowerReflectionMesh extends PowerMesh {
 		posArray.push( p.x + s, p.y - s, 0 );
 		posArray.push( p.x, p.y - s, 0 );
 
-		uvArray.push( 0.0, 1.0 );
 		uvArray.push( 1.0, 1.0 );
-		uvArray.push( 1.0, 0.0 );
+		uvArray.push( 0.0, 1.0 );
 		uvArray.push( 0.0, 0.0 );
+		uvArray.push( 1.0, 0.0 );
 
 		indexArray.push( 0, 2, 1, 0, 3, 2 );
 
@@ -124,10 +124,10 @@ export class PowerReflectionMesh extends PowerMesh {
 			posArray.push( p.x + s, p.y - s,	0 );
 			posArray.push( p.x,		p.y - s, 	0 );
 
-			uvArray.push( 0.0, 1.0 );
 			uvArray.push( 1.0, 1.0 );
-			uvArray.push( 1.0, 0.0 );
+			uvArray.push( 0.0, 1.0 );
 			uvArray.push( 0.0, 0.0 );
+			uvArray.push( 1.0, 0.0 );
 
 			let indexOffset = ( i + 0.0 ) * 4;
 			indexArray.push( indexOffset + 0, indexOffset + 2, indexOffset + 1, indexOffset + 0, indexOffset + 3, indexOffset + 2 );
@@ -276,7 +276,18 @@ export class PowerReflectionMesh extends PowerMesh {
 			this.mipmapPP.render( { tex: this.renderTargets.ref.texture }, this.renderTargets.mipmap );
 			this.commonUniforms.reflectionTex.value = this.renderTargets.mipmap.texture;
 
-			renderer.getSize( this.commonUniforms.renderResolution.value );
+			let rt = renderer.getRenderTarget() as THREE.WebGLRenderTarget;
+
+			if ( rt ) {
+
+				this.commonUniforms.renderResolution.value.set( rt.width, rt.height );
+
+			} else {
+
+				renderer.getSize( this.commonUniforms.renderResolution.value );
+				this.commonUniforms.renderResolution.value.multiplyScalar( renderer.getPixelRatio() );
+
+			}
 
 		} );
 
