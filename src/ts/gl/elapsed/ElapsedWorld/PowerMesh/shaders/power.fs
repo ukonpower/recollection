@@ -5,6 +5,7 @@ varying vec2 vUv;
 
 	uniform sampler2D reflectionTex;
 	uniform vec2 renderResolution;
+	uniform vec2 mipMapResolution;
 	
 #endif
 
@@ -64,7 +65,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 	Reflection
 -------------------------------*/
 
-#define REF_MIPMAP_LEVEL 7.0
+#define REF_MIPMAP_LEVEL 8.0
 
 #ifdef REFLECTPLANE
 
@@ -89,6 +90,38 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 		return ruv;
 
+	}
+	
+	vec4 cubic(float v) {
+		vec4 n = vec4(1.0, 2.0, 3.0, 4.0) - v;
+		vec4 s = n * n * n;
+		float x = s.x;
+		float y = s.y - 4.0 * s.x;
+		float z = s.z - 4.0 * s.y + 6.0 * s.x;
+		float w = 6.0 - x - y - z;
+		return vec4(x, y, z, w);
+	}
+
+	// https://stackoverflow.com/questions/13501081/efficient-bicubic-filtering-code-in-glsl
+	vec4 textureBicubic(sampler2D t, vec2 texCoords, vec2 textureSize) {
+		vec2 invTexSize = 1.0 / textureSize;
+		texCoords = texCoords * textureSize - 0.5;
+		vec2 fxy = fract(texCoords);
+		texCoords -= fxy;
+		vec4 xcubic = cubic(fxy.x);
+		vec4 ycubic = cubic(fxy.y);
+		vec4 c = texCoords.xxyy + vec2 (-0.5, 1.5).xyxy;
+		vec4 s = vec4(xcubic.xz + xcubic.yw, ycubic.xz + ycubic.yw);
+		vec4 offset = c + vec4 (xcubic.yw, ycubic.yw) / s;
+		offset *= invTexSize.xxyy;
+		vec4 sample0 = texture2D(t, offset.xz);
+		vec4 sample1 = texture2D(t, offset.yz);
+		vec4 sample2 = texture2D(t, offset.xw);
+		vec4 sample3 = texture2D(t, offset.yw);
+		float sx = s.x / (s.x + s.y);
+		float sy = s.z / (s.z + s.w);
+		return mix(
+		mix(sample3, sample2, sx), mix(sample1, sample0, sx), sy);
 	}
 
 #endif
@@ -167,6 +200,7 @@ varying vec3 vViewNormal;
 varying vec3 vViewPos;
 varying vec3 vWorldPos;
 uniform sampler2D roughnessMap;
+uniform sampler2D map;
 
 float ggx( float dNH, float roughness ) {
 	
@@ -258,8 +292,8 @@ void main( void ) {
 
 	Material mat;
 	mat.albedo = vec3( 1.0 );
-	mat.roughness = smoothstep( 0.3, 1.0, texture2D( roughnessMap, vUv ).x );
-	mat.roughness = clamp(mat.roughness, 0.000001, 1.0) * 0.8;
+	mat.roughness = texture2D( roughnessMap, vUv ).x;
+
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
@@ -300,16 +334,17 @@ void main( void ) {
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
 
-		float l = mat.roughness * REF_MIPMAP_LEVEL;
+		float l = (mat.roughness) * REF_MIPMAP_LEVEL;
+
 		float offset1 = floor( l );
 		float offset2 = offset1 + 1.0;
-		float blend = mod( l, 1.0 );
+		float blend = fract( l );
 		
 		vec2 ruv1 = getRefMipmapUV( refUV, offset1 );
 		vec2 ruv2 = getRefMipmapUV( refUV, offset2 );
 
-		vec3 ref1 = texture2D( reflectionTex, ruv1 ).xyz;
-		vec3 ref2 = texture2D( reflectionTex, ruv2 ).xyz;
+		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
+		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
 
 		c += mix( ref1, ref2, blend ) * EF;
 
