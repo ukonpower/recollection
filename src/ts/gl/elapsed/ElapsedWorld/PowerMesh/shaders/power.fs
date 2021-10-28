@@ -214,9 +214,9 @@ float ggx( float dNH, float roughness ) {
 
 }
 
-float lambert( float dNL ) {
+vec3 lambert( vec3 diffuseColor ) {
 
-	return dNL / PI;
+	return diffuseColor / PI;
 
 }
 
@@ -251,15 +251,17 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 	float dNL = clamp( dot( geo.normal, lightDir), 0.0, 1.0 );
 
+	vec3 irradiance = light.color * dNL;
+
 	// diffuse
-	vec3 diffuse = lambert( dNL ) * mat.diffuseColor;
+	vec3 diffuse = lambert( mat.diffuseColor ) * irradiance;
 
 	// specular
 	float D = ggx( dNH, mat.roughness );
 	float G = gSmith( dNV, dNL, mat.roughness );
 	float F = fresnel( dLH );
 	
-	vec3 specular = ( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor; 
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor )* irradiance; 
 
 	vec3 c = vec3( 0.0 );
 	c += diffuse * ( 1.0 - F ) + specular;

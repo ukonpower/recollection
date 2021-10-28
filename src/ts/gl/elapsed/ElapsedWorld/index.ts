@@ -31,7 +31,7 @@ export class ElapsedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( 10, 3, 0 );
+		light.position.set( 0, 3, 5 );
 		this.scene.add( light );
 		this.lights.push( light );
 
@@ -46,6 +46,7 @@ export class ElapsedWorld extends THREE.Object3D {
 		-------------------------------*/
 
 		let meshes: PowerMesh[] = [];
+		let standardMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
 
 		this.scene.getObjectByName( 'Scene' ).traverse( obj => {
 
@@ -56,10 +57,19 @@ export class ElapsedWorld extends THREE.Object3D {
 
 				let mesh: PowerMesh | PowerReflectionMesh | null = null;
 
-				if ( base.name == 'Plane' ) {
+				if ( base.name == 'Plane1' ) {
 
 					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
 					mesh = refMesh;
+
+				} else if ( base.name == 'Plane2' || base.name == 'dragon2' ) {
+
+					base.visible = true;
+					base.material = new THREE.MeshStandardMaterial( {
+						roughness: 0.1
+					} );
+
+					standardMesh.push( base as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> );
 
 				} else {
 
@@ -96,6 +106,14 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			} );
 
+			standardMesh.forEach( item=>{
+
+				item.material.envMap = tex;
+				console.log( item );
+
+
+			} );
+
 		} );
 
 	}
@@ -106,7 +124,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			let p = item.position;
 
-			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), deltaTime * ( ( index + 1.0 ) * 0.5 ) ) );
+			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), Math.sin( time * 1.0 ) * 0.02 ) );
 
 		} );
 
