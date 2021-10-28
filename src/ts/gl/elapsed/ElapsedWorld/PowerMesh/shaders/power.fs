@@ -294,7 +294,7 @@ void main( void ) {
 
 	Material mat;
 	mat.albedo = vec3( 1.0 );
-	mat.roughness = texture2D( roughnessMap, vUv ).x;
+	mat.roughness = texture2D( roughnessMap, vUv ).x * 0.6;
 
 	mat.metalness = 0.0;
 
@@ -336,7 +336,7 @@ void main( void ) {
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
 
-		float l = (mat.roughness) * REF_MIPMAP_LEVEL;
+		float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
 
 		float offset1 = floor( l );
 		float offset2 = offset1 + 1.0;

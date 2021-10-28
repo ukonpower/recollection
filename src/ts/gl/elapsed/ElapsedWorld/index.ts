@@ -66,7 +66,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 					base.visible = true;
 					base.material = new THREE.MeshStandardMaterial( {
-						roughness: 0.1
+						roughness: 0.0
 					} );
 
 					standardMesh.push( base as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> );
@@ -109,8 +109,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			standardMesh.forEach( item=>{
 
 				item.material.envMap = tex;
-				console.log( item );
-
+				item.material.envMapIntensity = 0.5;
 
 			} );
 
