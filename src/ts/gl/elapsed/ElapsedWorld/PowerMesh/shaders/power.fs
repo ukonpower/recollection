@@ -305,11 +305,9 @@ void main( void ) {
 	mat3 vTBN = mat3( t, b, n );
 	vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
 	geo.normal = normalize( vTBN * mapN );
-	
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
 
 	// material
-
 	Material mat;
 	mat.albedo = vec3( 1.0 );
 	mat.roughness = texture2D( roughnessMap, vUv ).x * 0.6;
@@ -354,6 +352,8 @@ void main( void ) {
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
 
+		refUV.x += geo.normal.x * 0.5;
+
 		float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
 
 		float offset1 = floor( l );
@@ -373,6 +373,9 @@ void main( void ) {
 		c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 	
 	#endif
+
+	// c = geo.normal;
+	// c = vec3( geo.normal );
 
 	gl_FragColor = vec4( c, 1.0 );
 

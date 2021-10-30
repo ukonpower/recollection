@@ -59,9 +59,6 @@ export default class ElapsedScene extends BaseGL {
 		this.world = new ElapsedWorld( this.renderer, this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
-		console.log( this.scene );
-
-
 		this.renderer.outputEncoding = THREE.LinearEncoding;
 
 	}

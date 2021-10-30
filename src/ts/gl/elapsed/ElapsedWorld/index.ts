@@ -123,7 +123,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			let p = item.position;
 
-			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), Math.sin( time * 1.0 ) * 0.02 ) );
+			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), Math.cos( time * 1.0 ) * 0.015 ) );
 
 		} );
 
