@@ -23,11 +23,13 @@ export default class ElapsedScene extends BaseGL {
 		this.gManager.assetManager.load( { assets: [
 			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' },
 			{ name: 'roughness', path: '../assets/gl/elapsed/scene/Marble002_2K-JPG/Marble002_2K_Roughness.jpg', type: 'tex' },
-			{ name: 'color', path: '../assets/gl/elapsed/scene/Marble002_2K-JPG/Marble002_2K_Color.jpg', type: 'tex' }
+			{ name: 'color', path: '../assets/gl/elapsed/scene/Marble002_2K-JPG/Marble002_2K_Color.jpg', type: 'tex' },
+			{ name: 'normal', path: '../assets/gl/elapsed/scene/Marble002_2K-JPG/Marble002_2K_NormalGL.jpg', type: 'tex' }
 		] } );
 
 		this.commonUniforms.roughnessMap = this.gManager.assetManager.getTex( 'roughness' );
 		this.commonUniforms.map = this.gManager.assetManager.getTex( 'color' );
+		this.commonUniforms.normalMap = this.gManager.assetManager.getTex( 'normal' );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
 
