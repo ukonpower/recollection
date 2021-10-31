@@ -67,6 +67,9 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			fragmentShader: powerFrag,
 			uniforms: uni,
 			lights: true,
+			defines: {
+				'NORMAL_MAP': ''
+			}
 		} );
 
 		super( geo, mat );

@@ -195,7 +195,11 @@ float shadowMapPCSS() {
 	Normal
 -------------------------------*/
 
-uniform sampler2D normalMap;
+#ifdef NORMAL_MAP
+	uniform sampler2D normalMap;
+	varying mat3 vTBN;
+#endif
+
 
 /*-------------------------------
 	RE
@@ -295,23 +299,21 @@ void main( void ) {
 	geo.posWorld = vWorldPos;
 	geo.viewDir = normalize( geo.pos );
 	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
-	geo.normal = normalize( vNormal );
 
 	// normal
-	vec3 n = geo.normal;
-	vec3 t = normalize( cross( n, vec3( 0.0, 1.0, 0.0 ) ) );
-	vec3 b = normalize( cross( n, t ) );
+	geo.normal = normalize( vNormal );
 
-	mat3 vTBN = mat3( t, b, n );
-	vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
-	geo.normal = normalize( vTBN * mapN );
+	#ifdef NORMAL_MAP
+		vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
+		geo.normal = normalize( vTBN * mapN );
+	#endif
+
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
 
 	// material
 	Material mat;
 	mat.albedo = vec3( 1.0 );
 	mat.roughness = texture2D( roughnessMap, vUv ).x * 0.6;
-
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
