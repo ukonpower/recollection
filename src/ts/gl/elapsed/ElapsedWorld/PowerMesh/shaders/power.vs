@@ -8,10 +8,6 @@ varying vec3 vViewPos;
 varying vec3 vWorldPos;
 varying vec2 vHighPrecisionZW;
 
-#ifdef NORMAL_MAP
-	varying mat3 vTBN;
-#endif
-
 varying vec2 vShadowMapUV;
 varying float vShadowMapGeoDepth;
 
@@ -22,32 +18,10 @@ void main( void ) {
 	gl_Position = projectionMatrix * mvPosition;
 
 	vUv = uv;
-	vNormal =  ( normalMatrix * normal );
+	vNormal = ( normalMatrix * normal );
 	vViewPos = -mvPosition.xyz;
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
-
-	#ifdef NORMAL_MAP
-
-		vec3 tangent;
-		vec3 c1 = cross(vNormal, vec3(0.0, 0.0, 1.0));
-		vec3 c2 = cross(vNormal, vec3(0.0, 1.0, 0.0));
-
-		if ( length( c1 ) > length( c2 ) ) {
-
-			tangent = c1;
-			
-		} else {
-			
-			tangent = c2;
-			
-		}
-
-		tangent = normalize(tangent);
-
-		vec3 bitangent = normalize( cross( vNormal, tangent ) );
-		vTBN = mat3( tangent, bitangent, vNormal );
-	#endif
 
 	vec4 shadowMapPosition = projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) );
 	vShadowMapUV = shadowMapPosition.xy * 0.5 + 0.5;

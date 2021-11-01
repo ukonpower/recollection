@@ -195,11 +195,9 @@ float shadowMapPCSS() {
 	Normal
 -------------------------------*/
 
-#ifdef NORMAL_MAP
+#ifdef USE_NORMAL_MAP
 	uniform sampler2D normalMap;
-	varying mat3 vTBN;
 #endif
-
 
 /*-------------------------------
 	RE
@@ -303,9 +301,35 @@ void main( void ) {
 	// normal
 	geo.normal = normalize( vNormal );
 
-	#ifdef NORMAL_MAP
+	#ifdef USE_NORMAL_MAP
+
+		vec2 nUV = vUv;
+		nUV.x = 1.0 - nUV.x;
 		vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
-		geo.normal = normalize( vTBN * mapN );
+
+		// https://stackoverflow.com/Questions/5255806/how-to-calculate-tangent-and-binormal
+		// compute derivations of the world position
+		vec3 p_dx = dFdx(vWorldPos);
+		vec3 p_dy = dFdy(vWorldPos);
+		// compute derivations of the texture coordinate
+		vec2 tc_dx = dFdx(nUV);
+		vec2 tc_dy = dFdy(nUV);
+		// compute initial tangent and bi-tangent
+		vec3 t = normalize( tc_dy.y * p_dx - tc_dx.y * p_dy );
+		vec3 b = normalize( tc_dy.x * p_dx - tc_dx.x * p_dy ); // sign inversion
+		// get new tangent from a given mesh normal
+		vec3 n = normalize(geo.normal);
+		vec3 x = cross(n, t);
+		t = cross(x, n);
+		t = normalize(t);
+		// get updated bi-tangent
+		x = cross(b, n);
+		b = cross(n, x);
+		b = normalize(b);
+
+		mat3 tbn = mat3(t, b, n);
+		geo.normal = normalize( tbn * mapN );
+
 	#endif
 
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
@@ -375,9 +399,6 @@ void main( void ) {
 		c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 	
 	#endif
-
-	// c = geo.normal;
-	// c = vec3( geo.normal );
 
 	gl_FragColor = vec4( c, 1.0 );
 

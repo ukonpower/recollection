@@ -68,7 +68,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			uniforms: uni,
 			lights: true,
 			defines: {
-				'NORMAL_MAP': ''
+				'USE_NORMAL_MAP': ''
 			}
 		} );
 
