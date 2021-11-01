@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { PowerMesh } from '../PowerMesh';
+import { PowerMesh } from '../index';
 
 import mipmapVert from './shaders/mipmap.vs';
 import mipmapFrag from './shaders/mipmap.fs';

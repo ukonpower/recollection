@@ -3,7 +3,7 @@ import * as ORE from '@ore-three-ts';
 
 import { PowerMesh } from './PowerMesh';
 import { ShadowMapper } from './ShadowMapper';
-import { PowerReflectionMesh } from './PowerReflectMesh';
+import { PowerReflectionMesh } from './PowerMesh/PowerReflectMesh';
 
 export class ElapsedWorld extends THREE.Object3D {
 
