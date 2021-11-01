@@ -36,7 +36,6 @@ export default class ElapsedScene extends BaseGL {
 			this.scene.add( this.gManager.assetManager.getGltf( 'scene' ).scene );
 
 			this.initScene();
-
 			this.onResize();
 
 		} );

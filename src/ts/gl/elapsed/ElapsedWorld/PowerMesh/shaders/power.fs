@@ -337,7 +337,7 @@ void main( void ) {
 	// material
 	Material mat;
 	mat.albedo = vec3( 1.0 );
-	mat.roughness = texture2D( roughnessMap, vUv ).x * 0.6;
+	mat.roughness = texture2D( roughnessMap, vUv ).x;
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );

@@ -62,15 +62,6 @@ export class ElapsedWorld extends THREE.Object3D {
 					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
 					mesh = refMesh;
 
-				} else if ( base.name == 'Plane2' || base.name == 'dragon2' ) {
-
-					base.visible = true;
-					base.material = new THREE.MeshStandardMaterial( {
-						roughness: 0.0
-					} );
-
-					standardMesh.push( base as THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial> );
-
 				} else {
 
 					mesh = new PowerMesh( base, this.commonUniforms );
