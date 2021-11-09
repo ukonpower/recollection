@@ -56,6 +56,36 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 			geo = geoMesh.geometry;
 
+			let mat = ( geoMesh.material as THREE.MeshStandardMaterial );
+
+			if ( mat.isMeshStandardMaterial ) {
+
+				if ( mat.map ) {
+
+					uni.map = {
+						value: mat.map
+					};
+
+				}
+
+				if ( mat.normalMap ) {
+
+					uni.normalMap = {
+						value: mat.normalMap
+					};
+
+				}
+
+				if ( mat.roughnessMap ) {
+
+					uni.roughnessMap = {
+						value: mat.roughnessMap
+					};
+
+				}
+
+			}
+
 		}
 
 		/*-------------------------------
@@ -68,9 +98,26 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			uniforms: uni,
 			lights: true,
 			defines: {
-				'USE_NORMAL_MAP': ''
 			}
 		} );
+
+		if ( uni.map ) {
+
+			mat.defines.USE_MAP = '';
+
+		}
+
+		if ( uni.normalMap ) {
+
+			mat.defines.USE_NORMAL_MAP = '';
+
+		}
+
+		if ( uni.roughnessMap ) {
+
+			mat.defines.USE_ROUGHNESS_MAP = '';
+
+		}
 
 		super( geo, mat );
 

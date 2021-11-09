@@ -31,7 +31,7 @@ export class ElapsedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( 0, 3, 5 );
+		light.position.set( - 4, 1.5, 2 );
 		this.scene.add( light );
 		this.lights.push( light );
 
@@ -39,7 +39,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 512, 512 ), 10, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 512, 512 ), 1, light );
 
 		/*-------------------------------
 			Meshes
@@ -57,7 +57,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 				let mesh: PowerMesh | PowerReflectionMesh | null = null;
 
-				if ( base.name == 'Plane1' ) {
+				if ( base.name == 'Ground' ) {
 
 					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
 					mesh = refMesh;
@@ -114,7 +114,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			let p = item.position;
 
-			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, 1.0, 0.0 ), Math.cos( time * 1.0 ) * 0.015 ) );
+			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, - 1.0, 0.0 ).normalize(), 0.01 ) );
 
 		} );
 

@@ -1,5 +1,23 @@
 uniform float time;
+
 varying vec2 vUv;
+
+/*-------------------------------
+	Textures
+-------------------------------*/
+
+#ifdef USE_MAP
+	uniform sampler2D map;
+#endif
+
+#ifdef USE_NORMAL_MAP
+	uniform sampler2D normalMap;
+#endif
+
+#ifdef USE_ROUGHNESS_MAP
+	uniform sampler2D roughnessMap;
+#endif
+
 
 #ifdef REFLECTPLANE
 
@@ -140,7 +158,7 @@ varying vec2 vHighPrecisionZW;
 float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
 
 	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
+	float shadow = step( geoDepth - shadowMapTexDepth, 0.00001 );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
@@ -192,14 +210,6 @@ float shadowMapPCSS() {
 }
 
 /*-------------------------------
-	Normal
--------------------------------*/
-
-#ifdef USE_NORMAL_MAP
-	uniform sampler2D normalMap;
-#endif
-
-/*-------------------------------
 	RE
 -------------------------------*/
 
@@ -207,8 +217,6 @@ varying vec3 vNormal;
 varying vec3 vViewNormal;
 varying vec3 vViewPos;
 varying vec3 vWorldPos;
-uniform sampler2D roughnessMap;
-uniform sampler2D map;
 
 float ggx( float dNH, float roughness ) {
 	
@@ -304,16 +312,17 @@ void main( void ) {
 	#ifdef USE_NORMAL_MAP
 
 		vec2 nUV = vUv;
-		nUV.x = 1.0 - nUV.x;
-		vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;
+		vec3 mapN = texture2D( normalMap, vUv ).xyz;
+		mapN.xy = 1.0 - mapN.xy;
+		mapN = mapN * 2.0 - 1.0;
 
 		// https://stackoverflow.com/Questions/5255806/how-to-calculate-tangent-and-binormal
 		// compute derivations of the world position
 		vec3 p_dx = dFdx(vWorldPos);
 		vec3 p_dy = dFdy(vWorldPos);
 		// compute derivations of the texture coordinate
-		vec2 tc_dx = dFdx(nUV);
-		vec2 tc_dy = dFdy(nUV);
+		vec2 tc_dx = dFdx(vUv);
+		vec2 tc_dy = dFdy(vUv);
 		// compute initial tangent and bi-tangent
 		vec3 t = normalize( tc_dy.y * p_dx - tc_dx.y * p_dy );
 		vec3 b = normalize( tc_dy.x * p_dx - tc_dx.x * p_dy ); // sign inversion
@@ -334,10 +343,34 @@ void main( void ) {
 
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
 
-	// material
+	/*-------------------------------
+		Material
+	-------------------------------*/
 	Material mat;
+	
 	mat.albedo = vec3( 1.0 );
-	mat.roughness = texture2D( roughnessMap, vUv ).x;
+
+	#ifdef USE_MAP
+
+		mat.albedo = texture2D( map, vUv ).xyz;
+		mat.albedo = pow( mat.albedo, vec3( 1.0 / 2.2 ) );
+
+	#else
+
+		mat.albedo = vec3( 1.0 );
+	
+	#endif
+
+	#ifdef USE_ROUGHNESS_MAP
+
+		mat.roughness = texture2D( roughnessMap, vUv ).x;
+
+	#else
+
+		mat.roughness = 0.5;
+	
+	#endif
+
 	mat.metalness = 0.0;
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );

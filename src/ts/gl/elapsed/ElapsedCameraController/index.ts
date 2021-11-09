@@ -31,7 +31,7 @@ export class ElapsedCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 6, 5 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.15, 0.15 );
 
 	}
 
@@ -55,11 +55,11 @@ export class ElapsedCameraController {
 
 		if ( this.cameraTargetPos ) {
 
-			this.camera.lookAt( this.cameraTargetPos.clone().add( new THREE.Vector3( - this.spWeight * 0.2, 0.0, 0.0 ) ) );
+			this.camera.lookAt( this.cameraTargetPos );
 
 		}
 
-		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.005, Math.sin( time * 2.0 ) * 0.005 ) ) );
+		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.0015, Math.sin( time * 2.0 ) * 0.0015 ) ) );
 
 	}
 
@@ -67,7 +67,7 @@ export class ElapsedCameraController {
 
 		this.spWeight = layerInfo.size.portraitWeight;
 
-		this.camera.fov = this.baseCamera.fov + 5 + layerInfo.size.portraitWeight * 35.0;
+		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 35.0;
 		this.camera.updateProjectionMatrix();
 
 	}
