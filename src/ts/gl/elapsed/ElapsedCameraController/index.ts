@@ -67,7 +67,7 @@ export class ElapsedCameraController {
 
 		this.spWeight = layerInfo.size.portraitWeight;
 
-		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 35.0;
+		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 10.0;
 		this.camera.updateProjectionMatrix();
 
 	}

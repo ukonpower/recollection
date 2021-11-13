@@ -22,6 +22,19 @@ export default class ElapsedScene extends BaseGL {
 
 		this.gManager.assetManager.load( { assets: [
 			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' },
+			{ name: 'waterRoughness', path: '../assets/gl/elapsed/scene/ground/Metal002_1K_Roughness.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
+
+				tex.wrapS = THREE.RepeatWrapping;
+				tex.wrapT = THREE.RepeatWrapping;
+
+			} },
+			{ name: 'noise', path: '../assets/scene/img/noise.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
+
+				tex.wrapS = THREE.RepeatWrapping;
+				tex.wrapT = THREE.RepeatWrapping;
+
+			} },
+
 		] } );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
@@ -48,7 +61,7 @@ export default class ElapsedScene extends BaseGL {
 		/*------------------------
 			World
 		------------------------*/
-		this.world = new ElapsedWorld( this.renderer, this.scene, this.commonUniforms );
+		this.world = new ElapsedWorld( this.gManager, this.renderer, this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
 		this.renderer.outputEncoding = THREE.LinearEncoding;

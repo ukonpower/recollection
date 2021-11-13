@@ -46,13 +46,15 @@ export class PowerReflectionMesh extends PowerMesh {
 
 	private textureMatrix: THREE.Matrix4;
 
-	constructor( geometry: THREE.BufferGeometry, parentUniforms?: ORE.Uniforms );
+	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
 
-	constructor( mesh: THREE.Mesh, parentUniforms?: ORE.Uniforms );
+	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters );
 
-	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh<THREE.BufferGeometry>, parentUniforms?: ORE.Uniforms ) {
+	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh<THREE.BufferGeometry>, materialOption?: THREE.ShaderMaterialParameters ) {
 
-		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		materialOption = materialOption || {};
+
+		materialOption.uniforms = ORE.UniformsLib.mergeUniforms( materialOption.uniforms || {}, {
 			reflectionTex: {
 				value: null
 			},
@@ -67,7 +69,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			}
 		} );
 
-		super( geoMesh as THREE.BufferGeometry, uni );
+		super( geoMesh as THREE.BufferGeometry, materialOption );
 
 		this.material.defines.REFLECTPLANE = '';
 		this.material.needsUpdate = true;
@@ -238,7 +240,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			this.q.w = ( 1.0 + projectionMatrix.elements[ 10 ] ) / projectionMatrix.elements[ 14 ];
 
 			// Calculate the scaled plane vector
-			// this.clipPlane.multiplyScalar( 2.0 / this.clipPlane.dot( this.q ) );
+			this.clipPlane.multiplyScalar( 2.0 / this.clipPlane.dot( this.q ) );
 
 			// Replacing the third row of the projection matrix
 			projectionMatrix.elements[ 2 ] = this.clipPlane.x;

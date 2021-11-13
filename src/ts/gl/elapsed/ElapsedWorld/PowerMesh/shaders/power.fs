@@ -1,6 +1,11 @@
 uniform float time;
-
 varying vec2 vUv;
+
+/*-------------------------------
+	Material Uniforms
+-------------------------------*/
+
+uniform vec3 color;
 
 /*-------------------------------
 	Textures
@@ -16,6 +21,10 @@ varying vec2 vUv;
 
 #ifdef USE_ROUGHNESS_MAP
 	uniform sampler2D roughnessMap;
+#endif
+
+#ifdef USE_ALPHA_MAP
+	uniform sampler2D alphaMap;
 #endif
 
 
@@ -55,6 +64,7 @@ struct Material {
 	vec3 specularColor;
 	float metalness;
 	float roughness;
+	float opacity;
 };
 
 /*-------------------------------
@@ -292,7 +302,62 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 
 void main( void ) {
 
+	/*-------------------------------
+		Material
+	-------------------------------*/
+
+	Material mat;
+
+	#ifdef USE_MAP
+
+		vec4 color = texture2D( map, vUv );
+		mat.albedo = color.xyz;
+		mat.albedo = pow( mat.albedo, vec3( 1.0 / 2.2 ) );
+		mat.opacity = color.w;
+
+	#else
+
+		mat.albedo = color;
+		mat.opacity = 1.0;
+	
+	#endif
+
+	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
+	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
+
+	#ifdef USE_ROUGHNESS_MAP
+
+		mat.roughness = texture2D( roughnessMap, vUv ).y;
+
+	#else
+
+		mat.roughness = 0.5;
+	
+	#endif
+
+	#ifdef USE_ALPHA_MAP
+
+		mat.opacity *= texture2D( alphaMap, vUv ).x;
+
+	#endif
+
+	mat.metalness = 0.0;
+
+	// output
+	vec3 outColor = vec3( 0.0 );
+	float outOpacity = mat.opacity;
+
+	/*-------------------------------
+		Depth
+	-------------------------------*/
+
 	#ifdef DEPTH
+
+		if( outOpacity < 0.5 ) {
+
+			discard;
+
+		}
 
 		float fragCoordZ = 0.5 * vHighPrecisionZW[0] / vHighPrecisionZW[1] + 0.5;
 		gl_FragColor = packDepthToRGBA( fragCoordZ );
@@ -300,13 +365,15 @@ void main( void ) {
 	
 	#endif
 
+	/*-------------------------------
+		Geometry
+	-------------------------------*/
+
 	Geometry geo;
 	geo.pos = vViewPos;
 	geo.posWorld = vWorldPos;
 	geo.viewDir = normalize( geo.pos );
 	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
-
-	// normal
 	geo.normal = normalize( vNormal );
 
 	#ifdef USE_NORMAL_MAP
@@ -344,42 +411,11 @@ void main( void ) {
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
 
 	/*-------------------------------
-		Material
+		Lighting
 	-------------------------------*/
-	Material mat;
-	
-	mat.albedo = vec3( 1.0 );
-
-	#ifdef USE_MAP
-
-		mat.albedo = texture2D( map, vUv ).xyz;
-		mat.albedo = pow( mat.albedo, vec3( 1.0 / 2.2 ) );
-
-	#else
-
-		mat.albedo = vec3( 1.0 );
-	
-	#endif
-
-	#ifdef USE_ROUGHNESS_MAP
-
-		mat.roughness = texture2D( roughnessMap, vUv ).x;
-
-	#else
-
-		mat.roughness = 0.5;
-	
-	#endif
-
-	mat.metalness = 0.0;
-
-	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
-	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
 
 	// shadowMap
 	float shadow = shadowMapPCSS();
-
-	vec3 c = vec3( 0.0 );
 
 	#if NUM_DIR_LIGHTS > 0
 
@@ -391,21 +427,28 @@ void main( void ) {
 				light.direction = directionalLights[i].direction;
 				light.color = directionalLights[i].color;
 
-				c += RE( geo, mat, light ) * shadow;
+				outColor += RE( geo, mat, light ) * shadow;
 				
 			}
 		#pragma unroll_loop_end
 
 	#endif
 
-	// env
+	/*-------------------------------
+		Environment Lighting
+	-------------------------------*/
+
 	float dNV = clamp( dot( geo.normal, geo.viewDir ), 0.0, 1.0 );
 
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	c += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+
+	/*-------------------------------
+		Reflection
+	-------------------------------*/
 	
 	#ifdef REFLECTPLANE
 	
@@ -425,14 +468,14 @@ void main( void ) {
 		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
 		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
 
-		c += mix( ref1, ref2, blend ) * EF;
+		outColor += mix( ref1, ref2, blend ) * EF;
 
 	#else
 	
-		c += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+		outColor += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
 	
 	#endif
 
-	gl_FragColor = vec4( c, 1.0 );
+	gl_FragColor = vec4( outColor, outOpacity );
 
 }

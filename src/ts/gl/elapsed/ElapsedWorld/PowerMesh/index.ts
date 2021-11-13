@@ -13,13 +13,15 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 	protected envMapCamera: THREE.CubeCamera;
 	public envMapUpdate: boolean;
 
-	constructor( geometry: THREE.BufferGeometry, parentUniforms?: ORE.Uniforms );
+	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
 
-	constructor( mesh: THREE.Mesh, parentUniforms?: ORE.Uniforms );
+	constructor( mesh: THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters );
 
-	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh, parentUniforms?: ORE.Uniforms ) {
+	constructor( geoMesh: THREE.BufferGeometry | THREE.Mesh, materialOption?: THREE.ShaderMaterialParameters ) {
 
-		let uni = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+		materialOption = materialOption || {};
+
+		let uni = ORE.UniformsLib.mergeUniforms( materialOption.uniforms || {}, {
 			envMap: {
 				value: null
 			},
@@ -60,6 +62,14 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 			if ( mat.isMeshStandardMaterial ) {
 
+				if ( mat.color ) {
+
+					uni.color = {
+						value: mat.color
+					};
+
+				}
+
 				if ( mat.map ) {
 
 					uni.map = {
@@ -84,6 +94,14 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				}
 
+				if ( mat.alphaMap ) {
+
+					uni.alphaMap = {
+						value: mat.alphaMap
+					};
+
+				}
+
 			}
 
 		}
@@ -92,13 +110,20 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			Material
 		-------------------------------*/
 
+		materialOption.uniforms = uni;
+
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
-			uniforms: uni,
 			lights: true,
+			transparent: true,
+			side: THREE.DoubleSide,
+			extensions: {
+				derivatives: true
+			},
 			defines: {
-			}
+			},
+			...materialOption
 		} );
 
 		if ( uni.map ) {
@@ -119,6 +144,12 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		}
 
+		if ( uni.alphaMap ) {
+
+			mat.defines.USE_ALPHA_MAP = '';
+
+		}
+
 		super( geo, mat );
 
 		this.userData.mat = mat;
@@ -126,11 +157,15 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		this.userData.depthMat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
-			uniforms: uni,
+			side: THREE.DoubleSide,
+			extensions: {
+				derivatives: true
+			},
+			...materialOption,
 			defines: {
+				...mat.defines,
 				'DEPTH': "",
 			},
-			side: THREE.DoubleSide
 		} );
 
 		this.commonUniforms = uni;

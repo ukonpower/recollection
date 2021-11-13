@@ -4,9 +4,14 @@ import * as ORE from '@ore-three-ts';
 import { PowerMesh } from './PowerMesh';
 import { ShadowMapper } from './ShadowMapper';
 import { PowerReflectionMesh } from './PowerMesh/PowerReflectMesh';
+import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
+
+import groundVert from './shaders/ground.vs';
+import groundFrag from './shaders/ground.fs';
 
 export class ElapsedWorld extends THREE.Object3D {
 
+	private gManager: ElapsedGlobalManager;
 	private renderer: THREE.WebGLRenderer;
 	private scene: THREE.Scene;
 	private commonUniforms: ORE.Uniforms;
@@ -14,10 +19,11 @@ export class ElapsedWorld extends THREE.Object3D {
 	private lights: THREE.Light[] = []
 	private shadowMapper: ShadowMapper;
 
-	constructor( renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
+	constructor( gManager: ElapsedGlobalManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
 		super();
 
+		this.gManager = gManager;
 		this.renderer = renderer;
 		this.scene = scene;
 
@@ -39,13 +45,13 @@ export class ElapsedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 512, 512 ), 1, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 2, light );
 
 		/*-------------------------------
 			Meshes
 		-------------------------------*/
 
-		let meshes: PowerMesh[] = [];
+		let meshes: ( PowerMesh )[] = [];
 		let standardMesh: THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>[] = [];
 
 		this.scene.getObjectByName( 'Scene' ).traverse( obj => {
@@ -59,12 +65,20 @@ export class ElapsedWorld extends THREE.Object3D {
 
 				if ( base.name == 'Ground' ) {
 
-					let refMesh = new PowerReflectionMesh( base, this.commonUniforms );
+					let refMesh = new PowerReflectionMesh( base, {
+						uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+							waterRoughness: this.gManager.assetManager.getTex( 'waterRoughness' ),
+							noiseTex: this.gManager.assetManager.getTex( 'noise' ),
+						} ),
+						fragmentShader: groundFrag,
+					} );
 					mesh = refMesh;
 
 				} else {
 
-					mesh = new PowerMesh( base, this.commonUniforms );
+					mesh = new PowerMesh( base, {
+						uniforms: this.commonUniforms
+					} );
 
 				}
 
@@ -81,12 +95,12 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
-			'/assets/scene/img/env/px.jpg',
-			'/assets/scene/img/env/nx.jpg',
-			'/assets/scene/img/env/py.jpg',
-			'/assets/scene/img/env/ny.jpg',
-			'/assets/scene/img/env/pz.jpg',
-			'/assets/scene/img/env/nz.jpg',
+			'/assets/gl/elapsed/scene/env/px.png',
+			'/assets/gl/elapsed/scene/env/nx.png',
+			'/assets/gl/elapsed/scene/env/py.png',
+			'/assets/gl/elapsed/scene/env/ny.png',
+			'/assets/gl/elapsed/scene/env/pz.png',
+			'/assets/gl/elapsed/scene/env/nz.png',
 		], ( tex ) => {
 
 			this.scene.background = tex;
