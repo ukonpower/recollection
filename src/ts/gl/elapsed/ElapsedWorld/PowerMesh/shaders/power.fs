@@ -71,12 +71,16 @@ struct Material {
 	Lights
 -------------------------------*/
 
-struct DirectionalLight {
-	vec3 direction;
-	vec3 color;
-};
+#if NUM_DIR_LIGHTS > 0
 
-uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+	struct DirectionalLight {
+		vec3 direction;
+		vec3 color;
+	};
+
+	uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+
+#endif
 
 /*-------------------------------
 	EnvMap
@@ -424,8 +428,8 @@ void main( void ) {
 		#pragma unroll_loop_start
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
-				light.direction = directionalLights[i].direction;
-				light.color = directionalLights[i].color;
+				light.direction = directionalLights[ i ].direction;
+				light.color = directionalLights[ i ].color;
 
 				outColor += RE( geo, mat, light ) * shadow;
 				
@@ -477,5 +481,4 @@ void main( void ) {
 	#endif
 
 	gl_FragColor = vec4( outColor, outOpacity );
-
 }

@@ -75,12 +75,16 @@ struct Material {
 	Lights
 -------------------------------*/
 
-struct DirectionalLight {
-	vec3 direction;
-	vec3 color;
-};
+#if NUM_DIR_LIGHTS > 0
 
-uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+	struct DirectionalLight {
+		vec3 direction;
+		vec3 color;
+	};
+
+	uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+
+#endif
 
 /*-------------------------------
 	EnvMap

@@ -64,8 +64,6 @@ export default class ElapsedScene extends BaseGL {
 		this.world = new ElapsedWorld( this.gManager, this.renderer, this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
-		this.renderer.outputEncoding = THREE.LinearEncoding;
-
 	}
 
 	public animate( deltaTime: number ) {

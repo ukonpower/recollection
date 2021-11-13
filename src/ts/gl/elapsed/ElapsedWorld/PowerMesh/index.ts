@@ -34,7 +34,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			projectionMatrixLight: {
 				value: new THREE.Matrix4()
 			},
-			shadowMapDepth: {
+			shadowMapTex: {
 				value: null
 			},
 			shadowMapResolution: {
@@ -158,6 +158,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
 			side: THREE.DoubleSide,
+			lights: true,
 			extensions: {
 				derivatives: true
 			},
@@ -247,7 +248,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
 				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
-				this.commonUniforms.shadowMapTex = camera.userData.shadowMapTex;
+				this.commonUniforms.shadowMapTex.value = camera.userData.shadowMapTex.value;
 				this.commonUniforms.shadowMapResolution.value.copy( camera.userData.shadowMapResolution );
 
 			}

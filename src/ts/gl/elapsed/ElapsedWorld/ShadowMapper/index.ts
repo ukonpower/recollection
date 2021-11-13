@@ -18,7 +18,7 @@ export class ShadowMapper {
 		this.size = size;
 		this.light = light;
 
-		this.camera = new THREE.OrthographicCamera( - size / 2.0, size / 2.0, size / 2.0, - size / 2.0, 0.1, 1000 );
+		this.camera = new THREE.OrthographicCamera( - size / 2.0, size / 2.0, size / 2.0, - size / 2.0, 0.01, 100 );
 
 		// LightCamera
 		this.camera.userData.shadowCamera = true;
@@ -28,7 +28,10 @@ export class ShadowMapper {
 			value: null
 		};
 
-		this.renderTarget = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y );
+		this.renderTarget = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y, {
+			format: THREE.RGBAFormat,
+			generateMipmaps: false,
+		} );
 
 	}
 
@@ -68,6 +71,8 @@ export class ShadowMapper {
 
 		scene.background = bgMem;
 
+		this.camera.userData.shadowMapTex.value = this.renderTarget.texture;
+
 		scene.traverse( obj=>{
 
 			let mesh = obj as THREE.Mesh;
@@ -91,7 +96,6 @@ export class ShadowMapper {
 
 		} );
 
-		this.camera.userData.shadowMapTex.value = this.renderTarget.texture;
 
 	}
 
