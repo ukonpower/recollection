@@ -44,13 +44,15 @@ void main(){
 	float w = max(.0,length(cuv)) * 0.01;
 	
     for(int i = 0; i < N; i++){
-        float w = 0.06 + float(i) * 0.001;
+        float w = 0.15 + float(i) * 0.001;
         c.x += texture2D(sceneTex,lens_distortion( uv - 0.5, w ) + 0.5).x;
         c.y += texture2D(sceneTex,lens_distortion( uv - 0.5, w * 1.25 ) + 0.5).y;
         c.z += texture2D(sceneTex,lens_distortion( uv - 0.5, w * 1.5 ) + 0.5).z;
 
     }
     c /= float(N);
+
+
 
 	#pragma unroll_loop_start
 	for ( int i = 0; i < RENDER_COUNT; i ++ ) {
@@ -59,11 +61,10 @@ void main(){
 
 	}
 	#pragma unroll_loop_end
-
 	c = aces( c );
 
 	c -= random( uv ) * 0.03 * c;
-	c *= smoothstep( -0.6, 0.4, 1.0 - length( cuv ) );
+	c *= smoothstep( -0.7, 0.8, 1.0 - length( cuv ) );
 
 	gl_FragColor = vec4( c, 1.0 );
 
