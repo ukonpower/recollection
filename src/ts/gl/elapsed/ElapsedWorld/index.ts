@@ -8,6 +8,7 @@ import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
 
 import groundFrag from './shaders/ground.fs';
 import sceneFrag from './shaders/scene.fs';
+import { K } from './K';
 
 export class ElapsedWorld extends THREE.Object3D {
 
@@ -124,6 +125,12 @@ export class ElapsedWorld extends THREE.Object3D {
 			} );
 
 		} );
+
+		let k = new K( this.commonUniforms );
+		// k.position.set( - 0.08, 0.08, - 0.4 );
+		// k.position.set( 0.065, 0.37, 0.006 );
+		k.position.set( - 0.085, 0.28, - 0.02, );
+		this.scene.add( k );
 
 	}
 
