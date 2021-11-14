@@ -34,7 +34,7 @@ export default class ElapsedScene extends BaseGL {
 				tex.wrapT = THREE.RepeatWrapping;
 
 			} },
-
+			{ name: 'sky', path: '../assets/gl/elapsed/scene/sky.png', type: 'tex' },
 		] } );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {

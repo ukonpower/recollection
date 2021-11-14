@@ -6,6 +6,7 @@ varying vec2 vUv;
 -------------------------------*/
 
 uniform vec3 color;
+uniform sampler2D skyTex;
 
 /*-------------------------------
 	Textures
@@ -429,7 +430,7 @@ void main( void ) {
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 				light.direction = directionalLights[ i ].direction;
-				light.color = directionalLights[ i ].color;
+				light.color = directionalLights[ i ].color * texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
 
 				outColor += RE( geo, mat, light ) * shadow;
 				

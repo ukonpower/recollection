@@ -6,8 +6,8 @@ import { ShadowMapper } from './ShadowMapper';
 import { PowerReflectionMesh } from './PowerMesh/PowerReflectMesh';
 import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
 
-import groundVert from './shaders/ground.vs';
 import groundFrag from './shaders/ground.fs';
+import sceneFrag from './shaders/scene.fs';
 
 export class ElapsedWorld extends THREE.Object3D {
 
@@ -38,6 +38,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		light = new THREE.DirectionalLight();
 		light.position.set( - 4, 1.5, 2 );
+		light.intensity = 3.0;
 		this.scene.add( light );
 		this.lights.push( light );
 
@@ -69,6 +70,7 @@ export class ElapsedWorld extends THREE.Object3D {
 						uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 							waterRoughness: this.gManager.assetManager.getTex( 'waterRoughness' ),
 							noiseTex: this.gManager.assetManager.getTex( 'noise' ),
+							skyTex: this.gManager.assetManager.getTex( 'sky' )
 						} ),
 						fragmentShader: groundFrag,
 					} );
@@ -77,7 +79,10 @@ export class ElapsedWorld extends THREE.Object3D {
 				} else {
 
 					mesh = new PowerMesh( base, {
-						uniforms: this.commonUniforms
+						fragmentShader: sceneFrag,
+						uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+							skyTex: this.gManager.assetManager.getTex( 'sky' )
+						} ),
 					} );
 
 				}
@@ -126,9 +131,10 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		this.lights.forEach( ( item, index ) => {
 
+			let t = time * 0.5 + 0.0;
 			let p = item.position;
+			p.set( Math.sin( - t ) * 3.0, 1.5 + Math.sin( - t + Math.PI ) * 0.8, Math.cos( - t ) * 3.0 );
 
-			p.applyQuaternion( new THREE.Quaternion().setFromAxisAngle( new THREE.Vector3( 0.0, - 1.0, 0.0 ).normalize(), 0.01 ) );
 
 		} );
 
