@@ -178,7 +178,7 @@ varying vec2 vHighPrecisionZW;
 float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
 
 	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-	float shadow = step( geoDepth - shadowMapTexDepth, 0.00001 );
+	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
@@ -375,7 +375,7 @@ void main( void ) {
 	float wet = smoothstep( 0.4, 0.45, texture2D( noiseTex, vUv * 0.1 + vec2( 0.203, 0.43) ).x );
 	wet = clamp( wet, 0.0, 1.0 );
 	mat.albedo *= 1.0 - ( wet * 0.7 ) ;
-	mat.roughness = mix( mat.roughness, smoothstep( 0.45, 0.6, texture2D( waterRoughness, vUv * 1.0 ).x ) * 0.3, wet );
+	mat.roughness = mix( mat.roughness, smoothstep( 0.45, 0.6, texture2D( waterRoughness, vUv + 0.3 ).x ) * 0.3, wet );
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );

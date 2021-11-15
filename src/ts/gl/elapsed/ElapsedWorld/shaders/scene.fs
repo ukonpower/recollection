@@ -83,6 +83,19 @@ struct Material {
 
 #endif
 
+#if NUM_POINT_LIGHTS > 0
+
+	struct PointLight {
+		vec3 position;
+		vec3 color;
+		float distance;
+		float decay;
+	};
+
+	uniform PointLight pointLights[ NUM_POINT_LIGHTS ];
+
+#endif
+
 /*-------------------------------
 	EnvMap
 -------------------------------*/
@@ -422,9 +435,9 @@ void main( void ) {
 	// shadowMap
 	float shadow = shadowMapPCSS();
 	
-	#if NUM_DIR_LIGHTS > 0
+	Light light;
 
-		Light light;
+	#if NUM_DIR_LIGHTS > 0
 
 		#pragma unroll_loop_start
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
@@ -432,7 +445,31 @@ void main( void ) {
 				light.direction = directionalLights[ i ].direction;
 				light.color = directionalLights[ i ].color * texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
 
-				outColor += RE( geo, mat, light ) * shadow;
+				// outColor += RE( geo, mat, light ) * shadow;
+				
+			}
+		#pragma unroll_loop_end
+
+	#endif
+
+	#if NUM_POINT_LIGHTS > 0
+
+		#pragma unroll_loop_start
+			for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
+
+				vec3 v = pointLights[ i ].position - geo.posWorld;
+				float d = length( v );
+				light.direction = normalize( v );
+				
+				float attenuation = 2.0 / max( pow( d, pointLights[ i ].decay ), 0.01 );
+
+				if ( pointLights[ i ].distance > 0.0 ) {
+					attenuation *= pow( clamp( 1.0 - pow( d / pointLights[ i ].distance, 4.0 ), 0.0, 1.0 ), 2.0 );
+				}
+
+				light.color = pointLights[ i ].color * attenuation;
+
+				outColor += RE( geo, mat, light );
 				
 			}
 		#pragma unroll_loop_end

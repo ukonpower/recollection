@@ -39,15 +39,26 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		light = new THREE.DirectionalLight();
 		light.position.set( - 4, 1.5, 2 );
-		light.intensity = 3.0;
+		light.intensity = 1.55;
 		this.scene.add( light );
 		this.lights.push( light );
+
+
+		let k = new K( this.commonUniforms );
+		// k.position.set( - 0.08, 0.08, - 0.4 );
+		// k.position.set( 0.065, 0.37, 0.006 );
+		k.position.set( - 0.085, 0.28, - 0.02, );
+		this.scene.add( k );
+
+		let pLight = new THREE.PointLight();
+		pLight.position.set( - 0.085, 0.28, - 0.02 );
+		this.scene.add( pLight );
 
 		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 2, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 2.0, light );
 
 		/*-------------------------------
 			Meshes
@@ -126,11 +137,6 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		} );
 
-		let k = new K( this.commonUniforms );
-		// k.position.set( - 0.08, 0.08, - 0.4 );
-		// k.position.set( 0.065, 0.37, 0.006 );
-		k.position.set( - 0.085, 0.28, - 0.02, );
-		this.scene.add( k );
 
 	}
 
