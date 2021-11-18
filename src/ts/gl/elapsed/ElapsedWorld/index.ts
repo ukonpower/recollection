@@ -47,11 +47,14 @@ export class ElapsedWorld extends THREE.Object3D {
 		let k = new K( this.commonUniforms );
 		// k.position.set( - 0.08, 0.08, - 0.4 );
 		// k.position.set( 0.065, 0.37, 0.006 );
-		k.position.set( - 0.085, 0.28, - 0.02, );
+		k.position.set( - 0.07, 0.28, - 0.02, );
 		this.scene.add( k );
 
 		let pLight = new THREE.PointLight();
-		pLight.position.set( - 0.085, 0.28, - 0.02 );
+		pLight.intensity = 3.0;
+		pLight.decay = 1.0;
+		pLight.distance = 0.2;
+		pLight.position.copy( k.position );
 		this.scene.add( pLight );
 
 		/*-------------------------------

@@ -388,9 +388,9 @@ void main( void ) {
 	-------------------------------*/
 
 	Geometry geo;
-	geo.pos = vViewPos;
+	geo.pos = -vViewPos;
 	geo.posWorld = vWorldPos;
-	geo.viewDir = normalize( geo.pos );
+	geo.viewDir = normalize( vViewPos );
 	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
 	geo.normal = normalize( vNormal );
 
@@ -445,7 +445,7 @@ void main( void ) {
 				light.direction = directionalLights[ i ].direction;
 				light.color = directionalLights[ i ].color * texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
 
-				// outColor += RE( geo, mat, light ) * shadow;
+				outColor += RE( geo, mat, light ) * shadow;
 				
 			}
 		#pragma unroll_loop_end
@@ -454,24 +454,31 @@ void main( void ) {
 
 	#if NUM_POINT_LIGHTS > 0
 
+		PointLight pLight;
+
 		#pragma unroll_loop_start
+
 			for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
 
-				vec3 v = pointLights[ i ].position - geo.posWorld;
+				pLight = pointLights[ i ];
+
+				vec3 v = pLight.position - geo.pos;
 				float d = length( v );
 				light.direction = normalize( v );
-				
-				float attenuation = 2.0 / max( pow( d, pointLights[ i ].decay ), 0.01 );
+		
+				light.color = pLight.color;
 
-				if ( pointLights[ i ].distance > 0.0 ) {
-					attenuation *= pow( clamp( 1.0 - pow( d / pointLights[ i ].distance, 4.0 ), 0.0, 1.0 ), 2.0 );
+				if( pLight.distance > 0.0 && pLight.decay > 0.0 ) {
+
+					float attenuation = pow( clamp( -d / pLight.distance + 1.0, 0.0, 1.0 ), pLight.decay );
+					light.color *= attenuation;
+
 				}
-
-				light.color = pointLights[ i ].color * attenuation;
 
 				outColor += RE( geo, mat, light );
 				
 			}
+			
 		#pragma unroll_loop_end
 
 	#endif
