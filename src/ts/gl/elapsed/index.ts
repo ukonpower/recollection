@@ -88,7 +88,7 @@ export default class ElapsedScene extends BaseGL {
 
 		if ( this.world ) {
 
-			this.world.update( deltaTime, this.time, this.renderTarget );
+			this.world.update( deltaTime, this.time );
 
 		}
 

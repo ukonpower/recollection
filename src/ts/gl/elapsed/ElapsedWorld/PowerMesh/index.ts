@@ -152,7 +152,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		super( geo, mat );
 
-		this.userData.mat = mat;
+		this.name = geoMesh.name;
 
 		this.userData.depthMat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,

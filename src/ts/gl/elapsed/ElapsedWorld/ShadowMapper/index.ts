@@ -30,7 +30,8 @@ export class ShadowMapper {
 
 		this.renderTarget = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y, {
 			format: THREE.RGBAFormat,
-			generateMipmaps: false,
+			stencilBuffer: false,
+			generateMipmaps: false
 		} );
 
 	}

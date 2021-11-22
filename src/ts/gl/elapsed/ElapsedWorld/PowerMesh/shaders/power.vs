@@ -1,6 +1,3 @@
-uniform mat4 modelViewMatrixLight;
-uniform mat4 projectionMatrixLight;
-
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vViewNormal;
@@ -10,6 +7,9 @@ varying vec2 vHighPrecisionZW;
 
 varying vec2 vShadowMapUV;
 varying float vShadowMapGeoDepth;
+
+uniform mat4 modelViewMatrixLight;
+uniform mat4 projectionMatrixLight;
 
 void main( void ) {
 

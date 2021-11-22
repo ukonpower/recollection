@@ -253,14 +253,12 @@ export class PowerReflectionMesh extends PowerMesh {
 
 			renderer.setRenderTarget( this.renderTargets.ref );
 			this.visible = false;
-			this.dispatchEvent( { type: 'onBeforeRender' } );
 
 			renderer.clear();
 			renderer.render( scene, this.virtualCamera );
 
 			renderer.setRenderTarget( currentRenderTarget );
 			this.visible = true;
-			this.dispatchEvent( { type: 'onAfterRender' } );
 
 			/*-------------------------------
 				MipMapPP
