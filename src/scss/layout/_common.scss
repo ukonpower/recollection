@@ -99,7 +99,6 @@ html, body {
 			@include sp {
 				font-size: 80px;
 				height: 85px;
-	
 			}
 			
 			transition: 1s;
@@ -109,22 +108,41 @@ html, body {
 				opacity: 1;
 			}
 		}
-		&-date{
-			font-family: 'Bebas Neue';
-			font-size: 24px;
+		&-description {
+			font-size: 14px;
+			font-family: 'Roboto';
+			margin-bottom: 2px;
 			opacity: 0;
+			transform: translateY( 20px );
+
+			transition: 1s;
+
+			@include sp {
+				font-size: 14px;
+			}
+			
+			[data-info='true'] &{
+				opacity: 1;
+				transition-delay: .2s;
+				transform: translateY( 0px );
+			}
+		}
+		&-date{
+			font-family: 'Roboto';
+			font-size: 14px;
+			opacity: 0;
+
+			transform: translateY( 20px );
+			transition: 1s;
 	
 			[data-info='true'] &{
 				transform: translateY( 0px );
 				opacity: 1;
 				transition: 1s;
-				transition-delay: .5s;
+				transition-delay: .4s;
 			}
 		}
-		&-description {
-			display: none;
-			font-size: 18px;
-		}
+		
 	}
 
 	&-back {
