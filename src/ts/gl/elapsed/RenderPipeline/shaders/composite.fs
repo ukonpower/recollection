@@ -50,19 +50,17 @@ void main(){
     }
     c /= float(N);
 
-
-
 	#pragma unroll_loop_start
 	for ( int i = 0; i < RENDER_COUNT; i ++ ) {
 		
-		c += texture2D( bloomTexs[ UNROLLED_LOOP_INDEX ], vUv ).xyz * pow( 2.0, float( UNROLLED_LOOP_INDEX ) ) * (brightness);
+		c += texture2D( bloomTexs[ UNROLLED_LOOP_INDEX ], vUv ).xyz * pow( 2.0, float( UNROLLED_LOOP_INDEX ) ) * (brightness * 0.8);
 
 	}
 	#pragma unroll_loop_end
 	c = aces( c );
 
 	c -= random( uv ) * 0.03 * c;
-	c *= smoothstep( -0.6, 0.9, 1.0 - length( cuv ) );
+	c *= smoothstep( -0.8, 1.0, 1.0 - length( cuv ) );
 
 	gl_FragColor = vec4( c, 1.0 );
 

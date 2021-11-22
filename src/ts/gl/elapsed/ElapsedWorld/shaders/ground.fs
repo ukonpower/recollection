@@ -523,7 +523,7 @@ void main( void ) {
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
 
-		refUV.x += geo.normal.x * 0.5;
+		refUV.x += geo.normalWorld.x * 0.5;
 
 		float l = (1.0 - exp( -mat.roughness  ) ) * 1.6 * REF_MIPMAP_LEVEL;
 

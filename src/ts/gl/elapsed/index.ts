@@ -102,7 +102,6 @@ export default class ElapsedScene extends BaseGL {
 
 		this.commonUniforms.resolution.value.copy( this.info.size.canvasPixelSize );
 
-
 		if ( this.cameraController ) {
 
 			this.cameraController.resize( this.info );

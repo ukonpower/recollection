@@ -118,7 +118,7 @@ html, body {
 			transition: 1s;
 
 			@include sp {
-				font-size: 14px;
+				font-size: 12px;
 			}
 			
 			[data-info='true'] &{
@@ -134,7 +134,11 @@ html, body {
 
 			transform: translateY( 20px );
 			transition: 1s;
-	
+			
+			@include sp {
+				font-size: 12px;
+			}
+			
 			[data-info='true'] &{
 				transform: translateY( 0px );
 				opacity: 1;
