@@ -128,7 +128,6 @@ class APP {
 		this.controller.addLayer( this.scene, {
 			name: 'SceneController',
 			canvas: canvas,
-			context: canvas.getContext( 'webgl2' ),
 			pixelRatio: Math.max( 1.0, window.devicePixelRatio * 0.5 ) * 0.8,
 		} );
 

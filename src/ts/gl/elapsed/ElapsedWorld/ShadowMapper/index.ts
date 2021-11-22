@@ -48,6 +48,7 @@ export class ShadowMapper {
 
 				if ( mesh.userData.depthMat ) {
 
+					mesh.userData.mat = mesh.material;
 					mesh.material = mesh.userData.depthMat;
 
 				} else {

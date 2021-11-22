@@ -31,7 +31,7 @@ export class ElapsedCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.15, 0.15 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.05, 0.05 );
 
 	}
 
@@ -59,7 +59,7 @@ export class ElapsedCameraController {
 
 		}
 
-		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.0 ) * Math.sin( time * 0.7 ) * 0.0015, Math.sin( time * 2.0 ) * 0.0015 ) ) );
+		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.6 ) * Math.sin( time * 1.0 ) * 0.002, Math.sin( time * 2.0 ) * 0.002 ) ) );
 
 	}
 

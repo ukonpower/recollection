@@ -15,9 +15,10 @@ export class ElapsedWorld extends THREE.Object3D {
 	private gManager: ElapsedGlobalManager;
 	private renderer: THREE.WebGLRenderer;
 	private scene: THREE.Scene;
-	private commonUniforms: ORE.Uniforms;
+	public commonUniforms: ORE.Uniforms;
 
 	private lights: THREE.Light[] = []
+	private k: K;
 	private shadowMapper: ShadowMapper;
 
 	constructor( gManager: ElapsedGlobalManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
@@ -29,6 +30,9 @@ export class ElapsedWorld extends THREE.Object3D {
 		this.scene = scene;
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
+			globalEnvMap: {
+				value: null
+			}
 		} );
 
 		/*-------------------------------
@@ -43,19 +47,10 @@ export class ElapsedWorld extends THREE.Object3D {
 		this.scene.add( light );
 		this.lights.push( light );
 
+		this.k = new K( this.gManager, this.commonUniforms );
+		this.scene.add( this.k );
 
-		let k = new K( this.commonUniforms );
-		// k.position.set( - 0.08, 0.08, - 0.4 );
-		// k.position.set( 0.065, 0.37, 0.006 );
-		k.position.set( - 0.07, 0.28, - 0.02, );
-		this.scene.add( k );
-
-		let pLight = new THREE.PointLight();
-		pLight.intensity = 3.0;
-		pLight.decay = 1.0;
-		pLight.distance = 0.2;
-		pLight.position.copy( k.position );
-		this.scene.add( pLight );
+		this.k.position.copy( this.scene.getObjectByName( 'K' ).position );
 
 		/*-------------------------------
 			ShadowMapper
@@ -138,6 +133,8 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			} );
 
+			this.commonUniforms.globalEnvMap.value = tex;
+
 		} );
 
 
@@ -151,8 +148,10 @@ export class ElapsedWorld extends THREE.Object3D {
 			let p = item.position;
 			p.set( Math.sin( - t ) * 3.0, 1.5 + Math.sin( - t + Math.PI ) * 0.8, Math.cos( - t ) * 3.0 );
 
-
 		} );
+
+
+		this.k.update( time );
 
 		this.shadowMapper.update( this.scene );
 

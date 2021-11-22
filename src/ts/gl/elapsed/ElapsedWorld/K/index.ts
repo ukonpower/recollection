@@ -3,63 +3,80 @@ import * as ORE from '@ore-three-ts';
 
 import kVert from './shaders/k.vs';
 import kFrag from './shaders/k.fs';
-
-import oFrag from './shaders/o.fs';
+import { ElapsedGlobalManager } from '@gl/elapsed/ElapsedGlobalManager';
 
 export class K extends THREE.Mesh {
 
 	private commonUniforms: ORE.Uniforms;
+	private light: THREE.PointLight;
 
-	constructor( parentUniforms: ORE.Uniforms ) {
+	constructor( gManager: ElapsedGlobalManager, parentUniforms: ORE.Uniforms ) {
 
 		let commonUniforms = ORE.UniformsLib.mergeUniforms( parentUniforms, {
-			rnd: {
-				value: Math.random()
-			},
 			envMap: {
 				value: null
-			} } );
-
-		let kUni = ORE.UniformsLib.mergeUniforms( commonUniforms, {
+			},
+			skyTex: gManager.assetManager.getTex( 'sky' ),
 			modelMatrixInverse: {
 				value: new THREE.Matrix4()
 			},
-			scale: {
-				value: new THREE.Vector3( 1.0, 1.0, 1.0 )
+			camNear: {
+				value: 0
 			},
+			camFar: {
+				value: 0
+			}
 		} );
 
-		let geo = new THREE.SphereBufferGeometry( 0.1, );
+		commonUniforms = ORE.UniformsLib.mergeUniforms( commonUniforms, THREE.UniformsUtils.clone( THREE.ShaderLib.standard.uniforms ) );
+
+		let geo = new THREE.SphereBufferGeometry( 0.1 );
 		let mat = new THREE.ShaderMaterial( {
 			vertexShader: kVert,
 			fragmentShader: kFrag,
-			uniforms: kUni,
+			uniforms: commonUniforms,
 			transparent: true
 		} );
 
 		super( geo, mat );
 
+		this.renderOrder = 999;
 		this.commonUniforms = commonUniforms;
 
-		this.onBeforeRender = () => {
+		this.userData.depthMat = new THREE.ShaderMaterial( {
+			vertexShader: kVert,
+			fragmentShader: kFrag,
+			side: THREE.DoubleSide,
+			uniforms: commonUniforms,
+			lights: true,
+			defines: {
+				'DEPTH': "",
+			},
+		} );
 
-			kUni.modelMatrixInverse.value.copy( this.matrixWorld.clone().invert() );
+		this.onBeforeRender = ( renderer, scene, camera: THREE.PerspectiveCamera ) => {
+
+			this.commonUniforms.modelMatrixInverse.value.copy( this.matrixWorld.clone().invert() );
+
+			if ( camera.userData.shadowCamera ) {
+
+				this.commonUniforms.camNear.value = camera.near;
+				this.commonUniforms.camFar.value = camera.far;
+
+			}
 
 		};
 
-		let cubemapLoader = new THREE.CubeTextureLoader();
-		cubemapLoader.load( [
-			'/assets/scene/img/env/px.jpg',
-			'/assets/scene/img/env/nx.jpg',
-			'/assets/scene/img/env/py.jpg',
-			'/assets/scene/img/env/ny.jpg',
-			'/assets/scene/img/env/pz.jpg',
-			'/assets/scene/img/env/nz.jpg',
-		], ( tex ) => {
+		this.light = new THREE.PointLight();
+		this.light.decay = 1.0;
+		this.light.distance = 0.2;
+		this.add( this.light );
 
-			this.commonUniforms.envMap.value = tex;
+	}
 
-		} );
+	public update( time: number ) {
+
+		this.light.intensity = 3.0 + ( Math.sin( time * 3.0 ) * Math.sin( time * 1.4 + .1 ) ) * 1;
 
 	}
 

@@ -186,7 +186,7 @@ varying vec2 vHighPrecisionZW;
 float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
 
 	float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-	float shadow = step( geoDepth - shadowMapTexDepth, 0.00001 );
+	float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
 	shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
@@ -340,6 +340,8 @@ void main( void ) {
 	
 	#endif
 
+	if( mat.opacity < 0.5 ) discard;
+
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
 	mat.specularColor = mix( vec3( 1.0, 1.0, 1.0 ), mat.albedo, mat.metalness );
 
@@ -432,6 +434,8 @@ void main( void ) {
 		Lighting
 	-------------------------------*/
 
+	vec3 skyColor = texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
+
 	// shadowMap
 	float shadow = shadowMapPCSS();
 	
@@ -443,7 +447,7 @@ void main( void ) {
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 				light.direction = directionalLights[ i ].direction;
-				light.color = directionalLights[ i ].color * texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
+				light.color = directionalLights[ i ].color * skyColor;
 
 				outColor += RE( geo, mat, light ) * shadow;
 				
@@ -493,7 +497,7 @@ void main( void ) {
 	refDir.x *= -1.0;
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF ) * skyColor;
 
 	/*-------------------------------
 		Reflection

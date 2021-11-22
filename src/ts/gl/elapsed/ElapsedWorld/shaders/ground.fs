@@ -387,7 +387,7 @@ void main( void ) {
 
 	float wet = smoothstep( 0.4, 0.45, texture2D( noiseTex, vUv * 0.1 + vec2( 0.203, 0.43) ).x );
 	wet = clamp( wet, 0.0, 1.0 );
-	mat.albedo *= 1.0 - ( wet * 0.7 ) ;
+	mat.albedo *= 1.0 - ( wet * 0.8 );
 	mat.roughness = mix( mat.roughness, smoothstep( 0.45, 0.6, texture2D( waterRoughness, vUv + 0.3 ).x ) * 0.3, wet );
 
 	mat.diffuseColor = mix( mat.albedo, vec3( 0.0, 0.0, 0.0 ), mat.metalness );
@@ -444,9 +444,7 @@ void main( void ) {
 		Lighting
 	-------------------------------*/
 
-	/*-------------------------------
-		Lighting
-	-------------------------------*/
+	vec3 skyColor = texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
 
 	// shadowMap
 	float shadow = shadowMapPCSS();
@@ -459,7 +457,7 @@ void main( void ) {
 			for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
 
 				light.direction = directionalLights[ i ].direction;
-				light.color = directionalLights[ i ].color * texture2D( skyTex, vec2( 0.5, sin( time * 0.5 ) * 0.5 + 0.5 ) ).xyz;
+				light.color = directionalLights[ i ].color * skyColor;
 
 				outColor += RE( geo, mat, light ) * shadow;
 				
@@ -509,7 +507,7 @@ void main( void ) {
 	refDir.x *= -1.0;
 
 	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF ) * skyColor;
 
 	/*-------------------------------
 		Reflection

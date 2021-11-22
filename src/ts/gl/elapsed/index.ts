@@ -18,6 +18,12 @@ export default class ElapsedScene extends BaseGL {
 
 		super( renderer, info, renderTarget, parentUniforms );
 
+		this.commonUniforms = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+			resolution: {
+				value: new THREE.Vector2()
+			}
+		} );
+
 		this.gManager = new ElapsedGlobalManager();
 
 		this.gManager.assetManager.load( { assets: [
@@ -82,7 +88,7 @@ export default class ElapsedScene extends BaseGL {
 
 		if ( this.world ) {
 
-			this.world.update( deltaTime, this.time );
+			this.world.update( deltaTime, this.time, this.renderTarget );
 
 		}
 
@@ -93,6 +99,9 @@ export default class ElapsedScene extends BaseGL {
 	public onResize() {
 
 		super.onResize();
+
+		this.commonUniforms.resolution.value.copy( this.info.size.canvasPixelSize );
+
 
 		if ( this.cameraController ) {
 
