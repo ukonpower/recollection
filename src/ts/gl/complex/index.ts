@@ -54,7 +54,7 @@ export default class Complex extends BaseGL {
 		this.scene.add( light );
 
 		light = new THREE.DirectionalLight();
-		light.intensity = 1.0;
+		light.intensity = 0.1;
 		light.position.set( 1, 1, 1 );
 		this.scene.add( light );
 
