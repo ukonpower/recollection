@@ -23,16 +23,6 @@ export class SphereMaterial extends THREE.ShaderMaterial {
 
 	constructor( param: PowerMaterialParams ) {
 
-		param.uniforms = param.uniforms || {};
-
-		let baseUni = THREE.UniformsUtils.merge(
-			[
-				THREE.UniformsLib.lights,
-				THREE.UniformsLib.envmap,
-				THREE.ShaderLib.physical.uniforms,
-			]
-		);
-
 		param.uniforms = ORE.UniformsLib.mergeUniforms( param.uniforms, {
 			roughness: {
 				value: 0
@@ -47,7 +37,7 @@ export class SphereMaterial extends THREE.ShaderMaterial {
 				value: 0
 			}
 		} );
-		param.uniforms = ORE.UniformsLib.mergeUniforms( param.uniforms, baseUni );
+		param.uniforms = ORE.UniformsLib.mergeUniforms( param.uniforms, THREE.UniformsUtils.clone( THREE.ShaderLib.standard.uniforms ) );
 
 		param.vertexShader = param.vertexShader || sphereMatVert;
 
@@ -61,18 +51,6 @@ export class SphereMaterial extends THREE.ShaderMaterial {
 		this.roughness = param.roughness != undefined ? param.roughness : 0.2;
 		this.metalness = param.metalness != undefined ? param.metalness : 0.3;
 		this.envMapIntensity = 1.0;
-
-	}
-
-	public get isMeshStandardMaterial() {
-
-		return true;
-
-	}
-
-	public get isMeshPhysicalMaterial() {
-
-		return true;
 
 	}
 
