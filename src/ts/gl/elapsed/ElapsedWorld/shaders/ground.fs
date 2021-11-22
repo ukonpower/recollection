@@ -537,7 +537,7 @@ void main( void ) {
 		vec3 ref1 = textureBicubic( reflectionTex, ruv1, mipMapResolution ).xyz;
 		vec3 ref2 = textureBicubic( reflectionTex, ruv2, mipMapResolution ).xyz;
 
-		outColor = outColor + mix( ref1, ref2, blend ) * EF * ( 1.0 + wet );
+		outColor = outColor + mix( ref1, ref2, blend ) * EF * ( 1.0 + wet ) * ( 0.3 + skyColor * 0.7);
 
 	#else
 	
