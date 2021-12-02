@@ -337,7 +337,6 @@ void main( void ) {
 
 		vec4 color = texture2D( map, vUv );
 		mat.albedo = color.xyz;
-		mat.albedo = pow( mat.albedo, vec3( 1.0 / 2.2 ) );
 		mat.opacity = color.w;
 
 	#else
