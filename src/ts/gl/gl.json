@@ -1,5 +1,11 @@
 [
 	{
+		"title": "Focused",
+		"fileName": "focused",
+		"data": "20??-??-??",
+		"description": "focused."
+	},
+	{
 		"title": "Elapsed",
 		"fileName": "elapsed",
 		"data": "2021-11-22",

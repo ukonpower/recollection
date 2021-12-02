@@ -37,7 +37,8 @@ module.exports = {
 		extensions: ['.ts', '.js', '.json'],
 		alias: {
             "@ore-three-ts": path.resolve(__dirname, './src/common/ts/ore-three-ts/src'),
-            "@gl": path.resolve(__dirname, './src/ts/gl/')
+            "@gl": path.resolve(__dirname, './src/ts/gl/'),
+            "@common": path.resolve(__dirname, './src/ts/common')
         }
 	},
 	cache: {

@@ -1,46 +1,30 @@
 import * as ORE from '@ore-three-ts';
 import * as THREE from 'three';
 
-import { RenderPipeline } from './RenderPipeline';
 import { BaseGL } from '../BaseGL';
-import { ElapsedGlobalManager } from './ElapsedGlobalManager';
-import { ElapsedCameraController } from './ElapsedCameraController';
-import { ElapsedWorld } from './ElapsedWorld';
+import { FocusedRenderPipeline } from './FocusedRenderPipeline';
+import { FocusedGlobalManager } from './FocusedGlobalManager';
+import { FocusedCameraController } from './FocusedCameraController';
+import { FocusedWorld } from './FocusedWorld';
 
 export default class Focused extends BaseGL {
 
-	private gManager: ElapsedGlobalManager
-	private renderPipeline: RenderPipeline;
-	private cameraController: ElapsedCameraController;
-	private world: ElapsedWorld;
+	private gManager: FocusedGlobalManager
+	private renderPipeline: FocusedRenderPipeline;
+	private cameraController: FocusedCameraController;
+	private world: FocusedWorld;
 
 	constructor( renderer: THREE.WebGLRenderer, info: ORE.LayerInfo, renderTarget: THREE.WebGLRenderTarget, parentUniforms: ORE.Uniforms ) {
 
 		super( renderer, info, renderTarget, parentUniforms );
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
-			resolution: {
-				value: new THREE.Vector2()
-			}
 		} );
 
-		this.gManager = new ElapsedGlobalManager();
+		this.gManager = new FocusedGlobalManager();
 
 		this.gManager.assetManager.load( { assets: [
-			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' },
-			{ name: 'waterRoughness', path: '../assets/gl/elapsed/scene/ground/Metal002_1K_Roughness.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
-
-				tex.wrapS = THREE.RepeatWrapping;
-				tex.wrapT = THREE.RepeatWrapping;
-
-			} },
-			{ name: 'noise', path: '../assets/scene/img/noise.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
-
-				tex.wrapS = THREE.RepeatWrapping;
-				tex.wrapT = THREE.RepeatWrapping;
-
-			} },
-			{ name: 'sky', path: '../assets/gl/elapsed/scene/sky.png', type: 'tex' },
+			{ name: 'scene', path: '../assets/gl/focused/scene/focused.glb', type: 'gltf' }
 		] } );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
@@ -52,7 +36,7 @@ export default class Focused extends BaseGL {
 
 		} );
 
-		this.renderPipeline = new RenderPipeline( this.renderer, this.commonUniforms );
+		this.renderPipeline = new FocusedRenderPipeline( this.renderer, this.commonUniforms );
 
 
 	}
@@ -62,12 +46,12 @@ export default class Focused extends BaseGL {
 		/*------------------------
 			CameraController
 		------------------------*/
-		this.cameraController = new ElapsedCameraController( this.camera, this.scene );
+		this.cameraController = new FocusedCameraController( this.camera, this.scene );
 
 		/*------------------------
 			World
 		------------------------*/
-		this.world = new ElapsedWorld( this.gManager, this.renderer, this.scene, this.commonUniforms );
+		this.world = new FocusedWorld( this.gManager, this.renderer, this.scene, this.commonUniforms );
 		this.scene.add( this.world );
 
 	}
@@ -99,8 +83,6 @@ export default class Focused extends BaseGL {
 	public onResize() {
 
 		super.onResize();
-
-		this.commonUniforms.resolution.value.copy( this.info.size.canvasPixelSize );
 
 		if ( this.cameraController ) {
 

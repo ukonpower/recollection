@@ -16,6 +16,7 @@
 		"paths": {
 			"@ore-three-ts" : ["src/common/ts/ore-three-ts/src"],
 			"@gl/*" : ["src/ts/gl/*"],
+			"@common/*" : ["src/ts/common/*"],
 		}
 	},
   	"include": [
