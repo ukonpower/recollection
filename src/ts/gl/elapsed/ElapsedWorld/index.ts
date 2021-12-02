@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { PowerMesh } from './PowerMesh';
 import { ShadowMapper } from './ShadowMapper';
-import { PowerReflectionMesh } from './PowerMesh/PowerReflectMesh';
 import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
 
 import groundFrag from './shaders/ground.fs';
 import sceneFrag from './shaders/scene.fs';
 import { K } from './K';
+import { PowerMesh } from '@common/PowerMesh';
+import { PowerReflectionMesh } from '@common/PowerMesh/PowerReflectMesh';
 
 export class ElapsedWorld extends THREE.Object3D {
 
