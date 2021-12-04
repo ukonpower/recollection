@@ -63,6 +63,7 @@ export default class ElapsedScene extends BaseGL {
 			CameraController
 		------------------------*/
 		this.cameraController = new ElapsedCameraController( this.camera, this.scene );
+		this.camera.userData.mainCamera = true;
 
 		/*------------------------
 			World

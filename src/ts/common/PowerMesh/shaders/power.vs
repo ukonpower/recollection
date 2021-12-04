@@ -5,8 +5,7 @@ varying vec3 vViewPos;
 varying vec3 vWorldPos;
 varying vec2 vHighPrecisionZW;
 
-varying vec2 vShadowMapUV;
-varying float vShadowMapGeoDepth;
+varying vec3 vShadowMapCoord;
 
 uniform mat4 modelViewMatrixLight;
 uniform mat4 projectionMatrixLight;
@@ -23,8 +22,8 @@ void main( void ) {
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
 
-	vec4 shadowMapPosition = projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) );
-	vShadowMapUV = shadowMapPosition.xy * 0.5 + 0.5;
-	vShadowMapGeoDepth = shadowMapPosition.z * 0.5 + 0.5;
+	vec4 shadowPos = ( projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) ) );
+	vShadowMapCoord = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+	 
 
 }

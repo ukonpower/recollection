@@ -7,24 +7,25 @@ export class ShadowMapper {
 	private resolution: THREE.Vector2;
 	private light: THREE.DirectionalLight;
 	private camera: THREE.OrthographicCamera;
-	private size: number;
+	private size: THREE.Vector2;
 
 	private renderTarget: THREE.WebGLRenderTarget;
 
-	constructor( renderer: THREE.WebGLRenderer, resolution: THREE.Vector2, size: number, light: THREE.DirectionalLight ) {
+	constructor( renderer: THREE.WebGLRenderer, resolution: THREE.Vector2, size: THREE.Vector2, light: THREE.DirectionalLight ) {
 
 		this.renderer = renderer;
 		this.resolution = resolution;
 		this.size = size;
 		this.light = light;
 
-		this.camera = new THREE.OrthographicCamera( - size / 2.0, size / 2.0, size / 2.0, - size / 2.0, 0.01, 1000 );
+		this.camera = new THREE.OrthographicCamera( - size.x / 2.0, size.x / 2.0, size.y / 2.0, - size.y / 2.0, 0.01, 100 );
 
 		// LightCamera
 		this.camera.userData.shadowCamera = true;
 		this.camera.userData.shadowCameraLight = this.light;
+		this.camera.userData.shadowMapSize = this.size;
 		this.camera.userData.shadowMapResolution = this.resolution;
-		this.camera.userData.shadowMapTex = {
+		this.camera.userData.shadowMap = {
 			value: null
 		};
 
@@ -38,7 +39,7 @@ export class ShadowMapper {
 
 	public update( scene: THREE.Scene ) {
 
-		this.camera.position.copy( this.light.getWorldPosition( new THREE.Vector3() ) );
+		this.camera.position.copy( this.light.position );
 		this.camera.lookAt( 0, 0, 0 );
 
 		scene.traverse( obj=>{
@@ -73,7 +74,7 @@ export class ShadowMapper {
 
 		scene.background = bgMem;
 
-		this.camera.userData.shadowMapTex.value = this.renderTarget.texture;
+		this.camera.userData.shadowMap.value = this.renderTarget.texture;
 
 		scene.traverse( obj=>{
 

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { ShadowMapper } from './ShadowMapper';
+import { ShadowMapper } from '@common/ShadowMapper';
 import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
 
 import groundFrag from './shaders/ground.fs';
@@ -56,7 +56,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 2.0, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 2.0, 2.0 ), light );
 
 		/*-------------------------------
 			Meshes

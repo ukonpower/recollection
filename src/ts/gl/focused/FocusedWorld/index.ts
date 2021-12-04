@@ -15,6 +15,8 @@ export class FocusedWorld extends THREE.Object3D {
 	private light: THREE.DirectionalLight;
 	private shadowMapper: ShadowMapper
 
+	private mesh: THREE.Mesh;
+
 	constructor( gManager: FocusedGlobalManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
 		super();
@@ -36,14 +38,16 @@ export class FocusedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( 10.0, 15.0, 10.0 );
+		light.position.set( 10.0, 6.0, 0.0 );
 		this.scene.add( light );
+
+		this.light = light;
 
 		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 30.0, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 30.0, 30.0 ), light );
 
 		/*-------------------------------
 			Meshes
@@ -55,9 +59,12 @@ export class FocusedWorld extends THREE.Object3D {
 
 			if ( mesh.isMesh ) {
 
-				let powerMesh = new PowerMesh( mesh );
+				let powerMesh = new PowerMesh( mesh, {
+					uniforms: this.commonUniforms
+				} );
 
 				scene.add( powerMesh );
+				this.mesh = powerMesh;
 
 			}
 
@@ -71,6 +78,11 @@ export class FocusedWorld extends THREE.Object3D {
 	public update( deltaTime: number, time: number ) {
 
 		this.shadowMapper.update( this.scene );
+
+		this.mesh.position.y = ( Math.sin( time ) * 0.5 + 0.5 ) * 1.0 - 0.5;
+
+		this.light.position.x = Math.sin( time ) * 15.0;
+		this.light.position.z = Math.cos( time ) * 15.0;
 
 	}
 

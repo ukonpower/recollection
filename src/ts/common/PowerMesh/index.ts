@@ -34,8 +34,11 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			projectionMatrixLight: {
 				value: new THREE.Matrix4()
 			},
-			shadowMapTex: {
+			shadowMap: {
 				value: null
+			},
+			shadowMapSize: {
+				value: new THREE.Vector2()
 			},
 			shadowMapResolution: {
 				value: new THREE.Vector2()
@@ -184,6 +187,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		this.name = geoMesh.name;
 
+		this.userData.mat = this.material;
 		this.userData.depthMat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
@@ -271,6 +275,22 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			}
 
 			/*-------------------------------
+				Depth
+			-------------------------------*/
+
+			if ( camera.userData.depthCamera ) {
+
+				this.material = this.userData.depthMat;
+
+				if ( ! this.material ) {
+
+					this.visible = false;
+
+				}
+
+			}
+
+			/*-------------------------------
 				ShadowMap Depth
 			-------------------------------*/
 
@@ -278,7 +298,8 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
 				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
-				this.commonUniforms.shadowMapTex.value = camera.userData.shadowMapTex.value;
+				this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
+				this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
 				this.commonUniforms.shadowMapResolution.value.copy( camera.userData.shadowMapResolution );
 
 			}

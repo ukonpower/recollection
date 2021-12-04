@@ -72,7 +72,6 @@ export class PowerReflectionMesh extends PowerMesh {
 		super( geoMesh as THREE.BufferGeometry, materialOption );
 
 		this.material.defines.REFLECTPLANE = '';
-		this.material.needsUpdate = true;
 
 		this.reflectorPlane = new THREE.Plane();
 		this.normal = new THREE.Vector3();
@@ -169,7 +168,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			let scene = e.scene as THREE.Scene;
 			let camera = e.camera as THREE.Camera;
 
-			// if ( camera.userData.shadowCamera ) return;
+			if ( ! camera.userData.mainCamera ) return;
 
 			this.reflectorWorldPosition.setFromMatrixPosition( this.matrixWorld );
 			this.cameraWorldPosition.setFromMatrixPosition( camera.matrixWorld );
@@ -256,6 +255,7 @@ export class PowerReflectionMesh extends PowerMesh {
 
 			renderer.clear();
 			renderer.render( scene, this.virtualCamera );
+			renderer.clearDepth();
 
 			renderer.setRenderTarget( currentRenderTarget );
 			this.visible = true;
@@ -281,6 +281,7 @@ export class PowerReflectionMesh extends PowerMesh {
 			if ( rt ) {
 
 				this.commonUniforms.renderResolution.value.set( rt.width, rt.height );
+
 
 			} else {
 

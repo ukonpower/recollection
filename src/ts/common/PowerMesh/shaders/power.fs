@@ -4,6 +4,7 @@ varying vec2 vUv;
 	Material Uniforms
 -------------------------------*/
 
+uniform float time;
 
 /*-------------------------------
 	Textures
@@ -199,7 +200,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 #endif
 
 /*-------------------------------
-	ShadowMap
+	Shadow
 -------------------------------*/
 
 #ifdef DEPTH
@@ -208,62 +209,88 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 #else
 
-	uniform sampler2D shadowMapTex;
+	uniform sampler2D shadowMap;
+	uniform vec2 shadowMapSize;
 	uniform vec2 shadowMapResolution;
-	varying vec2 vShadowMapUV;
-	varying float vShadowMapGeoDepth;
+	varying vec3 vShadowMapCoord;
 
+	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth ) {
 
-	float compairShadowMapDepth(  float geoDepth, sampler2D shadowMapTex, vec2 shadowMapUV ) {
-
-		float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, shadowMapUV ) );
-		float shadow = step( geoDepth - shadowMapTexDepth, 0.0001 );
+		float shadowMapDepth = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
+		float shadow = depth < shadowMapDepth + 0.001 ? 1.0 : 0.0;
 		shadow = mix( 1.0, shadow, step( abs( shadowMapUV.x - 0.5 ), 0.5 ) );
 		shadow = mix( 1.0, shadow, step( abs( shadowMapUV.y - 0.5 ), 0.5 ) );
 
-		return shadow;
+		return vec2( shadow, shadowMapDepth );
 		
 	}
 
-	float shadowMapPCF( float shadowRadius ) {
+	#define SHADOW_LIGHT_SIZE .2
+	#define SHADOW_PCS_COUNT 4
+
+	float shadowMapPCF( sampler2D shadowMap, vec3 shadowMapCoord, vec2 shadowSize ) {
 
 		float shadow = 0.0;
-		vec2 d = (1.0 / shadowMapResolution) * shadowRadius;
-		vec2 hd = d / 2.0;
-		
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -d.y ) );
-		
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, -hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, -hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, -hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, -hd.y ) );
-		
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, hd.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, hd.y ) );
-		
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -d.x, d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( -hd.x, d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( hd.x, d.y ) );
-		shadow += compairShadowMapDepth( vShadowMapGeoDepth, shadowMapTex, vShadowMapUV + vec2( d.x, d.y ) );
 
-		shadow /= 16.0;
+		for( int i = 0; i < SHADOW_PCS_COUNT; i ++  ) {
+
+			for( int j = 0; j < SHADOW_PCS_COUNT; j ++  ) {
+
+				vec2 offset = ( vec2( j , i ) / float( SHADOW_PCS_COUNT - 1 ) - 0.5 ) * shadowSize; 
+
+				shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z ).x;
+
+			}
+			
+		}
+
+		shadow /= float( SHADOW_PCS_COUNT * SHADOW_PCS_COUNT );
 
 		return shadow;
 
 	}
 
-	float shadowMapPCSS() {
+	float shadowMapPCSS( sampler2D shadowMap, vec2 shadowMapSize, vec2 shadowMapResolution, vec3 shadowMapCoord ) {
 
-		float geoDepth = vShadowMapGeoDepth;
-		float shadowMapTexDepth = unpackRGBAToDepth( texture2D( shadowMapTex, vShadowMapUV ) );
+		int numBlockers = 0;
+		float avgDepth = 0.0;
 
-		float shadow = shadowMapPCF( 1.0 + abs(geoDepth - shadowMapTexDepth) );
+		for( int i = 0; i < SHADOW_PCS_COUNT; i ++ ) {
 
+			for( int j = 0; j < SHADOW_PCS_COUNT; j ++ ) {
+
+				vec2 offset = ( vec2( j , i ) / float( SHADOW_PCS_COUNT - 1 ) - 0.5 ) * (( SHADOW_LIGHT_SIZE / shadowMapSize ) ); 
+
+				vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z );
+
+				if( shadow.x == 0.0 ) {
+
+					avgDepth += shadow.y;
+					numBlockers ++;
+					
+				}
+
+			}
+			
+		}
+
+		// if( numBlockers == 0 ) {
+
+		// 	// return 1.0;
+
+		// } else if( numBlockers == SHADOW_PCS_COUNT * SHADOW_PCS_COUNT ) {
+
+		// 	// return 0.0;
+			
+		// }
+
+		avgDepth /= float( numBlockers );
+
+		vec2 shadowSize = ( shadowMapCoord.z - avgDepth ) / avgDepth * ( SHADOW_LIGHT_SIZE / shadowMapSize );
+
+		float shadow = shadowMapPCF( shadowMap, shadowMapCoord, shadowSize );
+		
+		// return unpackRGBAToDepth( texture2D( shadowMap, shadowMapCoord.xy ) );
 		return shadow;
 
 	}
@@ -338,7 +365,7 @@ vec3 RE( Geometry geo, Material mat, Light light) {
 	float G = gSmith( dNV, dNL, mat.roughness );
 	float F = fresnel( dLH );
 	
-	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor )* irradiance; 
+	vec3 specular = (( D * G * F ) / ( 4.0 * dNL * dNV + 0.0001 ) * mat.specularColor ) * irradiance; 
 
 	vec3 c = vec3( 0.0 );
 	c += diffuse * ( 1.0 - F ) + specular;
@@ -475,7 +502,7 @@ void main( void ) {
 	
 	#ifndef DEPTH
 
-		shadow *= shadowMapPCSS();
+		shadow *= shadowMapPCSS( shadowMap, shadowMapSize, shadowMapResolution, vShadowMapCoord );
 
 	#endif
 	
