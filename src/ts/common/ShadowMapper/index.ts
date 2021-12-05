@@ -18,21 +18,26 @@ export class ShadowMapper {
 		this.size = size;
 		this.light = light;
 
-		this.camera = new THREE.OrthographicCamera( - size.x / 2.0, size.x / 2.0, size.y / 2.0, - size.y / 2.0, 0.01, 100 );
+		this.camera = new THREE.OrthographicCamera( - size.x / 2.0, size.x / 2.0, size.y / 2.0, - size.y / 2.0, 0.01, 1000 );
 
 		// LightCamera
 		this.camera.userData.shadowCamera = true;
 		this.camera.userData.shadowCameraLight = this.light;
+		this.camera.userData.shadowMapCameraClip = new THREE.Vector2( this.camera.near, this.camera.far );
 		this.camera.userData.shadowMapSize = this.size;
 		this.camera.userData.shadowMapResolution = this.resolution;
 		this.camera.userData.shadowMap = {
 			value: null
 		};
 
+		this.camera.userData.shadowMapCameraLength = 0;
+
 		this.renderTarget = new THREE.WebGLRenderTarget( this.resolution.x, this.resolution.y, {
 			format: THREE.RGBAFormat,
 			stencilBuffer: false,
-			generateMipmaps: false
+			generateMipmaps: false,
+			magFilter: THREE.NearestFilter,
+			minFilter: THREE.NearestFilter
 		} );
 
 	}
