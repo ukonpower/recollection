@@ -220,18 +220,18 @@ void main( void ) {
 	vec2 dist = vec2(0.0);
 
 	vec4 c = vec4( 0.0 );
+	float depth = length( vPos - cameraPosition );
 
 	for( int i = 0; i < 32; i++ ) {
 
 		dist = D( rayPos );		
 		rayPos += dist.x * rayDir;
+		depth += dist.x;
 
 		if( dist.x < 0.0001 ) {
 
 			#ifdef DEPTH
-
-				float depth = ( dist.x - camNear ) / ( camFar - camNear );
-				gl_FragColor = packDepthToRGBA( depth );
+				gl_FragColor = packDepthToRGBA( ( depth - camNear ) / ( camFar - camNear ) );
 				return;
 
 			#else 

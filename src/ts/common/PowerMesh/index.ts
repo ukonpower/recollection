@@ -91,7 +91,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				} else {
 
 					uni.roughness = {
-						value: mat.roughness * 0.1
+						value: mat.roughness
 					};
 
 				}

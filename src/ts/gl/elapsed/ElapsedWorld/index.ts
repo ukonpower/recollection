@@ -147,6 +147,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			let t = time * 0.5 + 0.0;
 			let p = item.position;
 			p.set( Math.sin( - t ) * 3.0, 1.5 + Math.sin( - t + Math.PI ) * 0.8, Math.cos( - t ) * 3.0 );
+			p.multiplyScalar( 5 );
 
 		} );
 
