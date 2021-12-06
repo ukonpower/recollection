@@ -46,6 +46,9 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			shadowMapResolution: {
 				value: new THREE.Vector2()
 			},
+			shadowMapLightSize: {
+				value: 1.0
+			}
 		} );
 
 		uni = ORE.UniformsLib.mergeUniforms( uni, THREE.UniformsUtils.clone( THREE.UniformsLib.lights ) );
@@ -304,6 +307,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
 				this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
 				this.commonUniforms.shadowMapCameraClip.value.copy( camera.userData.shadowMapCameraClip );
+				this.commonUniforms.shadowMapLightSize.value = camera.userData.shadowMapLightSize;
 				this.commonUniforms.shadowMapResolution.value.copy( camera.userData.shadowMapResolution );
 
 			}
