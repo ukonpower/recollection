@@ -28,7 +28,7 @@ export class FocusedCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 3, 1.5 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.7, 0.5 );
 
 	}
 

@@ -47,7 +47,7 @@ export class FocusedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 30.0, 30.0 ), light, 2.0 );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 1.0 );
 
 		/*-------------------------------
 			Meshes

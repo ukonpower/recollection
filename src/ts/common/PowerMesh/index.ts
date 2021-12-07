@@ -4,6 +4,7 @@ import * as ORE from '@ore-three-ts';
 import powerVert from './shaders/power.vs';
 import powerFrag from './shaders/power.fs';
 
+export type PowerMeshMaterialType = 'color' | 'depth' | 'coc'
 export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMaterial> {
 
 	protected commonUniforms: ORE.Uniforms;
@@ -193,7 +194,8 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		this.name = geoMesh.name;
 
-		this.userData.mat = this.material;
+		this.userData.colorMat = this.material;
+
 		this.userData.depthMat = new THREE.ShaderMaterial( {
 			vertexShader: powerVert,
 			fragmentShader: powerFrag,
@@ -206,6 +208,22 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			defines: {
 				...mat.defines,
 				'DEPTH': "",
+			},
+		} );
+
+		this.userData.cocMat = new THREE.ShaderMaterial( {
+			vertexShader: powerVert,
+			fragmentShader: powerFrag,
+			side: THREE.DoubleSide,
+			lights: true,
+			extensions: {
+				derivatives: true
+			},
+			...materialOption,
+			defines: {
+				...mat.defines,
+				'DEPTH': '',
+				'COC': ''
 			},
 		} );
 
@@ -313,6 +331,12 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			}
 
 		} );
+
+	}
+
+	public get isPowerMesh() {
+
+		return true;
 
 	}
 

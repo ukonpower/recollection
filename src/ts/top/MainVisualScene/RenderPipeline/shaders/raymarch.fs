@@ -216,7 +216,6 @@ vec4 material( inout vec3 rayPos, inout vec4 rayDir, vec2 distRes, float depth )
 
 }
 
-
 vec2 packing16( float value ) { 
 
 	float v1 = value * 255.0;

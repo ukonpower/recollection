@@ -72,7 +72,24 @@ uniform float time;
 
 #pragma glslify: import('./constants.glsl' )
 
+/*-------------------------------
+	Packing
+-------------------------------*/
+
 #include <packing>
+
+vec2 packing16( float value ) { 
+
+	float v1 = value * 255.0;
+	float r = floor(v1);
+
+	float v2 = ( v1 - r ) * 255.0;
+	float g = floor( v2 );
+
+	return vec2( r, g ) / 255.0;
+
+}
+
 
 /*-------------------------------
 	Types
@@ -227,7 +244,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 		if( 0.0 <= shadowMapUV.x && shadowMapUV.x <= 1.0 && 0.0 <= shadowMapUV.y && shadowMapUV.y <= 1.0 ) {
 
 			float shadowMapDepth = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
-			float shadow = depth < shadowMapDepth + ( 0.3 / ( shadowMapCameraClip.y - shadowMapCameraClip.x ) ) ? 1.0 : 0.0;
+			float shadow = depth < shadowMapDepth + ( 0.05 / ( shadowMapCameraClip.y - shadowMapCameraClip.x ) ) ? 1.0 : 0.0;
 
 			if( 0.0 < shadowMapDepth && shadowMapDepth <= shadowMapCameraClip.x + shadowMapCameraClip.y ) {
 
@@ -473,8 +490,26 @@ void main( void ) {
 
 	#ifdef DEPTH
 
-		float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
-		gl_FragColor = packDepthToRGBA( fragCoordZ );
+		#ifdef COC
+
+			float focalLength = 0.8;
+			float focusLength = 4.0;
+			float fNumber = 1.0;
+			float d = vViewPos.z;
+
+			float coc = ( abs( d - focusLength ) / d ) * 
+						(focalLength * focalLength) / (fNumber * ( focusLength - focalLength) ) *
+						1.0 / 1.0;
+
+			gl_FragColor = packDepthToRGBA( coc );
+			
+		#else
+
+			float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
+			gl_FragColor = packDepthToRGBA( fragCoordZ );
+
+		#endif
+
 		return;
 	
 	#endif

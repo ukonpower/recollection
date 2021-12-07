@@ -1,6 +1,9 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
+//dof shader
+import dofFrag from './shaders/dof.fs';
+
 //bloom shader
 import bloomBlurFrag from './shaders/bloomBlur.fs';
 import bloomBrightFrag from './shaders/bloomBright.fs';
@@ -15,6 +18,7 @@ import neiborhoodBlendingFrag from './shaders/smaa_neiborhoodBlending.fs';
 
 //composite shader
 import compositeFrag from './shaders/composite.fs';
+import { PowerMesh, PowerMeshMaterialType } from '@common/PowerMesh';
 
 export class FocusedRenderPipeline {
 
@@ -33,6 +37,7 @@ export class FocusedRenderPipeline {
 	private inputTextures: ORE.Uniforms;
 
 	//postprocessing
+	private dofPP: ORE.PostProcessing;
 	private bloomBrightPP: ORE.PostProcessing;
 	private bloomBlurPP: ORE.PostProcessing;
 	private smaaEdgePP: ORE.PostProcessing;
@@ -79,6 +84,13 @@ export class FocusedRenderPipeline {
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter
 			} ),
+			coc: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
 		};
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
@@ -116,7 +128,52 @@ export class FocusedRenderPipeline {
 			}
 		};
 
+		/*-------------------------------
+			Dof
+		-------------------------------*/
+
+		this.dofPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: dofFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} )
+		} );
+
+		/*------------------------
+			Bloom
+		------------------------*/
+		this.bloomBrightPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: bloomBrightFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+				threshold: {
+					value: 0.5,
+				},
+			} ),
+		} );
+
+		this.bloomBlurPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: bloomBlurFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+				backbuffer: {
+					value: null
+				},
+				blurRange: {
+					value: 0.8
+				},
+				renderCount: {
+					value: this.bloomRenderCount
+				},
+				count: {
+					value: 0
+				},
+				direction: { value: false },
+			} ),
+		} );
+
+		/*------------------------
+			SMAA
+		------------------------*/
+
 		let loader = new THREE.TextureLoader();
+
 		loader.load( '/focused/assets/smaa/smaa-area.png', ( tex ) => {
 
 			tex.minFilter = THREE.LinearFilter;
@@ -136,41 +193,6 @@ export class FocusedRenderPipeline {
 			this.inputTextures.searchTex.value = tex;
 
 		} );
-
-		/*------------------------
-			Bloom
-		------------------------*/
-		this.bloomBrightPP = new ORE.PostProcessing( this.renderer, {
-			fragmentShader: bloomBrightFrag,
-			uniforms: ORE.UniformsLib.mergeUniforms( {
-				threshold: {
-					value: 0.5,
-				},
-			}, this.commonUniforms ),
-		} );
-
-		this.bloomBlurPP = new ORE.PostProcessing( this.renderer, {
-			fragmentShader: bloomBlurFrag,
-			uniforms: ORE.UniformsLib.mergeUniforms( {
-				backbuffer: {
-					value: null
-				},
-				blurRange: {
-					value: 0.8
-				},
-				renderCount: {
-					value: this.bloomRenderCount
-				},
-				count: {
-					value: 0
-				},
-				direction: { value: false },
-			}, this.commonUniforms ),
-		} );
-
-		/*------------------------
-			SMAA
-		------------------------*/
 
 		let defines = {
 			"mad(a, b, c)": "(a * b + c)",
@@ -244,27 +266,49 @@ export class FocusedRenderPipeline {
 
 	public render( scene: THREE.Scene, camera: THREE.Camera, renderTarget: THREE.WebGLRenderTarget ) {
 
+		let renderTargetMem = this.renderer.getRenderTarget();
+
 		/*------------------------
 			Scene
 		------------------------*/
-		let renderTargetMem = this.renderer.getRenderTarget();
+
+		this.swapMaterial( scene, 'color' );
 
 		this.renderer.setRenderTarget( this.renderTargets.rt1 );
 		this.renderer.render( scene, camera );
-		this.renderer.setRenderTarget( renderTargetMem );
 
+		/*-------------------------------
+			Coc
+		-------------------------------*/
+
+		this.swapMaterial( scene, 'coc' );
+
+		this.renderer.setRenderTarget( this.renderTargets.coc );
+		this.renderer.render( scene, camera );
+
+		this.renderer.setRenderTarget( renderTargetMem );
 		this.renderer.autoClear = false;
+
+		/*-------------------------------
+			Dof
+		-------------------------------*/
+
+		this.dofPP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			cocTex: this.renderTargets.coc.texture,
+		}, this.renderTargets.rt2 );
 
 		/*------------------------
 			Bloom
 		------------------------*/
+
 		this.bloomBrightPP.render( {
-			sceneTex: this.renderTargets.rt1.texture
-		}, this.renderTargets.rt2 );
+			sceneTex: this.renderTargets.rt2.texture
+		}, this.renderTargets.rt3 );
 
 		let target: THREE.WebGLRenderTarget;
 		let uni = this.bloomBlurPP.effect.material.uniforms;
-		uni.backbuffer.value = this.renderTargets.rt2.texture;
+		uni.backbuffer.value = this.renderTargets.rt3.texture;
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
@@ -286,25 +330,27 @@ export class FocusedRenderPipeline {
 		/*------------------------
 			SMAA
 		------------------------*/
+
 		this.smaaEdgePP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-		}, this.renderTargets.rt2 );
+			sceneTex: this.renderTargets.rt2.texture,
+		}, this.renderTargets.rt1 );
 
 		this.smaaCalcWeighttPP.render( {
-			backbuffer: this.renderTargets.rt2.texture,
+			backbuffer: this.renderTargets.rt1.texture,
 		}, this.renderTargets.rt3 );
 
 		this.smaaBlendingPP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
+			sceneTex: this.renderTargets.rt2.texture,
 			backbuffer: this.renderTargets.rt3.texture,
-		}, this.renderTargets.rt2 );
+		}, this.renderTargets.rt1 );
 
 
 		/*------------------------
 			Composite
 		------------------------*/
+
 		let compositeInputRenderTargets = {
-			sceneTex: this.renderTargets.rt2.texture,
+			sceneTex: this.renderTargets.rt1.texture,
 			bloomTexs: [] as THREE.Texture[]
 		};
 
@@ -320,6 +366,34 @@ export class FocusedRenderPipeline {
 
 	}
 
+	private swapMaterial( scene: THREE.Scene, type: PowerMeshMaterialType ) {
+
+		scene.traverse( ( obj ) => {
+
+			let powerMesh = obj as PowerMesh;
+
+			if ( powerMesh.isPowerMesh ) {
+
+				if ( type == 'color' ) {
+
+					powerMesh.material = powerMesh.userData.colorMat;
+
+				} else if ( type == "depth" ) {
+
+					powerMesh.material = powerMesh.userData.depthMat;
+
+				} else if ( type == "coc" ) {
+
+					powerMesh.material = powerMesh.userData.cocMat;
+
+				}
+
+			}
+
+		} );
+
+	}
+
 	public resize( pixelWindowSize: THREE.Vector2 ) {
 
 		this.smaaCommonUni.SMAA_RT_METRICS.value.set( 1 / pixelWindowSize.x, 1 / pixelWindowSize.y, pixelWindowSize.x, pixelWindowSize.y );
@@ -327,6 +401,8 @@ export class FocusedRenderPipeline {
 		this.renderTargets.rt1.setSize( pixelWindowSize.x, pixelWindowSize.y );
 		this.renderTargets.rt2.setSize( pixelWindowSize.x, pixelWindowSize.y );
 		this.renderTargets.rt3.setSize( pixelWindowSize.x, pixelWindowSize.y );
+
+		this.renderTargets.coc.setSize( pixelWindowSize.x, pixelWindowSize.y );
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
