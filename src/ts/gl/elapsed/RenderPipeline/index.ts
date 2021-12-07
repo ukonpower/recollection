@@ -117,7 +117,7 @@ export class RenderPipeline {
 		};
 
 		let loader = new THREE.TextureLoader();
-		loader.load( '../assets/gl/elapsed/smaa/smaa-area.png', ( tex ) => {
+		loader.load( '/elapsed/assets/smaa/smaa-area.png', ( tex ) => {
 
 			tex.minFilter = THREE.LinearFilter;
 			tex.generateMipmaps = false;
@@ -127,7 +127,7 @@ export class RenderPipeline {
 
 		} );
 
-		loader.load( '../assets/gl/elapsed/smaa/smaa-search.png', ( tex ) => {
+		loader.load( '/elapsed/assets/smaa/smaa-search.png', ( tex ) => {
 
 			tex.minFilter = THREE.NearestFilter;
 			tex.magFilter = THREE.NearestFilter;

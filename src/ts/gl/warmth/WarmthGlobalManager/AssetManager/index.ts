@@ -28,7 +28,7 @@ declare interface TextureInfo {
 
 export class AssetManager extends ORE.EventDispatcher {
 
-	private basePath = '../assets/gl/warmth/scene/';
+	private basePath = '/warmth/assets/scene/';
 
 	public preLoadingManager: THREE.LoadingManager;
 	public mustLoadingManager: THREE.LoadingManager;

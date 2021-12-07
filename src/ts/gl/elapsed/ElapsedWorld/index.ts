@@ -110,12 +110,12 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
-			'/assets/gl/elapsed/scene/env/pz.jpg',
-			'/assets/gl/elapsed/scene/env/nz.jpg',
-			'/assets/gl/elapsed/scene/env/py.jpg',
-			'/assets/gl/elapsed/scene/env/ny.jpg',
-			'/assets/gl/elapsed/scene/env/px.jpg',
-			'/assets/gl/elapsed/scene/env/nx.jpg',
+			'/elapsed/assets/scene/env/pz.jpg',
+			'/elapsed/assets/scene/env/nz.jpg',
+			'/elapsed/assets/scene/env/py.jpg',
+			'/elapsed/assets/scene/env/ny.jpg',
+			'/elapsed/assets/scene/env/px.jpg',
+			'/elapsed/assets/scene/env/nx.jpg',
 		], ( tex ) => {
 
 			this.scene.background = tex;

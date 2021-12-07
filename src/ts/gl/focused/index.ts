@@ -24,7 +24,7 @@ export default class Focused extends BaseGL {
 		this.gManager = new FocusedGlobalManager();
 
 		this.gManager.assetManager.load( { assets: [
-			{ name: 'scene', path: '../assets/gl/focused/scene/focused.glb', type: 'gltf' }
+			{ name: 'scene', path: '/focused/assets/scene/focused.glb', type: 'gltf' }
 		] } );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
