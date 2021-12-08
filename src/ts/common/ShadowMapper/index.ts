@@ -18,13 +18,13 @@ export class ShadowMapper {
 		this.size = size;
 		this.light = light;
 
-		this.camera = new THREE.OrthographicCamera( - size.x / 2.0, size.x / 2.0, size.y / 2.0, - size.y / 2.0, 0.01, 1000 );
+		this.camera = new THREE.OrthographicCamera( - size.x / 2.0, size.x / 2.0, size.y / 2.0, - size.y / 2.0, 1, 1000 );
 
 		// LightCamera
 		this.camera.userData.shadowCamera = true;
 		this.camera.userData.shadowCameraLight = this.light;
-		this.camera.userData.shadowMapCameraClip = new THREE.Vector2( this.camera.near, this.camera.far );
-		this.camera.userData.shadowMapLightSize = lightSize;
+		this.camera.userData.shadowLightCameraClip = new THREE.Vector2( this.camera.near, this.camera.far );
+		this.camera.userData.shadowLightSize = lightSize;
 		this.camera.userData.shadowMapSize = this.size;
 		this.camera.userData.shadowMapResolution = this.resolution;
 		this.camera.userData.shadowMap = {

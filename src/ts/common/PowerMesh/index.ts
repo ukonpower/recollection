@@ -29,13 +29,16 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			maxLodLevel: {
 				value: 0
 			},
-			modelViewMatrixLight: {
+			shadowLightModelViewMatrix: {
 				value: new THREE.Matrix4()
 			},
-			projectionMatrixLight: {
+			shadowLightProjectionMatrix: {
 				value: new THREE.Matrix4()
 			},
-			shadowMapCameraClip: {
+			shadowLightDirection: {
+				value: new THREE.Vector3()
+			},
+			shadowLightCameraClip: {
 				value: new THREE.Vector2()
 			},
 			shadowMap: {
@@ -47,7 +50,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			shadowMapResolution: {
 				value: new THREE.Vector2()
 			},
-			shadowMapLightSize: {
+			shadowLightSize: {
 				value: 1.0
 			}
 		} );
@@ -320,13 +323,15 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 			if ( camera.userData.shadowCamera ) {
 
-				this.commonUniforms.modelViewMatrixLight.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
-				this.commonUniforms.projectionMatrixLight.value.copy( camera.projectionMatrix );
 				this.commonUniforms.shadowMap.value = camera.userData.shadowMap.value;
 				this.commonUniforms.shadowMapSize.value = camera.userData.shadowMapSize;
-				this.commonUniforms.shadowMapCameraClip.value.copy( camera.userData.shadowMapCameraClip );
-				this.commonUniforms.shadowMapLightSize.value = camera.userData.shadowMapLightSize;
-				this.commonUniforms.shadowMapResolution.value.copy( camera.userData.shadowMapResolution );
+
+				this.commonUniforms.shadowLightModelViewMatrix.value.copy( new THREE.Matrix4().multiply( camera.matrixWorldInverse ).multiply( this.matrixWorld ) );
+				this.commonUniforms.shadowLightProjectionMatrix.value.copy( camera.projectionMatrix );
+
+				this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
+				camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
+				this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
 
 			}
 

@@ -43,11 +43,13 @@ export class FocusedWorld extends THREE.Object3D {
 
 		this.light = light;
 
+		console.log( this.light.shadow.bias );
+
 		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 1.0 );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 5.0, 5.0 ), light, 3.0 );
 
 		/*-------------------------------
 			Meshes
@@ -80,7 +82,7 @@ export class FocusedWorld extends THREE.Object3D {
 		this.shadowMapper.update( this.scene );
 
 		this.light.position.x = Math.sin( time * 0.3 ) * 20.0;
-		// this.light.position.z = Math.cos( time ) * 20.0;
+		// this.light.position.y = ( Math.cos( time ) * 0.5 + 0.5 ) * 10.0;
 
 	}
 

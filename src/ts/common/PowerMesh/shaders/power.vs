@@ -7,8 +7,8 @@ varying vec2 vHighPrecisionZW;
 
 varying vec3 vShadowMapCoord;
 
-uniform mat4 modelViewMatrixLight;
-uniform mat4 projectionMatrixLight;
+uniform mat4 shadowLightModelViewMatrix;
+uniform mat4 shadowLightProjectionMatrix;
 
 void main( void ) {
 
@@ -22,7 +22,7 @@ void main( void ) {
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
 
-	vec4 shadowPos = ( projectionMatrixLight * ( modelViewMatrixLight * vec4( pos, 1.0 ) ) );
+	vec4 shadowPos = ( shadowLightProjectionMatrix * ( shadowLightModelViewMatrix * vec4( pos, 1.0 ) ) );
 	vShadowMapCoord = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
 	 
 

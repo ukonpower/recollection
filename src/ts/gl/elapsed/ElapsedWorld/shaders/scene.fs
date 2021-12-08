@@ -217,7 +217,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 #else
 
 	uniform sampler2D shadowMap;
-	uniform vec2 shadowMapCameraClip;
+	uniform vec2 shadowLightCameraClip;
 	uniform vec2 shadowMapSize;
 	uniform vec2 shadowMapResolution;
 
@@ -258,14 +258,14 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 	varying vec3 vShadowMapCoord;
 
-	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth, vec2 shadowMapCameraClip ) {
+	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth, vec2 shadowLightCameraClip ) {
 
 		if( 0.0 <= shadowMapUV.x && shadowMapUV.x <= 1.0 && 0.0 <= shadowMapUV.y && shadowMapUV.y <= 1.0 ) {
 
-			float shadowMapDepth = shadowMapCameraClip.x + unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) ) * shadowMapCameraClip.y;
-			float shadow = ( shadowMapCameraClip.x + depth * shadowMapCameraClip.y ) < shadowMapDepth + 0.1 ? 1.0 : 0.0;
+			float shadowMapDepth = shadowLightCameraClip.x + unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) ) * shadowLightCameraClip.y;
+			float shadow = ( shadowLightCameraClip.x + depth * shadowLightCameraClip.y ) < shadowMapDepth + 0.1 ? 1.0 : 0.0;
 
-			if( 0.0 < shadowMapDepth && shadowMapDepth <= shadowMapCameraClip.x + shadowMapCameraClip.y ) {
+			if( 0.0 < shadowMapDepth && shadowMapDepth <= shadowLightCameraClip.x + shadowLightCameraClip.y ) {
 
 				return vec2( shadow, shadowMapDepth );
 				
@@ -280,14 +280,14 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 	#define SHADOW_LIGHT_SIZE 0.5
 	#define SHADOW_PCS_COUNT 16
 
-	float shadowMapPCF( sampler2D shadowMap, vec3 shadowMapCoord, vec2 shadowSize, vec2 shadowMapCameraClip ) {
+	float shadowMapPCF( sampler2D shadowMap, vec3 shadowMapCoord, vec2 shadowSize, vec2 shadowLightCameraClip ) {
 
 		float shadow = 0.0;
 		for( int i = 0; i < SHADOW_PCS_COUNT; i ++  ) {
 			
 			vec2 offset = poissonDisk[ int( mod( random( gl_FragCoord.xy ) * 32.0 + float( i ), 32.0 ) ) ] * shadowSize; 
 
-			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowMapCameraClip ).x;
+			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip ).x;
 			
 		}
 
@@ -299,7 +299,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 	#define SHADOW_FIND_BLOCKER_COUNT 16
 
-	float shadowMapPCSS( sampler2D shadowMap, vec2 shadowMapSize, vec2 shadowMapResolution, vec3 shadowMapCoord, vec2 shadowMapCameraClip ) {
+	float shadowMapPCSS( sampler2D shadowMap, vec2 shadowMapSize, vec2 shadowMapResolution, vec3 shadowMapCoord, vec2 shadowLightCameraClip ) {
 
 		int numBlockers = 0;
 		float avgDepth = 0.0;
@@ -307,7 +307,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 		for( int i = 0; i < SHADOW_FIND_BLOCKER_COUNT; i ++ ) {
 
 			vec2 offset = poissonDisk[ int( mod( random( gl_FragCoord.xy ) * 32.0 + float( i ), 32.0 ) ) ] * 0.5 * ( ( SHADOW_LIGHT_SIZE / shadowMapSize ) ) ; 
-			vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowMapCameraClip );
+			vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip );
 
 			if( shadow.x == 0.0 ) {
 
@@ -330,9 +330,9 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 		avgDepth /= float( numBlockers );
 
-		vec2 shadowSize = ( ( shadowMapCameraClip.x + shadowMapCoord.z * shadowMapCameraClip.y ) - avgDepth ) / avgDepth * ( SHADOW_LIGHT_SIZE / shadowMapSize ) * 5.0;
+		vec2 shadowSize = ( ( shadowLightCameraClip.x + shadowMapCoord.z * shadowLightCameraClip.y ) - avgDepth ) / avgDepth * ( SHADOW_LIGHT_SIZE / shadowMapSize ) * 5.0;
 
-		float shadow = shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowMapCameraClip );
+		float shadow = shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowLightCameraClip );
 		
 		return shadow;
 
@@ -548,7 +548,7 @@ void main( void ) {
 	
 	#ifndef DEPTH
 
-		shadow *= shadowMapPCSS( shadowMap, shadowMapSize, shadowMapResolution, vShadowMapCoord, shadowMapCameraClip );
+		shadow *= shadowMapPCSS( shadowMap, shadowMapSize, shadowMapResolution, vShadowMapCoord, shadowLightCameraClip );
 
 	#endif
 	
