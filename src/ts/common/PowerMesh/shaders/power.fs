@@ -443,7 +443,7 @@ void main( void ) {
 
 	#else
 
-		mat.albedo = color;
+		mat.albedo = pow( color.xyz, vec3( 1.0 / 2.2 ) );
 		mat.opacity = 1.0;
 	
 	#endif
