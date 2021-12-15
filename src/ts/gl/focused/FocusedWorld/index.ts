@@ -49,11 +49,12 @@ export class FocusedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 5.0, 5.0 ), light, 3.0 );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 5.0 );
 
 		/*-------------------------------
 			Meshes
 		-------------------------------*/
+		let meshes: ( PowerMesh )[] = [];
 
 		this.scene.getObjectByName( 'Scene' ).traverse( obj => {
 
@@ -67,10 +68,33 @@ export class FocusedWorld extends THREE.Object3D {
 
 				scene.add( powerMesh );
 				this.mesh = powerMesh;
+				meshes.push( powerMesh );
 
 			}
 
 			mesh.visible = false;
+
+		} );
+
+		let cubemapLoader = new THREE.CubeTextureLoader();
+		cubemapLoader.load( [
+			'/assets/scene/img/env/pz.jpg',
+			'/assets/scene/img/env/nz.jpg',
+			'/assets/scene/img/env/py.jpg',
+			'/assets/scene/img/env/ny.jpg',
+			'/assets/scene/img/env/px.jpg',
+			'/assets/scene/img/env/nx.jpg',
+		], ( tex ) => {
+
+			this.scene.background = tex;
+
+			meshes.forEach( item=>{
+
+				item.envMapUpdate = true;
+
+			} );
+
+			this.commonUniforms.globalEnvMap.value = tex;
 
 		} );
 
@@ -81,7 +105,7 @@ export class FocusedWorld extends THREE.Object3D {
 
 		this.shadowMapper.update( this.scene );
 
-		this.light.position.x = Math.sin( time * 0.3 ) * 20.0;
+		this.light.position.x = Math.sin( time * 0.3 ) * 40.0;
 		// this.light.position.y = ( Math.cos( time ) * 0.5 + 0.5 ) * 10.0;
 
 	}

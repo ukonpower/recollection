@@ -283,11 +283,16 @@ export class FocusedRenderPipeline {
 
 		this.swapMaterial( scene, 'coc' );
 
+		let bg = scene.background;
+		scene.background = new THREE.Color( "#FFF" );
+
 		this.renderer.setRenderTarget( this.renderTargets.coc );
 		this.renderer.render( scene, camera );
 
 		this.renderer.setRenderTarget( renderTargetMem );
 		this.renderer.autoClear = false;
+
+		scene.background = bg;
 
 		/*-------------------------------
 			Dof

@@ -12,7 +12,7 @@ uniform float time;
 #pragma glslify: random = require('./random.glsl' )
 #pragma glslify: import('./constants.glsl' )
 
-#define SAMPLE_COUNT 8
+#define SAMPLE_COUNT 128
 
 vec2 poissonDisk[ SAMPLE_COUNT ];
 
@@ -37,32 +37,64 @@ void initPoissonDisk() {
 	
 }
 
+float unpack16( vec2 value ) {
+  return dot( value, vec2( 1.0, 1.0 / 255.0 ) );
+}
+
 void main(){
 
 	initPoissonDisk();
 
 	float coc = 0.0;
-	vec3 c = vec3( 0.0 );
+	vec4 baseTex = texture2D( cocTex, vUv );
+	float ccc = unpack16( baseTex.xy );
+	float baseDepth = unpack16( baseTex.zw );
 
 	float cnt = 0.0;
+
 	
 	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 
-		vec2 offset = poissonDisk[ i ] * 0.01; 
-		coc += unpackRGBAToDepth( texture2D( cocTex, vUv + offset ) );
+		vec2 offset = poissonDisk[ i ] * ccc * 0.05; 
+		vec4 tex = texture2D( cocTex, vUv + offset );
+
+		float depth = unpack16( tex.zw );
+		float scoc = unpack16( tex.xy );
+
+		// if( depth <= baseDepth ) {
+
+			coc += unpack16( tex.xy ) * 1.0;
+			cnt+=1.0;
+
+		// }
 
 	}
 
-	coc /= float( SAMPLE_COUNT );
+	coc /= float( cnt );
 	
+	vec3 col = vec3( 0.0 );
+
+	cnt = 0.0;
+
 	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 			
-		vec2 offset = poissonDisk[ i ] * coc * 0.05; 
-		c += texture2D( sceneTex, vUv + offset ).xyz;
+		vec2 offset = poissonDisk[ i ] * coc * 0.1; 
+		vec4 tex = texture2D( cocTex, vUv + offset );
+
+		float sampleCoC = unpack16( tex.xy ) + 0.01;
+
+		// if( sampleDepth >= depth ) {
+
+			col += texture2D( sceneTex, vUv + offset ).xyz * sampleCoC;
+			cnt += sampleCoC;
+
+		// }
 		
 	}
 
-	c /= float( SAMPLE_COUNT );
+	col /= cnt;
 
-	gl_FragColor = vec4( c, 1.0 );
+	gl_FragColor = vec4( vec3(col), 1.0 );
+	// gl_FragColor = vec4( vec3(coc), 1.0 );
+	
 }

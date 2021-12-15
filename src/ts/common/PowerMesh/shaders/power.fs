@@ -495,16 +495,21 @@ void main( void ) {
 
 		#ifdef COC
 
-			float focalLength = 0.8;
-			float focusLength = 4.0;
+			float focalLength = 1.0;
+			float focusLength = sin( time ) * 0.0 + 4.0;
 			float fNumber = 1.0;
 			float d = vViewPos.z;
 
-			float coc = ( abs( d - focusLength ) / d ) * 
-						(focalLength * focalLength) / (fNumber * ( focusLength - focalLength) ) *
-						1.0 / 1.0;
+			float diff = d - focusLength;
 
-			gl_FragColor = packDepthToRGBA( coc );
+			float coc = 
+				( abs( diff ) / ( d ) ) * 
+				( ( focalLength * focalLength ) / ( fNumber * ( focusLength - focalLength ) ) );
+
+			
+			float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
+
+			gl_FragColor = vec4( packing16(coc), packing16( fragCoordZ ) );
 			
 		#else
 
