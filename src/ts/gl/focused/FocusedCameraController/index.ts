@@ -22,7 +22,7 @@ export class FocusedCameraController {
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
-		this.cameraMoveWeight = new THREE.Vector2( 0.7, 0.5 );
+		this.cameraMoveWeight = new THREE.Vector2( 0.2, 0.2 );
 
 		/*-------------------------------
 			DOF
@@ -56,6 +56,8 @@ export class FocusedCameraController {
 		if ( this.cameraTargetPos ) {
 
 			this.camera.lookAt( this.cameraTargetPos );
+
+			this.camera.userData.focusLength = this.camera.position.distanceTo( this.cameraTargetPos );
 
 		}
 

@@ -38,7 +38,7 @@ export class FocusedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( 20.0, 20.0, 20.0 );
+		light.position.set( - 1, 5.0, 1.0 );
 		this.scene.add( light );
 
 		this.light = light;
@@ -104,9 +104,6 @@ export class FocusedWorld extends THREE.Object3D {
 	public update( deltaTime: number, time: number ) {
 
 		this.shadowMapper.update( this.scene );
-
-		this.light.position.x = Math.sin( time * 0.3 ) * 40.0;
-		// this.light.position.y = ( Math.cos( time ) * 0.5 + 0.5 ) * 10.0;
 
 	}
 

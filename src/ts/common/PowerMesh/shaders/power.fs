@@ -350,7 +350,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 		avgDepth /= float( numBlockers );
 
-		float shadowSize = ( ( shadowMapCoord.z - avgDepth ) * shadowLightSize ) / ( avgDepth ) * dNL;
+		float shadowSize = ( ( shadowMapCoord.z - avgDepth ) * shadowLightSize ) / ( avgDepth ) * dNL * 0.2;
 		float shadow = shadowMapPCF( shadowMap, shadowMapSize, shadowMapCoord, shadowSize, shadowLightCameraClip, bias );
 		
 		return shadow;
