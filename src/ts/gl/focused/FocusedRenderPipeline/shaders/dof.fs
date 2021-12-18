@@ -12,7 +12,7 @@ uniform float time;
 #pragma glslify: random = require('./random.glsl' )
 #pragma glslify: import('./constants.glsl' )
 
-#define SAMPLE_COUNT 128
+#define SAMPLE_COUNT 8
 
 vec2 poissonDisk[ SAMPLE_COUNT ];
 
@@ -45,56 +45,63 @@ void main(){
 
 	initPoissonDisk();
 
+	vec3 col = vec3( 0.0 );
 	float coc = 0.0;
-	vec4 baseTex = texture2D( cocTex, vUv );
-	float ccc = unpack16( baseTex.xy );
-	float baseDepth = unpack16( baseTex.zw );
-
 	float cnt = 0.0;
 
-	
-	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+	#ifdef FAR
 
-		vec2 offset = poissonDisk[ i ] * ccc * 0.05; 
-		vec4 tex = texture2D( cocTex, vUv + offset );
+		for( int i = 0; i < 4; i ++  ) {
 
-		float depth = unpack16( tex.zw );
-		float scoc = unpack16( tex.xy );
+			vec2 offset = poissonDisk[ i ] * 0.028; 
+			vec4 tex = texture2D( cocTex, vUv + offset );
 
-		// if( depth <= baseDepth ) {
+			coc += unpack16( tex.zw );
 
-			coc += unpack16( tex.xy ) * 1.0;
-			cnt+=1.0;
+		}
 
-		// }
+		coc /= float( 4 );
+		
 
-	}
-
-	coc /= float( cnt );
-	
-	vec3 col = vec3( 0.0 );
-
-	cnt = 0.0;
-
-	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
-			
-		vec2 offset = poissonDisk[ i ] * coc * 0.1; 
-		vec4 tex = texture2D( cocTex, vUv + offset );
-
-		float sampleCoC = unpack16( tex.xy ) + 0.01;
-
-		// if( sampleDepth >= depth ) {
-
+		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+				
+			vec2 offset = poissonDisk[ i ] * coc * 0.1; 
+			float sampleCoC = unpack16( texture2D( cocTex, vUv + offset ).zw ) + 0.01;
 			col += texture2D( sceneTex, vUv + offset ).xyz * sampleCoC;
 			cnt += sampleCoC;
+			
+		}
 
-		// }
-		
-	}
+		col /= cnt;
 
-	col /= cnt;
+	#else
+
+		float baseCoc = unpack16( texture2D( cocTex, vUv ).xy );
+
+		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+
+			vec2 offset = poissonDisk[ i ] * 0.025; 
+			vec4 tex = texture2D( cocTex, vUv + offset );
+
+			coc += unpack16( tex.xy );
+
+		}
+
+		coc /= float( SAMPLE_COUNT );
+
+		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+				
+			vec2 offset = poissonDisk[ i ] * coc * 0.1; 
+			col += texture2D( sceneTex, vUv + offset ).xyz;
+			
+		}
+
+		col /= float( SAMPLE_COUNT );
+		col = vec3( coc );
+
+	#endif
+
 
 	gl_FragColor = vec4( vec3(col), 1.0 );
-	// gl_FragColor = vec4( vec3(coc), 1.0 );
 	
 }

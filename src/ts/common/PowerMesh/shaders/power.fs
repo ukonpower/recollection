@@ -506,10 +506,15 @@ void main( void ) {
 				( abs( diff ) / ( d ) ) * 
 				( ( focalLength * focalLength ) / ( fNumber * ( focusLength - focalLength ) ) );
 
-			
-			float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
+			if( diff < 0.0 ) {
 
-			gl_FragColor = vec4( packing16(coc), packing16( fragCoordZ ) );
+				gl_FragColor = vec4( packing16( coc ), 0.0, 0.0 );
+
+			} else {
+
+				gl_FragColor = vec4(  0.0, 0.0, packing16( coc ) );
+				
+			}
 			
 		#else
 
