@@ -52,6 +52,15 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			},
 			shadowLightSize: {
 				value: 1.0
+			},
+			cameraFocalLength: {
+				value: 1.0
+			},
+			cameraFocusLength: {
+				value: 5.0
+			},
+			cameraFNumber: {
+				value: 2.0
 			}
 		} );
 
@@ -332,6 +341,18 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
 				camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
 				this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
+
+			}
+
+			/*-------------------------------
+				Dof
+			-------------------------------*/
+
+			if ( camera.userData.dof ) {
+
+				this.commonUniforms.cameraFocalLength.value = camera.userData.focalLength;
+				this.commonUniforms.cameraFocusLength.value = camera.userData.focusLength;
+				this.commonUniforms.cameraFNumber.value = camera.userData.fNumber;
 
 			}
 

@@ -20,15 +20,18 @@ export class FocusedCameraController {
 		this.cameraTargetPos = data.getObjectByName( 'CameraTarget' ).getWorldPosition( new THREE.Vector3() );
 		this.baseCamera = data.getObjectByName( 'Camera' ).children[ 0 ] as THREE.PerspectiveCamera;
 
-		this.init();
-
-	}
-
-	protected init() {
-
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
 		this.cameraMoveWeight = new THREE.Vector2( 0.7, 0.5 );
+
+		/*-------------------------------
+			DOF
+		-------------------------------*/
+
+		this.camera.userData.dof = true;
+		this.camera.userData.focalLength = 1.0;
+		this.camera.userData.focusLength = 4.0;
+		this.camera.userData.fNumber = 2.0;
 
 	}
 

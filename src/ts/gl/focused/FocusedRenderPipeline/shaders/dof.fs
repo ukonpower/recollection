@@ -53,7 +53,7 @@ void main(){
 
 		for( int i = 0; i < 4; i ++  ) {
 
-			vec2 offset = poissonDisk[ i ] * 0.028; 
+			vec2 offset = poissonDisk[ i ] * 0.03; 
 			vec4 tex = texture2D( cocTex, vUv + offset );
 
 			coc += unpack16( tex.zw );
@@ -61,12 +61,12 @@ void main(){
 		}
 
 		coc /= float( 4 );
-		
 
 		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 				
-			vec2 offset = poissonDisk[ i ] * coc * 0.1; 
+			vec2 offset = poissonDisk[ i ] * coc * 0.06; 
 			float sampleCoC = unpack16( texture2D( cocTex, vUv + offset ).zw ) + 0.01;
+
 			col += texture2D( sceneTex, vUv + offset ).xyz * sampleCoC;
 			cnt += sampleCoC;
 			
@@ -80,24 +80,27 @@ void main(){
 
 		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 
-			vec2 offset = poissonDisk[ i ] * 0.025; 
+			vec2 offset = poissonDisk[ i ] * 0.03; 
 			vec4 tex = texture2D( cocTex, vUv + offset );
 
-			coc += unpack16( tex.xy );
+			if( tex.x + tex.y + tex.z < 3.0 ) {
 
+				coc += unpack16( tex.xy );
+
+			}
+			
 		}
 
 		coc /= float( SAMPLE_COUNT );
 
 		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 				
-			vec2 offset = poissonDisk[ i ] * coc * 0.1; 
+			vec2 offset = poissonDisk[ i ] * coc * 0.06; 
 			col += texture2D( sceneTex, vUv + offset ).xyz;
 			
 		}
 
 		col /= float( SAMPLE_COUNT );
-		col = vec3( coc );
 
 	#endif
 

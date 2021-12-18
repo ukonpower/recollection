@@ -1,6 +1,27 @@
 varying vec2 vUv;
 
 /*-------------------------------
+	Require
+-------------------------------*/
+
+#pragma glslify: import('./constants.glsl' )
+
+#include <packing>
+
+vec2 packing16( float value ) { 
+
+	float v1 = value * 255.0;
+	float r = floor(v1);
+
+	float v2 = ( v1 - r ) * 255.0;
+	float g = floor( v2 );
+
+	return vec2( r, g ) / 255.0;
+
+}
+
+
+/*-------------------------------
 	Requiers
 -------------------------------*/
 
@@ -70,26 +91,17 @@ uniform float time;
 	
 #endif
 
-#pragma glslify: import('./constants.glsl' )
-
 /*-------------------------------
-	Packing
+	Dof
 -------------------------------*/
 
-#include <packing>
+#ifdef COC
 
-vec2 packing16( float value ) { 
+	uniform float cameraFocalLength;
+	uniform float cameraFocusLength;
+	uniform float cameraFNumber;
 
-	float v1 = value * 255.0;
-	float r = floor(v1);
-
-	float v2 = ( v1 - r ) * 255.0;
-	float g = floor( v2 );
-
-	return vec2( r, g ) / 255.0;
-
-}
-
+#endif
 
 /*-------------------------------
 	Types
@@ -495,16 +507,13 @@ void main( void ) {
 
 		#ifdef COC
 
-			float focalLength = 1.0;
-			float focusLength = sin( time ) * 0.0 + 4.0;
-			float fNumber = 1.0;
 			float d = vViewPos.z;
 
-			float diff = d - focusLength;
+			float diff = d - cameraFocusLength;
 
 			float coc = 
 				( abs( diff ) / ( d ) ) * 
-				( ( focalLength * focalLength ) / ( fNumber * ( focusLength - focalLength ) ) );
+				( ( cameraFocalLength * cameraFocalLength ) / ( cameraFNumber * ( cameraFocusLength - cameraFocalLength ) ) );
 
 			if( diff < 0.0 ) {
 
