@@ -38,7 +38,7 @@ export class FocusedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( - 1, 5.0, 1.0 );
+		light.position.set( - 3, 3.0, 1.0 );
 		this.scene.add( light );
 
 		this.light = light;
@@ -49,7 +49,7 @@ export class FocusedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 5.0 );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 2.0 );
 
 		/*-------------------------------
 			Meshes

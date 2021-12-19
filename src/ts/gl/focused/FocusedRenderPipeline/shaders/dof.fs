@@ -104,7 +104,6 @@ void main(){
 
 	#endif
 
-
 	gl_FragColor = vec4( vec3(col), 1.0 );
 	
 }
