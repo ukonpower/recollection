@@ -38,7 +38,7 @@ export class FocusedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( - 3, 3.0, 1.0 );
+		light.position.set( - 3, 0.0, 1.0 );
 		this.scene.add( light );
 
 		this.light = light;
