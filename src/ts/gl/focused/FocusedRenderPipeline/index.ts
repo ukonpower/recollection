@@ -310,15 +310,15 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
-		// this.dofFarPP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// 	cocTex: this.renderTargets.coc.texture,
-		// }, this.renderTargets.rt2 );
+		this.dofFarPP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			cocTex: this.renderTargets.coc.texture,
+		}, this.renderTargets.rt2 );
 
-		// this.dofNearPP.render( {
-		// 	sceneTex: this.renderTargets.rt2.texture,
-		// 	cocTex: this.renderTargets.coc.texture,
-		// }, this.renderTargets.rt1 );
+		this.dofNearPP.render( {
+			sceneTex: this.renderTargets.rt2.texture,
+			cocTex: this.renderTargets.coc.texture,
+		}, this.renderTargets.rt1 );
 
 		/*------------------------
 			Bloom

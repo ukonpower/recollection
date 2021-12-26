@@ -252,7 +252,7 @@ vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
 	uniform vec3 shadowLightDirection;
 	varying vec3 vShadowMapCoord;
 
-	#define SHADOW_SAMPLE_COUNT 16
+	#define SHADOW_SAMPLE_COUNT 8
 
 	vec2 poissonDisk[ SHADOW_SAMPLE_COUNT ];
 
@@ -316,53 +316,6 @@ vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
 
 		return shadow;
 
-	}
-
-	#define SHADOW_BLUR_WORLD_SIZE 1.0
-
-	float shadowMapPCSS( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, vec2 shadowLightCameraClip, float dNL ) {
-
-		initPoissonDisk( 0.0 );
-
-		vec2 blurUvSize = SHADOW_BLUR_WORLD_SIZE / shadowMapSize;
-
-		float numBlockers = 0.0;
-		float avgDepth = 0.0;
-
-		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i ++ ) {
-
-			vec2 offset = poissonDisk[ i ] * blurUvSize;
-			vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip );
-
-			if( shadow.x == 0.0 ) {
-
-				avgDepth += shadow.y;
-				numBlockers ++;
-				
-			}
-			
-		}
-
-		if( numBlockers == 0.0 ) {
-
-			return 1.0;
-
-		}
-
-		if( numBlockers == float( SHADOW_SAMPLE_COUNT ) ) {
-
-			return 0.0;
-			
-		}
-
-		avgDepth /= numBlockers;
-
-		vec2 shadowSize = vec2( ( shadowMapCoord.z - avgDepth ) / avgDepth ) * blurUvSize;
-
-		float shadow = shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowLightCameraClip );
-		
-		return shadow;
-		
 	}
 
 	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, vec2 shadowLightCameraClip, float dNL ) {
@@ -610,13 +563,8 @@ void main( void ) {
 	
 	#ifndef DEPTH
 
-		// shadow *= shadowMapPCSS( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
-		// shadow *= shadowMapPCF( shadowMap, vShadowMapCoord, vec2( 0.05 ) / shadowMapSize, shadowLightCameraClip );
 		shadow *= getShadow( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
 
-		// gl_FragColor = vec4( vec3( shadow ), 1.0 );
-		// return;
-		
 	#endif
 	
 	Light light;
@@ -675,13 +623,16 @@ void main( void ) {
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
-	float EF = mix( fresnel( dNV ), 1.0, mat.metalness );
-	outColor += mat.diffuseColor * textureCubeUV( envMap, geo.normalWorld, 1.0 ).xyz * ( 1.0 - mat.metalness ) * ( 1.0 - EF );
+	vec4 envMapColor = sRGBToLinear( textureCubeUV( envMap, geo.normalWorld, 1.0 ) );
+	
+	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	/*-------------------------------
 		Reflection
 	-------------------------------*/
 	
+	float EF = mix( fresnel( dNV ), 1.0, 0.0 );
+
 	#ifdef REFLECTPLANE
 	
 		vec2 refUV = gl_FragCoord.xy / renderResolution;
