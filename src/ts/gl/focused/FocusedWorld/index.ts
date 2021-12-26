@@ -38,18 +38,16 @@ export class FocusedWorld extends THREE.Object3D {
 		let light: THREE.DirectionalLight;
 
 		light = new THREE.DirectionalLight();
-		light.position.set( - 3, 0.0, 1.0 );
+		light.position.set( - 5, 6, - 10.0 );
 		this.scene.add( light );
 
 		this.light = light;
-
-		console.log( this.light.shadow.bias );
 
 		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 2048, 2048 ), new THREE.Vector2( 10.0, 10.0 ), light, 2.0 );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 20.0, 20.0 ), light, 2.0 );
 
 		/*-------------------------------
 			Meshes
@@ -86,7 +84,7 @@ export class FocusedWorld extends THREE.Object3D {
 			'/assets/scene/img/env/nx.jpg',
 		], ( tex ) => {
 
-			this.scene.background = tex;
+			// this.scene.background = tex;
 
 			meshes.forEach( item=>{
 
@@ -104,6 +102,9 @@ export class FocusedWorld extends THREE.Object3D {
 	public update( deltaTime: number, time: number ) {
 
 		this.shadowMapper.update( this.scene );
+
+		this.light.position.set( - 20.0 * Math.sin( time ), 10.0, 20.0 * Math.cos( time ) );
+
 
 	}
 

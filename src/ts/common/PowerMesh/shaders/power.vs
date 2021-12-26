@@ -22,8 +22,9 @@ void main( void ) {
 	vWorldPos = vec4( modelMatrix * vec4( pos, 1.0 ) ).xyz;
 	vHighPrecisionZW = gl_Position.zw;
 
-	vec4 shadowPos = ( shadowLightProjectionMatrix * ( shadowLightModelViewMatrix * vec4( pos, 1.0 ) ) );
-	vShadowMapCoord = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
-	 
+	vec4 shadowModelPos = shadowLightModelViewMatrix * vec4( pos + normal * 0.01, 1.0 );
+	vec4 shadowScreenPos = shadowLightProjectionMatrix * shadowModelPos;
+	vShadowMapCoord = shadowScreenPos.xyz / shadowScreenPos.w * 0.5 + 0.5;
+	vShadowMapCoord.z = -shadowModelPos.z;
 
 }

@@ -55,6 +55,8 @@ void main(){
 	// c -= random( uv ) * 0.03 * c;
 	// c *= smoothstep( -0.8, 1.0, 1.0 - length( cuv ) );
 
+	c = LinearTosRGB( vec4( c, 1.0 ) ).xyz;
+
 	gl_FragColor = vec4( c, 1.0 );
 
 }

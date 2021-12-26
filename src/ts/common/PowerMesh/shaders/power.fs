@@ -166,7 +166,7 @@ uniform sampler2D envMap;
 uniform float maxLodLevel;
 
 #define ENVMAP_TYPE_CUBE_UV
-vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAMMA_FACTOR ) ); }
+vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
 #include <cube_uv_reflection_fragment>
 
 /*-------------------------------
@@ -256,16 +256,16 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 	vec2 poissonDisk[ SHADOW_SAMPLE_COUNT ];
 
-	void initPoissonDisk() {
+	void initPoissonDisk( float seed ) {
 
-		float r = 1.0 / float( SHADOW_SAMPLE_COUNT );
-		float rStep = r;
+		float r = 0.1;
+		float rStep = (1.0 - r) / float( SHADOW_SAMPLE_COUNT );
 
-		float ang = random( gl_FragCoord.xy * 0.01 + sin(time) ) * TPI;
-		float angStep = rStep * TPI * 11.0;
-
+		float ang = random( gl_FragCoord.xy * 0.01 + sin( time ) ) * TPI * 1.0;
+		float angStep = ( ( TPI * 11.0 ) / float( SHADOW_SAMPLE_COUNT ) );
+		
 		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i++ ) {
-			
+
 			poissonDisk[ i ] = vec2(
 				sin( ang ),
 				cos( ang )
@@ -277,33 +277,38 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 		
 	}
 
-	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth, vec2 shadowLightCameraClip, float depthBias ) {
+	vec2 compairShadowMapDepth( sampler2D shadowMap, vec2 shadowMapUV, float depth, vec2 shadowLightCameraClip ) {
 
-		if( 0.0 <= shadowMapUV.x && shadowMapUV.x <= 1.0 && 0.0 <= shadowMapUV.y && shadowMapUV.y <= 1.0 ) {
+		if( shadowMapUV.x < 0.0 || shadowMapUV.x > 1.0 || shadowMapUV.y < 0.0 || shadowMapUV.y > 1.0 ) {
 
-			float shadowMapDepth = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
-			float shadow = depth < shadowMapDepth + ( depthBias / ( shadowLightCameraClip.y - shadowLightCameraClip.x ) ) ? 1.0 : 0.0;
-
-			if( 0.0 < shadowMapDepth && shadowMapDepth <= shadowLightCameraClip.x + shadowLightCameraClip.y ) {
-
-				return vec2( shadow, shadowMapDepth );
-				
-			}
+			return vec2( 1.0, 0.0 );
 
 		}
 
-		return vec2( 1.0, 0.0 );
+		float d = unpackRGBAToDepth( texture2D( shadowMap, shadowMapUV ) );
+
+		if( 0.0 >= d || d >= 1.0 ) {
+
+			return vec2( 1.0, 0.0 );
+
+		}
+		
+		float shadowMapDepth = shadowLightCameraClip.x + d * shadowLightCameraClip.y;
+		float shadow = depth < shadowMapDepth ? 1.0 : 0.0;
+
+		return vec2( shadow, shadowMapDepth );
 		
 	}
 
-	float shadowMapPCF( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, float shadowSize, vec2 shadowLightCameraClip, float depthBias ) {
+	float shadowMapPCF( sampler2D shadowMap, vec3 shadowMapCoord, vec2 shadowSize, vec2 shadowLightCameraClip ) {
 
 		float shadow = 0.0;
+
 		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i ++  ) {
 			
-			vec2 offset = poissonDisk[ i ] * (shadowSize / shadowMapSize); 
+			vec2 offset = poissonDisk[ i ] * shadowSize; 
 
-			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip, depthBias + shadowSize ).x;
+			shadow += compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip ).x;
 			
 		}
 
@@ -313,19 +318,21 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 
 	}
 
+	#define SHADOW_BLUR_WORLD_SIZE 1.0
+
 	float shadowMapPCSS( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, vec2 shadowLightCameraClip, float dNL ) {
 
-		initPoissonDisk();
+		initPoissonDisk( 0.0 );
 
-		float bias = 0.01 + ( 1.0 - dNL ) * 0.05;
+		vec2 blurUvSize = SHADOW_BLUR_WORLD_SIZE / shadowMapSize;
 
-		int numBlockers = 0;
+		float numBlockers = 0.0;
 		float avgDepth = 0.0;
 
 		for( int i = 0; i < SHADOW_SAMPLE_COUNT; i ++ ) {
 
-			vec2 offset = poissonDisk[ i ] * ( 0.2 / shadowMapSize ) * dNL; 
-			vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip, bias );
+			vec2 offset = poissonDisk[ i ] * blurUvSize;
+			vec2 shadow = compairShadowMapDepth( shadowMap, shadowMapCoord.xy + offset, shadowMapCoord.z, shadowLightCameraClip );
 
 			if( shadow.x == 0.0 ) {
 
@@ -336,24 +343,38 @@ vec4 envMapTexelToLinear( vec4 value ) { return GammaToLinear( value, float( GAM
 			
 		}
 
-		if( numBlockers == 0 ) {
+		if( numBlockers == 0.0 ) {
 
 			return 1.0;
 
 		}
 
-		// if( numBlockers == SHADOW_SAMPLE_COUNT ) {
+		if( numBlockers == float( SHADOW_SAMPLE_COUNT ) ) {
 
-		// 	return 0.0;
+			return 0.0;
 			
-		// }
+		}
 
-		avgDepth /= float( numBlockers );
+		avgDepth /= numBlockers;
 
-		float shadowSize = ( ( shadowMapCoord.z - avgDepth ) * shadowLightSize ) / ( avgDepth ) * dNL * 0.2;
-		float shadow = shadowMapPCF( shadowMap, shadowMapSize, shadowMapCoord, shadowSize, shadowLightCameraClip, bias );
+		vec2 shadowSize = vec2( ( shadowMapCoord.z - avgDepth ) / avgDepth ) * blurUvSize;
+
+		float shadow = shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowLightCameraClip );
 		
 		return shadow;
+		
+	}
+
+	float getShadow( sampler2D shadowMap, vec2 shadowMapSize, vec3 shadowMapCoord, vec2 shadowLightCameraClip, float dNL ) {
+
+		initPoissonDisk(0.0);
+
+		float bias = ( 1.0 - dNL ) * 0.05;
+		shadowMapCoord.z -= bias;
+
+		vec2 shadowSize = 0.05 / shadowMapSize;
+
+		return shadowMapPCF( shadowMap, shadowMapCoord, shadowSize, shadowLightCameraClip );
 
 	}
 
@@ -455,7 +476,7 @@ void main( void ) {
 
 	#else
 
-		mat.albedo = pow( color.xyz, vec3( 1.0 / 2.2 ) );
+		mat.albedo = color.xyz;
 		mat.opacity = 1.0;
 	
 	#endif
@@ -589,8 +610,13 @@ void main( void ) {
 	
 	#ifndef DEPTH
 
-		shadow *= shadowMapPCSS( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
+		// shadow *= shadowMapPCSS( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
+		// shadow *= shadowMapPCF( shadowMap, vShadowMapCoord, vec2( 0.05 ) / shadowMapSize, shadowLightCameraClip );
+		shadow *= getShadow( shadowMap, shadowMapSize, vShadowMapCoord, shadowLightCameraClip, dot( geo.normalWorld, -shadowLightDirection ) );
 
+		// gl_FragColor = vec4( vec3( shadow ), 1.0 );
+		// return;
+		
 	#endif
 	
 	Light light;
