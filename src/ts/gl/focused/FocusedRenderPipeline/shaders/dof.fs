@@ -51,16 +51,7 @@ void main(){
 
 	#ifdef FAR
 
-		for( int i = 0; i < 4; i ++  ) {
-
-			vec2 offset = poissonDisk[ i ] * 0.03; 
-			vec4 tex = texture2D( cocTex, vUv + offset );
-
-			coc += unpack16( tex.zw );
-
-		}
-
-		coc /= float( 4 );
+		coc = unpack16( texture2D( cocTex, vUv ).xy );
 
 		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 				

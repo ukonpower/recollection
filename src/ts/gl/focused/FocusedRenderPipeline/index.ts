@@ -296,7 +296,7 @@ export class FocusedRenderPipeline {
 		this.swapMaterial( scene, 'coc' );
 
 		let bg = scene.background;
-		scene.background = new THREE.Color( "#FFF" );
+		scene.background = new THREE.Color( "#111" );
 
 		this.renderer.setRenderTarget( this.renderTargets.coc );
 		this.renderer.render( scene, camera );
