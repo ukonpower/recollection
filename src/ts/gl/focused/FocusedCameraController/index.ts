@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
 export class FocusedCameraController {
 
@@ -12,6 +13,8 @@ export class FocusedCameraController {
 	private cameraMoveWeight: THREE.Vector2;
 
 	private baseCamera: THREE.PerspectiveCamera;
+
+	private orbitControls: OrbitControls;
 
 	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D ) {
 
@@ -29,9 +32,17 @@ export class FocusedCameraController {
 		-------------------------------*/
 
 		this.camera.userData.dof = true;
-		this.camera.userData.focalLength = 1.0;
-		this.camera.userData.focusLength = 4.0;
+		this.camera.userData.focalLength = 10.0;
+		this.camera.userData.focusLength = 8.0;
 		this.camera.userData.fNumber = 2.0;
+
+		/*-------------------------------
+			OrbitControls
+		-------------------------------*/
+
+		this.orbitControls = new OrbitControls( this.camera, document.querySelector( '.contents' ) );
+		this.orbitControls.target = this.cameraTargetPos;
+		this.camera.position.copy( this.cameraBasePos );
 
 	}
 
@@ -44,6 +55,14 @@ export class FocusedCameraController {
 	}
 
 	public update( deltaTime: number, time: number ) {
+
+		this.updateOrbitControls();
+
+		// this.updateSceneControls( deltaTime: number, time: number );
+
+	}
+
+	private updateSceneControls( deltaTime: number, time: number ) {
 
 		deltaTime = Math.min( 0.3, deltaTime );
 
@@ -64,6 +83,12 @@ export class FocusedCameraController {
 		}
 
 		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.6 ) * Math.sin( time * 1.0 ) * 0.002, Math.sin( time * 2.0 ) * 0.002 ) ) );
+
+	}
+
+	private updateOrbitControls() {
+
+		this.orbitControls.update();
 
 	}
 

@@ -1,7 +1,10 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
+import copyFrag from './shaders/copy.fs';
+
 //dof shader
+import dofBlurFrag from './shaders/dofBlur.fs';
 import dofFrag from './shaders/dof.fs';
 
 //bloom shader
@@ -37,13 +40,20 @@ export class FocusedRenderPipeline {
 	private inputTextures: ORE.Uniforms;
 
 	//postprocessing
+	private copyPP: ORE.PostProcessing;
+
+	private dofBlurHorizontal: ORE.PostProcessing;
+	private dofBlurVertical: ORE.PostProcessing;
 	private dofFarPP: ORE.PostProcessing;
 	private dofNearPP: ORE.PostProcessing;
+
 	private bloomBrightPP: ORE.PostProcessing;
 	private bloomBlurPP: ORE.PostProcessing;
+
 	private smaaEdgePP: ORE.PostProcessing;
 	private smaaCalcWeighttPP: ORE.PostProcessing;
 	private smaaBlendingPP: ORE.PostProcessing;
+
 	private compositePP: ORE.PostProcessing;
 
 	private renderTargets: {
@@ -92,6 +102,34 @@ export class FocusedRenderPipeline {
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter
 			} ),
+			dofBlurTmp: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			dofBlurHorizonal: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			dofBlurNear: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
+			dofBlurFar: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: true,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
 		};
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
@@ -130,8 +168,30 @@ export class FocusedRenderPipeline {
 		};
 
 		/*-------------------------------
+			Copy
+		-------------------------------*/
+
+		this.copyPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: copyFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
+		} );
+
+		/*-------------------------------
 			Dof
 		-------------------------------*/
+
+		this.dofBlurHorizontal = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: dofBlurFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
+		} );
+
+		this.dofBlurVertical = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: dofBlurFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
+			defines: {
+				"VERTICAL": ""
+			}
+		} );
 
 		this.dofFarPP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: dofFrag,
@@ -310,13 +370,20 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
-		this.dofFarPP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-			cocTex: this.renderTargets.coc.texture,
-		}, this.renderTargets.rt2 );
+		this.copyPP.render( {
+			tex: this.renderTargets.rt1.texture,
+		}, this.renderTargets.dofBlurTmp );
 
-		this.dofNearPP.render( {
-			sceneTex: this.renderTargets.rt2.texture,
+		this.dofBlurHorizontal.render( {
+			tex: this.renderTargets.dofBlurTmp.texture,
+		}, this.renderTargets.dofBlurHorizonal );
+
+		this.dofBlurVertical.render( {
+			tex: this.renderTargets.dofBlurHorizonal.texture,
+		}, this.renderTargets.dofBlurFar );
+
+		this.dofFarPP.render( {
+			sceneTex: this.renderTargets.dofBlurNear.texture,
 			cocTex: this.renderTargets.coc.texture,
 		}, this.renderTargets.rt1 );
 
@@ -324,47 +391,47 @@ export class FocusedRenderPipeline {
 			Bloom
 		------------------------*/
 
-		this.bloomBrightPP.render( {
-			sceneTex: this.renderTargets.rt1.texture
-		}, this.renderTargets.rt2 );
+		// this.bloomBrightPP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture
+		// }, this.renderTargets.rt2 );
 
-		let target: THREE.WebGLRenderTarget;
-		let uni = this.bloomBlurPP.effect.material.uniforms;
-		uni.backbuffer.value = this.renderTargets.rt2.texture;
+		// let target: THREE.WebGLRenderTarget;
+		// let uni = this.bloomBlurPP.effect.material.uniforms;
+		// uni.backbuffer.value = this.renderTargets.rt2.texture;
 
-		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
+		// for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-			uni.count.value = i;
+		// 	uni.count.value = i;
 
-			uni.direction.value = true;
-			target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
-			this.bloomBlurPP.render( null, target );
+		// 	uni.direction.value = true;
+		// 	target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
+		// 	this.bloomBlurPP.render( null, target );
 
-			uni.direction.value = false;
-			uni.backbuffer.value = target.texture;
-			target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
-			this.bloomBlurPP.render( null, target );
+		// 	uni.direction.value = false;
+		// 	uni.backbuffer.value = target.texture;
+		// 	target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
+		// 	this.bloomBlurPP.render( null, target );
 
-			uni.backbuffer.value = target.texture;
+		// 	uni.backbuffer.value = target.texture;
 
-		}
+		// }
 
 		/*------------------------
 			SMAA
 		------------------------*/
 
-		this.smaaEdgePP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-		}, this.renderTargets.rt2 );
+		// this.smaaEdgePP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture,
+		// }, this.renderTargets.rt2 );
 
-		this.smaaCalcWeighttPP.render( {
-			backbuffer: this.renderTargets.rt2.texture,
-		}, this.renderTargets.rt3 );
+		// this.smaaCalcWeighttPP.render( {
+		// 	backbuffer: this.renderTargets.rt2.texture,
+		// }, this.renderTargets.rt3 );
 
-		this.smaaBlendingPP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-			backbuffer: this.renderTargets.rt3.texture,
-		}, this.renderTargets.rt2 );
+		// this.smaaBlendingPP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture,
+		// 	backbuffer: this.renderTargets.rt3.texture,
+		// }, this.renderTargets.rt2 );
 
 
 		/*------------------------
@@ -372,7 +439,7 @@ export class FocusedRenderPipeline {
 		------------------------*/
 
 		let compositeInputRenderTargets = {
-			sceneTex: this.renderTargets.rt2.texture,
+			sceneTex: this.renderTargets.dofBlurFar.texture,
 			bloomTexs: [] as THREE.Texture[]
 		};
 
@@ -425,6 +492,11 @@ export class FocusedRenderPipeline {
 		this.renderTargets.rt3.setSize( pixelWindowSize.x, pixelWindowSize.y );
 
 		this.renderTargets.coc.setSize( pixelWindowSize.x, pixelWindowSize.y );
+
+		this.renderTargets.dofBlurTmp.setSize( pixelWindowSize.x / 5, pixelWindowSize.y / 5 );
+		this.renderTargets.dofBlurHorizonal.setSize( pixelWindowSize.x / 5, pixelWindowSize.y / 5 );
+		this.renderTargets.dofBlurNear.setSize( pixelWindowSize.x / 5, pixelWindowSize.y / 5 );
+		this.renderTargets.dofBlurFar.setSize( pixelWindowSize.x / 5, pixelWindowSize.y / 5 );
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 

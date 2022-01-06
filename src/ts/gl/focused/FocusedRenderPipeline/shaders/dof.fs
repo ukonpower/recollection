@@ -49,51 +49,58 @@ void main(){
 	float coc = 0.0;
 	float cnt = 0.0;
 
-	#ifdef FAR
+	coc += unpack16( texture2D( cocTex, vUv ).xy );
+	coc += unpack16( texture2D( cocTex, vUv ).zw );
 
-		coc = unpack16( texture2D( cocTex, vUv ).xy );
+	gl_FragColor = vec4( texture2D( sceneTex, vUv ).xyz, 1.0 );
+	return;
 
-		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+	// #ifdef FAR
+
+	// 	coc = unpack16( texture2D( cocTex, vUv ).xy );
+
+	// 	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 				
-			vec2 offset = poissonDisk[ i ] * coc * 0.06; 
-			float sampleCoC = unpack16( texture2D( cocTex, vUv + offset ).zw ) + 0.01;
+	// 		vec2 offset = poissonDisk[ i ] * coc * 0.06; 
+	// 		float sampleCoC = unpack16( texture2D( cocTex, vUv + offset ).zw ) + 0.01;
 
-			col += texture2D( sceneTex, vUv + offset ).xyz * sampleCoC;
-			cnt += sampleCoC;
+	// 		col += texture2D( sceneTex, vUv + offset ).xyz * sampleCoC;
+	// 		cnt += sampleCoC;
 			
-		}
+	// 	}
 
-		col /= cnt;
+	// 	col /= cnt;
 
-	#else
+	// #else
 
-		float baseCoc = unpack16( texture2D( cocTex, vUv ).xy );
+		// float baseCoc = unpack16( texture2D( cocTex, vUv ).xy );
 
-		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+		// for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 
-			vec2 offset = poissonDisk[ i ] * 0.03; 
-			vec4 tex = texture2D( cocTex, vUv + offset );
+		// 	vec2 offset = poissonDisk[ i ] * 0.03; 
+		// 	vec4 tex = texture2D( cocTex, vUv + offset );
 
-			if( tex.x + tex.y + tex.z < 3.0 ) {
+		// 	if( tex.x + tex.y + tex.z < 3.0 ) {
 
-				coc += unpack16( tex.xy );
+		// 		coc += unpack16( tex.xy );
+		// 		coc += unpack16( tex.zw );
 
-			}
+		// 	}
 			
-		}
+		// }
 
-		coc /= float( SAMPLE_COUNT );
+		// coc /= float( SAMPLE_COUNT );
 
-		for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+		// for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
 				
-			vec2 offset = poissonDisk[ i ] * coc * 0.06; 
-			col += texture2D( sceneTex, vUv + offset ).xyz;
+		// 	vec2 offset = poissonDisk[ i ] * coc * 0.06; 
+		// 	col += texture2D( sceneTex, vUv + offset ).xyz;
 			
-		}
+		// }
 
-		col /= float( SAMPLE_COUNT );
+		// col /= float( SAMPLE_COUNT );
 
-	#endif
+	// #endif
 
 	gl_FragColor = vec4( vec3(col), 1.0 );
 	

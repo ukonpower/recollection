@@ -486,8 +486,7 @@ void main( void ) {
 			float diff = d - cameraFocusLength;
 
 			float coc = 
-				( abs( diff ) / ( d ) ) * 
-				( ( cameraFocalLength * cameraFocalLength ) / ( cameraFNumber * ( cameraFocusLength - cameraFocalLength ) ) );
+				( abs( diff ) / ( cameraFocalLength ) ) * 0.2;
 
 			if( diff < 0.0 ) {
 
