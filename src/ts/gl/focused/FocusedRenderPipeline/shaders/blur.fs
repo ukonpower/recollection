@@ -20,8 +20,6 @@ void main(){
 
 	#endif
 
-	// d *= (sin( time * 3.0 ) * 0.5 + 0.5);
-
 	gl_FragColor = blur13( tex, vUv, resolution, d );
 
 }

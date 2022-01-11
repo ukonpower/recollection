@@ -13,6 +13,8 @@ void main(){
 
 	col = mix( scene.xyz, dofBlur.xyz, dofBlur.w );
 
-	gl_FragColor = vec4( dofBlur.xyz, 1.0 );
+	// col = dofBlur.xyz;
+
+	gl_FragColor = vec4( col, 1.0 );
 
 }

@@ -7,6 +7,7 @@ import blurFrag from './shaders/blur.fs';
 
 // dof shaders
 import dofBlurFrag from './shaders/dofBlur.fs';
+import dofCocFrag from './shaders/dofCoc.fs';
 import dofCompositeFrag from './shaders/dofComposite.fs';
 
 // bloom shaders
@@ -47,6 +48,7 @@ export class FocusedRenderPipeline {
 	private blurHorizonalPP: ORE.PostProcessing;
 	private blurVerticalPP: ORE.PostProcessing;
 
+	private dofCocPP: ORE.PostProcessing;
 	private dofBlurPP: ORE.PostProcessing;
 	private dofCompositePP: ORE.PostProcessing;
 
@@ -108,21 +110,28 @@ export class FocusedRenderPipeline {
 				stencilBuffer: false,
 				generateMipmaps: false,
 				depthBuffer: true,
-				minFilter: THREE.NearestFilter,
-				magFilter: THREE.NearestFilter,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter,
 				format: THREE.RGBAFormat
 			} ),
-			dofBlur: new THREE.WebGLRenderTarget( 0, 0, {
+			dofCoc: new THREE.WebGLRenderTarget( 0, 0, {
 				stencilBuffer: false,
 				generateMipmaps: false,
 				depthBuffer: true,
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter
 			} ),
+			dofBlur: new THREE.WebGLRenderTarget( 0, 0, {
+				stencilBuffer: false,
+				generateMipmaps: false,
+				depthBuffer: false,
+				minFilter: THREE.LinearFilter,
+				magFilter: THREE.LinearFilter
+			} ),
 			dofBlurTmp: new THREE.WebGLRenderTarget( 0, 0, {
 				stencilBuffer: false,
 				generateMipmaps: false,
-				depthBuffer: true,
+				depthBuffer: false,
 				minFilter: THREE.LinearFilter,
 				magFilter: THREE.LinearFilter
 			} ),
@@ -193,8 +202,8 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
-		this.dofBlurPP = new ORE.PostProcessing( this.renderer, {
-			fragmentShader: dofBlurFrag,
+		this.dofCocPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: dofCocFrag,
 			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
 				cameraFocalLength: {
 					value: 0
@@ -203,6 +212,11 @@ export class FocusedRenderPipeline {
 					value: 0
 				},
 			} ),
+		} );
+
+		this.dofBlurPP = new ORE.PostProcessing( this.renderer, {
+			fragmentShader: dofBlurFrag,
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
 		} );
 
 		this.dofCompositePP = new ORE.PostProcessing( this.renderer, {
@@ -352,8 +366,8 @@ export class FocusedRenderPipeline {
 
 		if ( camera.userData.dof ) {
 
-			this.dofBlurPP.effect.material.uniforms.cameraFocalLength.value = camera.userData.focalLength;
-			this.dofBlurPP.effect.material.uniforms.cameraFocusLength.value = camera.userData.focusLength;
+			this.dofCocPP.effect.material.uniforms.cameraFocalLength.value = camera.userData.focalLength;
+			this.dofCocPP.effect.material.uniforms.cameraFocusLength.value = camera.userData.focusLength;
 
 		}
 
@@ -374,7 +388,7 @@ export class FocusedRenderPipeline {
 
 		let bg = scene.background;
 
-		scene.background = new THREE.Color( "#000" );
+		scene.background = new THREE.Color( "#FFF" );
 
 		this.renderer.setRenderTarget( this.renderTargets.depth );
 		this.renderer.render( scene, camera );
@@ -388,10 +402,14 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
+		this.dofCocPP.render( {
+			depthTex: this.renderTargets.depth.texture,
+		}, this.renderTargets.dofCoc );
+
 		this.dofBlurPP.render( {
 			sceneTex: this.renderTargets.rt1.texture,
-			depthTex: this.renderTargets.depth.texture
-		}, this.renderTargets.rt2 );
+			cocTex: this.renderTargets.dofCoc.texture
+		}, this.renderTargets.dofBlur );
 
 		// this.blurHorizonalPP.render( {
 		// 	tex: this.renderTargets.dofBlur.texture
@@ -401,10 +419,10 @@ export class FocusedRenderPipeline {
 		// 	tex: this.renderTargets.dofBlurTmp.texture
 		// }, this.renderTargets.dofBlur );
 
-		// this.dofCompositePP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// 	dofBlurTex: this.renderTargets.dofBlur.texture
-		// }, this.renderTargets.rt2 );
+		this.dofCompositePP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			dofBlurTex: this.renderTargets.dofBlur.texture
+		}, this.renderTargets.rt2 );
 
 		/*------------------------
 			Bloom
@@ -507,6 +525,7 @@ export class FocusedRenderPipeline {
 		this.renderTargets.rt3.setSize( pixelWindowSize.x, pixelWindowSize.y );
 
 		this.renderTargets.depth.setSize( pixelWindowSize.x, pixelWindowSize.y );
+		this.renderTargets.dofCoc.setSize( pixelWindowSize.x, pixelWindowSize.y );
 		this.renderTargets.dofBlurTmp.setSize( pixelWindowSize.x / 2, pixelWindowSize.y / 2 );
 		this.renderTargets.dofBlur.setSize( pixelWindowSize.x / 2, pixelWindowSize.y / 2 );
 
