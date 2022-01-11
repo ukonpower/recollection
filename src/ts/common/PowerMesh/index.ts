@@ -53,14 +53,11 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			shadowLightSize: {
 				value: 1.0
 			},
-			cameraFocalLength: {
-				value: 1.0
+			cameraNear: {
+				value: 0.01
 			},
-			cameraFocusLength: {
-				value: 5.0
-			},
-			cameraFNumber: {
-				value: 2.0
+			cameraFar: {
+				value: 1000.0
 			}
 		} );
 
@@ -223,22 +220,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			},
 		} );
 
-		this.userData.cocMat = new THREE.ShaderMaterial( {
-			vertexShader: powerVert,
-			fragmentShader: powerFrag,
-			side: THREE.DoubleSide,
-			lights: true,
-			extensions: {
-				derivatives: true
-			},
-			...materialOption,
-			defines: {
-				...mat.defines,
-				'DEPTH': '',
-				'COC': ''
-			},
-		} );
-
 		this.commonUniforms = uni;
 
 		/*-------------------------------
@@ -317,6 +298,8 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			if ( camera.userData.depthCamera ) {
 
 				this.material = this.userData.depthMat;
+				this.commonUniforms.cameraNear.value = camera.near;
+				this.commonUniforms.cameraFar.value = camera.far;
 
 				if ( ! this.material ) {
 
@@ -341,18 +324,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				this.commonUniforms.shadowLightSize.value = camera.userData.shadowLightSize;
 				camera.getWorldDirection( this.commonUniforms.shadowLightDirection.value );
 				this.commonUniforms.shadowLightCameraClip.value.copy( camera.userData.shadowLightCameraClip );
-
-			}
-
-			/*-------------------------------
-				Dof
-			-------------------------------*/
-
-			if ( camera.userData.dof ) {
-
-				this.commonUniforms.cameraFocalLength.value = camera.userData.focalLength;
-				this.commonUniforms.cameraFocusLength.value = camera.userData.focusLength;
-				this.commonUniforms.cameraFNumber.value = camera.userData.fNumber;
 
 			}
 

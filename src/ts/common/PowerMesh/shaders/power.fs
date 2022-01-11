@@ -92,18 +92,6 @@ uniform float time;
 #endif
 
 /*-------------------------------
-	Dof
--------------------------------*/
-
-#ifdef COC
-
-	uniform float cameraFocalLength;
-	uniform float cameraFocusLength;
-	uniform float cameraFNumber;
-
-#endif
-
-/*-------------------------------
 	Types
 -------------------------------*/
 
@@ -241,6 +229,8 @@ vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
 #ifdef DEPTH
 
 	varying vec2 vHighPrecisionZW;
+	uniform float cameraNear;
+	uniform float cameraFar;
 
 #else
 
@@ -479,32 +469,9 @@ void main( void ) {
 
 	#ifdef DEPTH
 
-		#ifdef COC
-
-			float d = vViewPos.z;
-
-			float diff = d - cameraFocusLength;
-
-			float coc = 
-				( abs( diff ) / ( cameraFocalLength ) ) * 0.2;
-
-			if( diff < 0.0 ) {
-
-				gl_FragColor = vec4( packing16( coc ), 0.0, 0.0 );
-
-			} else {
-
-				gl_FragColor = vec4(  0.0, 0.0, packing16( coc ) );
-				
-			}
-			
-		#else
-
-			float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
-			gl_FragColor = packDepthToRGBA( fragCoordZ );
-
-		#endif
-
+		float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
+		// gl_FragColor = packDepthToRGBA( fragCoordZ );
+		gl_FragColor = vec4(fragCoordZ);
 		return;
 	
 	#endif

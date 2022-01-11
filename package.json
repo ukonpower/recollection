@@ -6,6 +6,9 @@
     "type": "git",
     "url": ""
   },
+  "scripts": {
+	  "dev": "npx gulp"
+  },
   "author": "ukonpower",
   "bugs": {
     "url": ""

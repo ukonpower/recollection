@@ -27,6 +27,8 @@ export class FocusedCameraController {
 		this.cursorPosDelay = new THREE.Vector2();
 		this.cameraMoveWeight = new THREE.Vector2( 0.1, 0.1 );
 
+		this.camera.userData.depthCamera = true;
+
 		/*-------------------------------
 			DOF
 		-------------------------------*/

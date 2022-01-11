@@ -1,7 +1,12 @@
 varying vec2 vUv;
+uniform sampler2D backbuffer;
 uniform vec2 resolution;
 
-uniform sampler2D tex;
+uniform float cameraNear;
+uniform float cameraFar;
+
+uniform sampler2D sceneTex;
+uniform sampler2D depthTex;
 
 uniform float time;
 
@@ -9,24 +14,53 @@ uniform float time;
 
 #pragma glslify: random = require('./random.glsl' )
 #pragma glslify: import('./constants.glsl' )
-#pragma glslify: blur13 = require( './gaussBlur13.glsl' )
+
+#define SAMPLE_COUNT 8
+
+vec2 poissonDisk[ SAMPLE_COUNT ];
+
+void initPoissonDisk() {
+
+	float r = 1.0 / float( SAMPLE_COUNT );
+	float rStep = r;
+
+	float ang = random( gl_FragCoord.xy * 0.01 + sin(time) ) * TPI;
+	float angStep = rStep * TPI * 11.0;
+
+	for( int i = 0; i < SAMPLE_COUNT; i++ ) {
+		
+		poissonDisk[ i ] = vec2(
+			sin( ang ),
+			cos( ang )
+		) * pow( r, 0.75 );
+
+		r += rStep;
+		ang += angStep;
+	}
+	
+}
 
 void main(){
 
-	vec2 d;
+	initPoissonDisk();
 
-	#ifdef VERTICAL
+	float cnt = 0.0;
+	vec3 col = vec3( 0.0 );
+	float coc = 1.0;
+	
+	// float depth = cameraNear + unpackRGBAToDepth( texture2D( depthTex, vUv ) ) * ( cameraFar - cameraNear );
+	float depth = unpackRGBAToDepth( texture2D( depthTex, vUv ) );
+	depth = texture2D( depthTex, vUv ).x;
 
-		d = vec2( 0.0, 1.0 );
+	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
+			
+		vec2 offset = poissonDisk[ i ] * coc * 0.06;
+		
+	}
 
-	#else
+	col /= cnt;
+	col = vec3( depth );
 
-		d = vec2( 1.0, 0.0 );
-
-	#endif
-
-	// d *= (sin( time * 3.0 ) * 0.5 + 0.5);
-
-	gl_FragColor = blur13( tex, vUv, resolution, d );
-
+	gl_FragColor = vec4( col, 1.0 );
+	
 }
