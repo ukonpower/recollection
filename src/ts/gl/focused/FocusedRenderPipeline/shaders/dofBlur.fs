@@ -4,6 +4,8 @@ uniform vec2 resolution;
 
 uniform float cameraNear;
 uniform float cameraFar;
+uniform float cameraFocusLength;
+uniform float cameraFocalLength;
 
 uniform sampler2D sceneTex;
 uniform sampler2D depthTex;
@@ -48,18 +50,15 @@ void main(){
 	vec3 col = vec3( 0.0 );
 	float coc = 1.0;
 	
-	// float depth = cameraNear + unpackRGBAToDepth( texture2D( depthTex, vUv ) ) * ( cameraFar - cameraNear );
-	float depth = unpackRGBAToDepth( texture2D( depthTex, vUv ) );
-	depth = texture2D( depthTex, vUv ).x;
+	float fragCoordZ = unpackRGBAToDepth( texture2D( depthTex, vUv ) );
+	float viewZ = perspectiveDepthToViewZ( fragCoordZ, cameraNear, cameraFar );
+	float depth = viewZToOrthographicDepth( viewZ, cameraNear, cameraFar );
 
-	for( int i = 0; i < SAMPLE_COUNT; i ++  ) {
-			
-		vec2 offset = poissonDisk[ i ] * coc * 0.06;
-		
-	}
+	float d = -viewZ;
+	float diff = d - cameraFocusLength;
 
-	col /= cnt;
-	col = vec3( depth );
+	coc = ( abs( diff ) / ( cameraFocalLength ) );
+	col = vec3( coc );
 
 	gl_FragColor = vec4( col, 1.0 );
 	

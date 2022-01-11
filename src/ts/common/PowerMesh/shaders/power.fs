@@ -470,8 +470,7 @@ void main( void ) {
 	#ifdef DEPTH
 
 		float fragCoordZ = 0.5 * vHighPrecisionZW.x / vHighPrecisionZW.y + 0.5;
-		// gl_FragColor = packDepthToRGBA( fragCoordZ );
-		gl_FragColor = vec4(fragCoordZ);
+		gl_FragColor = packDepthToRGBA( fragCoordZ );
 		return;
 	
 	#endif

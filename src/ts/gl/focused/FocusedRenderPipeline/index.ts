@@ -195,7 +195,14 @@ export class FocusedRenderPipeline {
 
 		this.dofBlurPP = new ORE.PostProcessing( this.renderer, {
 			fragmentShader: dofBlurFrag,
-			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {} ),
+			uniforms: ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+				cameraFocalLength: {
+					value: 0
+				},
+				cameraFocusLength: {
+					value: 0
+				},
+			} ),
 		} );
 
 		this.dofCompositePP = new ORE.PostProcessing( this.renderer, {
@@ -343,6 +350,13 @@ export class FocusedRenderPipeline {
 
 		}
 
+		if ( camera.userData.dof ) {
+
+			this.dofBlurPP.effect.material.uniforms.cameraFocalLength.value = camera.userData.focalLength;
+			this.dofBlurPP.effect.material.uniforms.cameraFocusLength.value = camera.userData.focusLength;
+
+		}
+
 		/*------------------------
 			Scene
 		------------------------*/
@@ -377,7 +391,7 @@ export class FocusedRenderPipeline {
 		this.dofBlurPP.render( {
 			sceneTex: this.renderTargets.rt1.texture,
 			depthTex: this.renderTargets.depth.texture
-		}, this.renderTargets.dofBlur );
+		}, this.renderTargets.rt2 );
 
 		// this.blurHorizonalPP.render( {
 		// 	tex: this.renderTargets.dofBlur.texture
@@ -387,10 +401,10 @@ export class FocusedRenderPipeline {
 		// 	tex: this.renderTargets.dofBlurTmp.texture
 		// }, this.renderTargets.dofBlur );
 
-		this.dofCompositePP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-			dofBlurTex: this.renderTargets.dofBlur.texture
-		}, this.renderTargets.rt2 );
+		// this.dofCompositePP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture,
+		// 	dofBlurTex: this.renderTargets.dofBlur.texture
+		// }, this.renderTargets.rt2 );
 
 		/*------------------------
 			Bloom
