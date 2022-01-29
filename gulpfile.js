@@ -5,7 +5,7 @@ const rename = require( 'gulp-rename' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
 const plumber = require( 'gulp-plumber' );
-const sass = require( 'gulp-sass' );
+const sass = require( 'gulp-sass' )( require( 'sass' ) );
 const cssmin = require( 'gulp-cssmin' );
 
 const webpackStream = require( 'webpack-stream' );
@@ -198,7 +198,13 @@ function pugDev( cb ) {
 function sassDev() {
 
 	return gulp.src( srcPath + "/scss/style.scss" )
-		.pipe( plumber() )
+		.pipe(  plumber( {
+
+			errorHandler: ( err ) => {
+			console.log( err.messageFormatted );
+			this.emit('end');
+			
+		} } )  )
 		.pipe( sass() )
 		.pipe( autoprefixer() )
 		.pipe( cssmin() )

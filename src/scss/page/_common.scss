@@ -1,21 +1,4 @@
-* {
-	margin: 0;
-	padding: 0;
-	color: white;
-	font-style: normal;
-	box-sizing: border-box;
-
-	font-family: Comfortaa, 'M PLUS Rounded 1c';
-	font-weight: 300;
-	font-style: normal;
-}
-
-html, body {
-	background-color: #000;
-	width: 100%;
-	height: 100%;
-	overflow: hidden;
-}
+@use './global' as *;
 
 .container {
 	position: relative;
@@ -71,7 +54,6 @@ html, body {
 
 
 .contents {
-
 	position: absolute;
 	width: 100%;
 	height: 100%;
