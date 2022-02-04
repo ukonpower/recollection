@@ -589,7 +589,6 @@ void main( void ) {
 	refDir.x *= -1.0;
 
 	vec4 envMapColor = sRGBToLinear( textureCubeUV( envMap, geo.normalWorld, 1.0 ) );
-	
 	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	/*-------------------------------

@@ -402,14 +402,14 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
-		this.dofCocPP.render( {
-			depthTex: this.renderTargets.depth.texture,
-		}, this.renderTargets.dofCoc );
+		// this.dofCocPP.render( {
+		// 	depthTex: this.renderTargets.depth.texture,
+		// }, this.renderTargets.dofCoc );
 
-		this.dofBlurPP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-			cocTex: this.renderTargets.dofCoc.texture
-		}, this.renderTargets.dofBlur );
+		// this.dofBlurPP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture,
+		// 	cocTex: this.renderTargets.dofCoc.texture
+		// }, this.renderTargets.dofBlur );
 
 		// this.blurHorizonalPP.render( {
 		// 	tex: this.renderTargets.dofBlur.texture
@@ -419,56 +419,56 @@ export class FocusedRenderPipeline {
 		// 	tex: this.renderTargets.dofBlurTmp.texture
 		// }, this.renderTargets.dofBlur );
 
-		this.dofCompositePP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-			dofBlurTex: this.renderTargets.dofBlur.texture
-		}, this.renderTargets.rt2 );
+		// this.dofCompositePP.render( {
+		// 	sceneTex: this.renderTargets.rt1.texture,
+		// 	dofBlurTex: this.renderTargets.dofBlur.texture
+		// }, this.renderTargets.rt2 );
 
 		/*------------------------
 			Bloom
 		------------------------*/
 
-		// this.bloomBrightPP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture
-		// }, this.renderTargets.rt2 );
+		this.bloomBrightPP.render( {
+			sceneTex: this.renderTargets.rt1.texture
+		}, this.renderTargets.rt2 );
 
-		// let target: THREE.WebGLRenderTarget;
-		// let uni = this.bloomBlurPP.effect.material.uniforms;
-		// uni.backbuffer.value = this.renderTargets.rt2.texture;
+		let target: THREE.WebGLRenderTarget;
+		let uni = this.bloomBlurPP.effect.material.uniforms;
+		uni.backbuffer.value = this.renderTargets.rt2.texture;
 
-		// for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
+		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
-		// 	uni.count.value = i;
+			uni.count.value = i;
 
-		// 	uni.direction.value = true;
-		// 	target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
-		// 	this.bloomBlurPP.render( null, target );
+			uni.direction.value = true;
+			target = this.renderTargets[ 'rtBlur' + i.toString() + '_0' ];
+			this.bloomBlurPP.render( null, target );
 
-		// 	uni.direction.value = false;
-		// 	uni.backbuffer.value = target.texture;
-		// 	target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
-		// 	this.bloomBlurPP.render( null, target );
+			uni.direction.value = false;
+			uni.backbuffer.value = target.texture;
+			target = this.renderTargets[ 'rtBlur' + i.toString() + '_1' ];
+			this.bloomBlurPP.render( null, target );
 
-		// 	uni.backbuffer.value = target.texture;
+			uni.backbuffer.value = target.texture;
 
-		// }
+		}
 
 		/*------------------------
 			SMAA
 		------------------------*/
 
-		// this.smaaEdgePP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// }, this.renderTargets.rt2 );
+		this.smaaEdgePP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+		}, this.renderTargets.rt2 );
 
-		// this.smaaCalcWeighttPP.render( {
-		// 	backbuffer: this.renderTargets.rt2.texture,
-		// }, this.renderTargets.rt3 );
+		this.smaaCalcWeighttPP.render( {
+			backbuffer: this.renderTargets.rt2.texture,
+		}, this.renderTargets.rt3 );
 
-		// this.smaaBlendingPP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// 	backbuffer: this.renderTargets.rt3.texture,
-		// }, this.renderTargets.rt2 );
+		this.smaaBlendingPP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			backbuffer: this.renderTargets.rt3.texture,
+		}, this.renderTargets.rt2 );
 
 
 		/*------------------------

@@ -36,7 +36,7 @@ export class FocusedCameraController {
 		this.camera.userData.dof = true;
 		this.camera.userData.focalLength = 10.0;
 		this.camera.userData.focusLength = 8.0;
-		this.camera.userData.fNumber = 2.0;
+		this.camera.userData.fNumber = 1.0;
 
 		/*-------------------------------
 			OrbitControls
@@ -59,8 +59,7 @@ export class FocusedCameraController {
 	public update( deltaTime: number, time: number ) {
 
 		this.updateOrbitControls();
-
-		// this.updateSceneControls( deltaTime: number, time: number );
+		this.updateSceneControls( deltaTime, time );
 
 	}
 

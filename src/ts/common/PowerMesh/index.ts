@@ -228,9 +228,9 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		if ( 'isMesh' in geoMesh ) {
 
-			this.position.copy( geoMesh.position );
-			this.rotation.copy( geoMesh.rotation );
-			this.scale.copy( geoMesh.scale );
+			geoMesh.getWorldPosition( this.position );
+			geoMesh.getWorldQuaternion( this.quaternion );
+			geoMesh.getWorldScale( this.scale );
 
 		}
 

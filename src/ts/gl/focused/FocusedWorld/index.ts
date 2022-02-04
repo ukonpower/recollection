@@ -39,15 +39,23 @@ export class FocusedWorld extends THREE.Object3D {
 
 		light = new THREE.DirectionalLight();
 		light.position.set( - 10, 10, 5.0 );
-		this.scene.add( light );
+		// this.scene.add( light );
+
+
 
 		this.light = light;
+
+		let pLight = new THREE.PointLight();
+		pLight.position.set( 0, 3, 5 );
+		pLight.intensity = 6.0;
+		pLight.distance = 6.0;
+		this.scene.add( pLight );
 
 		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 30.0, 30.0 ), light, 2.0 );
+		// this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 30.0, 30.0 ), light, 2.0 );
 
 		/*-------------------------------
 			Meshes
@@ -65,7 +73,6 @@ export class FocusedWorld extends THREE.Object3D {
 				} );
 
 				scene.add( powerMesh );
-				this.mesh = powerMesh;
 				meshes.push( powerMesh );
 
 			}
@@ -76,12 +83,12 @@ export class FocusedWorld extends THREE.Object3D {
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
-			'/assets/scene/img/env/pz.jpg',
-			'/assets/scene/img/env/nz.jpg',
-			'/assets/scene/img/env/py.jpg',
-			'/assets/scene/img/env/ny.jpg',
 			'/assets/scene/img/env/px.jpg',
 			'/assets/scene/img/env/nx.jpg',
+			'/assets/scene/img/env/py.jpg',
+			'/assets/scene/img/env/ny.jpg',
+			'/assets/scene/img/env/pz.jpg',
+			'/assets/scene/img/env/nz.jpg',
 		], ( tex ) => {
 
 			this.scene.background = tex;
@@ -89,7 +96,7 @@ export class FocusedWorld extends THREE.Object3D {
 
 			meshes.forEach( item=>{
 
-				item.envMapUpdate = true;
+				// item.envMapUpdate = true;
 
 			} );
 
@@ -102,7 +109,7 @@ export class FocusedWorld extends THREE.Object3D {
 
 	public update( deltaTime: number, time: number ) {
 
-		this.shadowMapper.update( this.scene );
+		// this.shadowMapper.update( this.scene );
 
 		// this.light.position.set( - 20.0 * Math.sin( time ), 10.0, 20.0 * Math.cos( time ) );
 
