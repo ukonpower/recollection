@@ -15,7 +15,7 @@ export class FocusedCameraController {
 
 	private baseCamera: THREE.PerspectiveCamera;
 
-	private orbitControls: OrbitControls;
+	// private orbitControls: OrbitControls;
 
 	constructor( obj: THREE.PerspectiveCamera, data: THREE.Object3D ) {
 
@@ -45,9 +45,9 @@ export class FocusedCameraController {
 			OrbitControls
 		-------------------------------*/
 
-		this.orbitControls = new OrbitControls( this.camera, document.querySelector( '.contents' ) );
-		this.orbitControls.target = this.cameraTargetPos;
-		this.camera.position.copy( this.cameraBasePos );
+		// this.orbitControls = new OrbitControls( this.camera, document.querySelector( '.contents' ) );
+		// this.orbitControls.target = this.cameraTargetPos;
+		// this.camera.position.copy( this.cameraBasePos );
 
 	}
 
@@ -61,7 +61,7 @@ export class FocusedCameraController {
 
 	public update( deltaTime: number, time: number ) {
 
-		this.updateOrbitControls();
+		// this.updateOrbitControls();
 		this.updateSceneControls( deltaTime, time );
 
 	}
@@ -89,11 +89,11 @@ export class FocusedCameraController {
 
 	}
 
-	private updateOrbitControls() {
+	// private updateOrbitControls() {
 
-		// this.orbitControls.update();
+	// 	this.orbitControls.update();
 
-	}
+	// }
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
