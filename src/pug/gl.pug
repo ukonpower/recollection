@@ -18,12 +18,12 @@ html(lang="en")
 			.canvas-wrap
 				canvas#canvas.canvas
 			.container(data-barba="container" data-barba-namespace=glName)
-				//- include ./common/_header.pug
+				include ./common/_header.pug
 				.contents
 					.contents-data
-						//- .contents-data-title #{glName}
-						//- .contents-data-description #{glDescription}
-						//- .contents-data-date #{glDate}
+						.contents-data-title #{glName}
+						.contents-data-description #{glDescription}
+						.contents-data-date #{glDate}
 					.contents-back
-						//- a(href="../") Back
+						a(href="../") Back
 		script(src="../js/main.js")

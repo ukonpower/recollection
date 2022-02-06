@@ -86,7 +86,7 @@ export class FocusedWorld extends THREE.Object3D {
 
 					let pLight = new THREE.PointLight();
 					pLight.distance = 7.0;
-					pLight.intensity = 4.0;
+					pLight.intensity = 5.0;
 					mesh.add( pLight );
 
 					return;

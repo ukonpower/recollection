@@ -402,14 +402,14 @@ export class FocusedRenderPipeline {
 			Dof
 		-------------------------------*/
 
-		// this.dofCocPP.render( {
-		// 	depthTex: this.renderTargets.depth.texture,
-		// }, this.renderTargets.dofCoc );
+		this.dofCocPP.render( {
+			depthTex: this.renderTargets.depth.texture,
+		}, this.renderTargets.dofCoc );
 
-		// this.dofBlurPP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// 	cocTex: this.renderTargets.dofCoc.texture
-		// }, this.renderTargets.dofBlur );
+		this.dofBlurPP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			cocTex: this.renderTargets.dofCoc.texture
+		}, this.renderTargets.dofBlur );
 
 		// this.blurHorizonalPP.render( {
 		// 	tex: this.renderTargets.dofBlur.texture
@@ -419,22 +419,22 @@ export class FocusedRenderPipeline {
 		// 	tex: this.renderTargets.dofBlurTmp.texture
 		// }, this.renderTargets.dofBlur );
 
-		// this.dofCompositePP.render( {
-		// 	sceneTex: this.renderTargets.rt1.texture,
-		// 	dofBlurTex: this.renderTargets.dofBlur.texture
-		// }, this.renderTargets.rt2 );
+		this.dofCompositePP.render( {
+			sceneTex: this.renderTargets.rt1.texture,
+			dofBlurTex: this.renderTargets.dofBlur.texture
+		}, this.renderTargets.rt2 );
 
 		/*------------------------
 			Bloom
 		------------------------*/
 
 		this.bloomBrightPP.render( {
-			sceneTex: this.renderTargets.rt1.texture
-		}, this.renderTargets.rt2 );
+			sceneTex: this.renderTargets.rt2.texture
+		}, this.renderTargets.rt3 );
 
 		let target: THREE.WebGLRenderTarget;
 		let uni = this.bloomBlurPP.effect.material.uniforms;
-		uni.backbuffer.value = this.renderTargets.rt2.texture;
+		uni.backbuffer.value = this.renderTargets.rt3.texture;
 
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
@@ -458,17 +458,17 @@ export class FocusedRenderPipeline {
 		------------------------*/
 
 		this.smaaEdgePP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
-		}, this.renderTargets.rt2 );
+			sceneTex: this.renderTargets.rt2.texture,
+		}, this.renderTargets.rt1 );
 
 		this.smaaCalcWeighttPP.render( {
-			backbuffer: this.renderTargets.rt2.texture,
+			backbuffer: this.renderTargets.rt1.texture,
 		}, this.renderTargets.rt3 );
 
 		this.smaaBlendingPP.render( {
-			sceneTex: this.renderTargets.rt1.texture,
+			sceneTex: this.renderTargets.rt2.texture,
 			backbuffer: this.renderTargets.rt3.texture,
-		}, this.renderTargets.rt2 );
+		}, this.renderTargets.rt1 );
 
 
 		/*------------------------
@@ -476,7 +476,7 @@ export class FocusedRenderPipeline {
 		------------------------*/
 
 		let compositeInputRenderTargets = {
-			sceneTex: this.renderTargets.rt2.texture,
+			sceneTex: this.renderTargets.rt1.texture,
 			bloomTexs: [] as THREE.Texture[]
 		};
 

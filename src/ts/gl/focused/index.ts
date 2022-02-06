@@ -19,6 +19,9 @@ export default class Focused extends BaseGL {
 		super( renderer, info, renderTarget, parentUniforms );
 
 		this.commonUniforms = ORE.UniformsLib.mergeUniforms( this.commonUniforms, {
+			spWeight: {
+				value: 0.0
+			}
 		} );
 
 		this.gManager = new FocusedGlobalManager();
@@ -83,6 +86,8 @@ export default class Focused extends BaseGL {
 	public onResize() {
 
 		super.onResize();
+
+		this.commonUniforms.spWeight.value = this.info.size.portraitWeight;
 
 		if ( this.cameraController ) {
 

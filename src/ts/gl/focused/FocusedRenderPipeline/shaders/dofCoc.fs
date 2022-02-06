@@ -17,7 +17,7 @@ void main(){
 	float diff = -viewZ - cameraFocusLength;
 
 	float coc = ( diff / ( cameraFocalLength ) );
-	coc = min( 1.0, max( -1.0, coc * 4.0 ) );
+	coc = min( 1.0, max( -1.0, coc ) );
 	coc = coc * 0.5 + 0.5;
 	
 	gl_FragColor = vec4( coc, 0.0, 0.0, 0.0 );

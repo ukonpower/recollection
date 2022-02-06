@@ -37,7 +37,7 @@ export class FocusedCameraController {
 		-------------------------------*/
 
 		this.camera.userData.dof = true;
-		this.camera.userData.focalLength = 10.0;
+		this.camera.userData.focalLength = 8.0;
 		this.camera.userData.focusLength = 8.0;
 		this.camera.userData.fNumber = 1.0;
 
@@ -97,9 +97,9 @@ export class FocusedCameraController {
 
 	public resize( layerInfo: ORE.LayerInfo ) {
 
-		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 10.0;
+		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 50.0;
 
-		// this.cameraBasePos.z = this.cameraBasePosClone.z - layerInfo.size.portraitWeight * 2;
+		this.cameraBasePos.z = this.cameraBasePosClone.z - layerInfo.size.portraitWeight * 2;
 
 		// this.camera.fov = 50;
 

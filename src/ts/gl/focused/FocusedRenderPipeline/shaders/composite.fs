@@ -8,6 +8,7 @@ uniform sampler2D bloomTexs[RENDER_COUNT];
 uniform sampler2D noiseTex;
 uniform float brightness;
 uniform float time;
+uniform float spWeight;
 
 #pragma glslify: random = require( './random.glsl' );
 #define N 4
@@ -25,7 +26,6 @@ vec3 aces(vec3 x) {
   const float e = 0.14;
   return clamp((x * (a * x + b)) / (x * (c * x + d) + e), 0.0, 1.0);
 }
-
 
 void main(){
 
@@ -53,7 +53,7 @@ void main(){
 	c *= vec3( 1.05, 1.1, 1.15 );
 
 	c -= random( uv ) * 0.1 * c;
-	c *= smoothstep( -0.5, 0.8, 1.0 - length( cuv + vec2( 0.0, -0.3) ) );
+	c *= smoothstep( -0.5 - 1.5 * spWeight, 0.8, 1.0 - length( cuv + vec2( 0.0, -0.3) ) );
 
 
 	// c = LinearTosRGB( vec4( c, 1.0 ) ).xyz;
