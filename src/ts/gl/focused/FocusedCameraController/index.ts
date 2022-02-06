@@ -91,7 +91,7 @@ export class FocusedCameraController {
 
 	private updateOrbitControls() {
 
-		this.orbitControls.update();
+		// this.orbitControls.update();
 
 	}
 
