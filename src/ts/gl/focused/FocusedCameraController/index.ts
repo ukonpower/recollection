@@ -6,6 +6,7 @@ export class FocusedCameraController {
 
 	private camera: THREE.PerspectiveCamera
 	private cameraBasePos: THREE.Vector3;
+	private cameraBasePosClone: THREE.Vector3;
 	private cameraTargetPos: THREE.Vector3;
 
 	private cursorPos: THREE.Vector2;
@@ -22,6 +23,8 @@ export class FocusedCameraController {
 		this.cameraBasePos = data.getObjectByName( 'Camera' ).getWorldPosition( new THREE.Vector3() );
 		this.cameraTargetPos = data.getObjectByName( 'CameraTarget' ).getWorldPosition( new THREE.Vector3() );
 		this.baseCamera = data.getObjectByName( 'Camera' ).children[ 0 ] as THREE.PerspectiveCamera;
+
+		this.cameraBasePosClone = this.cameraBasePos.clone();
 
 		this.cursorPos = new THREE.Vector2();
 		this.cursorPosDelay = new THREE.Vector2();
@@ -59,7 +62,7 @@ export class FocusedCameraController {
 	public update( deltaTime: number, time: number ) {
 
 		this.updateOrbitControls();
-		// this.updateSceneControls( deltaTime, time );
+		this.updateSceneControls( deltaTime, time );
 
 	}
 
@@ -95,6 +98,8 @@ export class FocusedCameraController {
 	public resize( layerInfo: ORE.LayerInfo ) {
 
 		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 10.0;
+
+		// this.cameraBasePos.z = this.cameraBasePosClone.z - layerInfo.size.portraitWeight * 2;
 
 		// this.camera.fov = 50;
 

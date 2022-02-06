@@ -153,6 +153,8 @@ struct Material {
 -------------------------------*/
 
 uniform sampler2D envMap;
+uniform float envMapIntensity;
+uniform float iblIntensity;
 uniform float maxLodLevel;
 
 #define ENVMAP_TYPE_CUBE_UV
@@ -502,7 +504,7 @@ void main( void ) {
 	#endif
 	
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
-	
+
 	/*-------------------------------
 		Lighting
 	-------------------------------*/
@@ -534,22 +536,24 @@ void main( void ) {
 	#if NUM_POINT_LIGHTS > 0
 
 		PointLight pLight;
-
+		vec3 v;
+		float d;
+		float attenuation;
 		#pragma unroll_loop_start
 
 			for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
 
 				pLight = pointLights[ i ];
 
-				vec3 v = pLight.position - geo.pos;
-				float d = length( v );
+				v = pLight.position - geo.pos;
+				d = length( v );
 				light.direction = normalize( v );
 		
 				light.color = pLight.color;
 
 				if( pLight.distance > 0.0 && pLight.decay > 0.0 ) {
 
-					float attenuation = pow( clamp( -d / pLight.distance + 1.0, 0.0, 1.0 ), pLight.decay );
+					attenuation = pow( clamp( -d / pLight.distance + 1.0, 0.0, 1.0 ), pLight.decay );
 					light.color *= attenuation;
 
 				}
@@ -571,7 +575,7 @@ void main( void ) {
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
-	vec4 envMapColor = textureCubeUV( envMap, geo.normalWorld, 1.0 );
+	vec4 envMapColor = textureCubeUV( envMap, geo.normalWorld, 1.0 ) * iblIntensity * envMapIntensity;
 	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	/*-------------------------------
@@ -602,7 +606,7 @@ void main( void ) {
 
 	#else
 	
-		outColor += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF;
+		outColor += mat.specularColor * textureCubeUV( envMap, refDir, mat.roughness ).xyz * EF * envMapIntensity * ( 1.0 - mat.roughness * 0.8 );
 	
 	#endif
 

@@ -27,6 +27,12 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			envMap: {
 				value: null
 			},
+			envMapIntensity: {
+				value: null
+			},
+			iblIntensity: {
+				value: null
+			},
 			maxLodLevel: {
 				value: 0
 			},
@@ -232,7 +238,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		this.commonUniforms = uni;
 
 		/*-------------------------------
-			Transform
+			CopyData
 		-------------------------------*/
 
 		if ( 'isMesh' in geoMesh ) {
@@ -240,6 +246,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			geoMesh.getWorldPosition( this.position );
 			geoMesh.getWorldQuaternion( this.quaternion );
 			geoMesh.getWorldScale( this.scale );
+			this.name = geoMesh.name;
 
 		}
 
@@ -258,8 +265,6 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		this.envMapCamera = new THREE.CubeCamera( 0.001, 1000, this.envMapRenderTarget );
 		this.add( this.envMapCamera );
-
-		this.envMapUpdate = true;
 
 		this.onBeforeRender = ( renderer, scene, camera ) => {
 
@@ -282,7 +287,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				EnvMap
 			-------------------------------*/
 
-			if ( ! camera.userData.shadowCamera && ( this.envMapUpdate || this.envMapUpdate ) ) {
+			if ( ! camera.userData.shadowCamera && ( this.envMapUpdate ) ) {
 
 				let envMapRT: THREE.WebGLRenderTarget | null = null;
 
@@ -357,10 +362,38 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 	}
 
+	/*-------------------------------
+		EnvMap / IBL
+	-------------------------------*/
+
 	public updateEnvMap( envMap: THREE.CubeTexture | THREE.Texture | null = null ) {
 
 		this.envMapSrc = envMap;
 		this.envMapUpdate = true;
+
+		if ( this.commonUniforms.envMapIntensity.value == null ) {
+
+			this.commonUniforms.envMapIntensity.value = 1;
+
+		}
+
+		if ( this.commonUniforms.iblIntensity.value == null ) {
+
+			this.commonUniforms.iblIntensity.value = 1;
+
+		}
+
+	}
+
+	public set envMapIntensity( value: number ) {
+
+		this.commonUniforms.envMapIntensity.value = value;
+
+	}
+
+	public set iblIntensity( value: number ) {
+
+		this.commonUniforms.iblIntensity.value = value;
 
 	}
 

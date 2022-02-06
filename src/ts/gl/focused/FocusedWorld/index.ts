@@ -3,6 +3,8 @@ import * as ORE from '@ore-three-ts';
 import { FocusedGlobalManager } from '../FocusedGlobalManager';
 import { ShadowMapper } from '@common/ShadowMapper';
 import { PowerMesh } from '@common/PowerMesh';
+import { Particles } from './Particles';
+import { FaceLine } from './FaceLine';
 
 
 export class FocusedWorld extends THREE.Object3D {
@@ -12,10 +14,9 @@ export class FocusedWorld extends THREE.Object3D {
 	private scene: THREE.Scene;
 	public commonUniforms: ORE.Uniforms;
 
-	private light: THREE.DirectionalLight;
 	private shadowMapper: ShadowMapper
-
 	private mesh: THREE.Mesh;
+	private particles: Particles
 
 	constructor( gManager: FocusedGlobalManager, renderer: THREE.WebGLRenderer, scene: THREE.Scene, parentUniforms: ORE.Uniforms ) {
 
@@ -32,28 +33,30 @@ export class FocusedWorld extends THREE.Object3D {
 		} );
 
 		/*-------------------------------
-			Lights
-		-------------------------------*/
-
-		let light: THREE.DirectionalLight;
-
-		light = new THREE.DirectionalLight();
-		light.position.set( - 10, 10, 5.0 );
-		// this.scene.add( light );
-
-		this.light = light;
-
-		let pLight = new THREE.PointLight();
-		pLight.position.set( 0, 3, 5 );
-		pLight.intensity = 6.0;
-		pLight.distance = 6.0;
-		this.scene.add( pLight );
-
-		/*-------------------------------
 			ShadowMapper
 		-------------------------------*/
 
 		// this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 30.0, 30.0 ), light, 2.0 );
+
+		/*-------------------------------
+			Light
+		-------------------------------*/
+
+		let basePLight = new THREE.PointLight();
+		basePLight.intensity = 0.0;
+		basePLight.distance = 7.0;
+
+		let leftLight = this.scene.getObjectByName( 'Light_Left' );
+		leftLight.add( basePLight.clone() );
+
+		let rightLight = this.scene.getObjectByName( 'Light_Right' );
+		rightLight.add( basePLight.clone() );
+
+		/*-------------------------------
+			Face Line
+		-------------------------------*/
+
+		let faceLine = new FaceLine( this.scene.getObjectByName( 'Face_Line' ) as THREE.Line, this.commonUniforms );
 
 		/*-------------------------------
 			Meshes
@@ -66,52 +69,67 @@ export class FocusedWorld extends THREE.Object3D {
 
 			if ( mesh.isMesh ) {
 
+				/*-------------------------------
+					Light Mesh
+				-------------------------------*/
+
+				if ( mesh.name == 'Light' ) {
+
+					mesh.material = new THREE.MeshBasicMaterial( {
+						color: new THREE.Color( "#FFF" ),
+					} );
+
+					mesh.getWorldPosition( mesh.position );
+					mesh.getWorldQuaternion( mesh.quaternion );
+					mesh.getWorldScale( mesh.scale );
+					this.scene.add( mesh );
+
+					let pLight = new THREE.PointLight();
+					pLight.distance = 7.0;
+					pLight.intensity = 4.0;
+					mesh.add( pLight );
+
+					return;
+
+				}
+
 				let powerMesh = new PowerMesh( mesh, {
 					uniforms: this.commonUniforms
 				} );
 
 				scene.add( powerMesh );
 				meshes.push( powerMesh );
+				mesh.visible = false;
 
 			}
 
-			mesh.visible = false;
-
 		} );
-
-		// let cubemapLoader = new THREE.CubeTextureLoader();
-		// cubemapLoader.load( [
-		// 	'/assets/scene/img/env/px.jpg',
-		// 	'/assets/scene/img/env/nx.jpg',
-		// 	'/assets/scene/img/env/py.jpg',
-		// 	'/assets/scene/img/env/ny.jpg',
-		// 	'/assets/scene/img/env/pz.jpg',
-		// 	'/assets/scene/img/env/nz.jpg',
-		// ], ( tex ) => {
-
-		// 	this.scene.background = tex;
-		// 	this.scene.background.encoding = THREE.sRGBEncoding;
-
-		// 	meshes.forEach( item=>{
-
-		// 		item.updateEnvMap( tex );
-
-		// 	} );
-
-		// 	this.commonUniforms.globalEnvMap.value = tex;
-
-		// } );
 
 		new THREE.TextureLoader().load( '/focused/assets/scene/env.png', ( tex ) => {
 
 			meshes.forEach( item=>{
 
+				item.iblIntensity = 0.2;
 				item.updateEnvMap( tex );
+
+				if ( item.name == 'face' ) {
+
+					item.envMapIntensity = 2.5;
+
+				}
 
 			} );
 
 		} );
 
+		/*-------------------------------
+			Particles
+		-------------------------------*/
+
+		this.particles = new Particles( this.commonUniforms );
+		this.particles.position.set( 0.0, 0.3, 12.0 );
+		this.particles.renderOrder = 999;
+		this.add( this.particles );
 
 	}
 

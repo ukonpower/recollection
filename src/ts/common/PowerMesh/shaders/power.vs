@@ -21,7 +21,13 @@ void main( void ) {
 	gl_Position = projectionMatrix * mvPosition;
 
 	vUv = uv;
-	vNormal = ( normalMatrix * normal );
+	
+	vec3 transformedNormal = normalMatrix * normal;
+	#ifdef FLIP_SIDED
+		transformedNormal = - transformedNormal;
+	#endif
+	vNormal = normalize( transformedNormal );
+
 	vTangent = normalize( ( modelViewMatrix * vec4( tangent.xyz, 0.0 ) ).xyz );
 	vBitangent = normalize( cross( vNormal, vTangent ) * tangent.w );
 	vViewPos = -mvPosition.xyz;

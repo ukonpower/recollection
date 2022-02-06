@@ -10,7 +10,7 @@ uniform float brightness;
 uniform float time;
 
 #pragma glslify: random = require( './random.glsl' );
-#define N 3
+#define N 4
 
 vec2 lens_distortion(vec2 r, float alpha) {
     return r * (1.0 - alpha * dot(r, r));
@@ -35,15 +35,13 @@ void main(){
 	vec2 cuv = vUv * 2.0 - 1.0;
 
     for(int i = 0; i < N; i++){
-        float w = 0.15 + float(i) * 0.01;
+        float w = 0.05 + float(i) * 0.005;
         c.x += texture2D(sceneTex,lens_distortion( uv - 0.5, w + 0.00 ) + 0.5).x;
-        c.y += texture2D(sceneTex,lens_distortion( uv - 0.5, w + 0.05 ) + 0.5).y;
-        c.z += texture2D(sceneTex,lens_distortion( uv - 0.5, w + 0.10 ) + 0.5).z;
+        c.y += texture2D(sceneTex,lens_distortion( uv - 0.5, w + 0.04 ) + 0.5).y;
+        c.z += texture2D(sceneTex,lens_distortion( uv - 0.5, w + 0.08 ) + 0.5).z;
     }
     c /= float(N);
 	
-	c = texture2D(sceneTex, uv ).xyz;
-
 	#pragma unroll_loop_start
 	for ( int i = 0; i < RENDER_COUNT; i ++ ) {
 		
@@ -51,9 +49,12 @@ void main(){
 
 	}
 	#pragma unroll_loop_end
+	c = aces( c );
+	c *= vec3( 1.05, 1.1, 1.15 );
 
-	c -= random( uv ) * 0.03 * c;
-	c *= smoothstep( -0.8, 1.0, 1.0 - length( cuv ) );
+	c -= random( uv ) * 0.1 * c;
+	c *= smoothstep( -0.5, 0.8, 1.0 - length( cuv + vec2( 0.0, -0.3) ) );
+
 
 	// c = LinearTosRGB( vec4( c, 1.0 ) ).xyz;
 
