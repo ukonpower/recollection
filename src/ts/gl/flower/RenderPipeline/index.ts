@@ -59,7 +59,7 @@ export class RenderPipeline {
 
 		this.renderTargets = {
 			rt1: new THREE.WebGLRenderTarget( 0, 0, {
-				format: THREE.RGBFormat,
+				format: THREE.RGBAFormat,
 				stencilBuffer: false,
 				generateMipmaps: false,
 				depthBuffer: true,
@@ -67,7 +67,7 @@ export class RenderPipeline {
 				magFilter: THREE.LinearFilter
 			} ),
 			rt2: new THREE.WebGLRenderTarget( 0, 0, {
-				format: THREE.RGBFormat,
+				format: THREE.RGBAFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -75,7 +75,7 @@ export class RenderPipeline {
 				magFilter: THREE.LinearFilter
 			} ),
 			rt3: new THREE.WebGLRenderTarget( 0, 0, {
-				format: THREE.RGBFormat,
+				format: THREE.RGBAFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -87,7 +87,7 @@ export class RenderPipeline {
 		for ( let i = 0; i < this.bloomRenderCount; i ++ ) {
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_0' ] = new THREE.WebGLRenderTarget( 0, 0, {
-				format: THREE.RGBFormat,
+				format: THREE.RGBAFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -96,7 +96,7 @@ export class RenderPipeline {
 			} );
 
 			this.renderTargets[ 'rtBlur' + i.toString() + '_1' ] = new THREE.WebGLRenderTarget( 0, 0, {
-				format: THREE.RGBFormat,
+				format: THREE.RGBAFormat,
 				depthBuffer: false,
 				stencilBuffer: false,
 				generateMipmaps: false,
@@ -123,17 +123,17 @@ export class RenderPipeline {
 		};
 
 		let loader = new THREE.TextureLoader();
-		loader.load( '../assets/gl/flower/smaa/smaa-area.png', ( tex ) => {
+		loader.load( '/flower/assets/smaa/smaa-area.png', ( tex ) => {
 
 			tex.minFilter = THREE.LinearFilter;
 			tex.generateMipmaps = false;
-			tex.format = THREE.RGBFormat;
+			tex.format = THREE.RGBAFormat;
 			tex.flipY = false;
 			this.inputTextures.areaTex.value = tex;
 
 		} );
 
-		loader.load( '../assets/gl/flower/smaa/smaa-search.png', ( tex ) => {
+		loader.load( '/flower/assets/smaa/smaa-search.png', ( tex ) => {
 
 			tex.minFilter = THREE.NearestFilter;
 			tex.magFilter = THREE.NearestFilter;

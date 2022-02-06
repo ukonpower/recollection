@@ -118,17 +118,17 @@ export class RenderPipeline {
 		};
 
 		let loader = new THREE.TextureLoader();
-		loader.load( '../assets/gl/flower/smaa/smaa-area.png', ( tex ) => {
+		loader.load( '/flower/assets/smaa/smaa-area.png', ( tex ) => {
 
 			tex.minFilter = THREE.LinearFilter;
 			tex.generateMipmaps = false;
-			tex.format = THREE.RGBFormat;
+			tex.format = THREE.RGBAFormat;
 			tex.flipY = false;
 			this.inputTextures.areaTex.value = tex;
 
 		} );
 
-		loader.load( '../assets/gl/flower/smaa/smaa-search.png', ( tex ) => {
+		loader.load( '/flower/assets/smaa/smaa-search.png', ( tex ) => {
 
 			tex.minFilter = THREE.NearestFilter;
 			tex.magFilter = THREE.NearestFilter;

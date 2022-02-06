@@ -307,7 +307,7 @@ export class MainVisualScene extends ORE.BaseLayer {
 
 			let currentGL = this.world.contents.glList[ this.contentSelector.currentContent ];
 
-			barba.go( window.origin + '/gl/' + currentGL.fileName + '.html' );
+			barba.go( window.origin + '/' + currentGL.fileName );
 
 		} );
 

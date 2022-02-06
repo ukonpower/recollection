@@ -1,0 +1,409 @@
+@use './global' as *;
+
+.container {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.wrapper {
+	width: 100%;
+	height: 100%;
+}
+
+.header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	position: relative;
+	left: 0; top: 0;
+	width: 100%;
+	padding: 30px 50px;
+	z-index: 10;
+
+	@include sp{
+		padding: 20px 20px;
+		padding-top: 10px;
+	}
+	
+	&-title { 
+		display: inline-block;
+		font-size: 30px;
+		font-family:'Bebas Neue', serif;
+		text-decoration: none;
+		
+		@include sp {
+			padding: 15px 0px;
+			padding-top: 10px;
+
+			font-size: 23px;
+		}
+	}
+}
+
+.canvas-wrap {
+	position: fixed;
+	left: 0; top: 0;
+	width: 100%;
+	height: 100%;
+	canvas {
+		width: 100%;
+		height: 100%;
+	}
+}
+
+
+.contents {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0; top: 0;
+	
+	&-data {
+		
+		position: absolute;
+
+		left: 50px;
+		bottom: 50px;
+
+		@include sp {
+			left: 20px;
+			bottom: 20px;
+		}
+		
+		&-title {
+			font-size: 120px;
+			font-family: 'Bebas Neue';
+			height: 125px;
+			transform: translateY( 20px );
+			opacity: 0;
+			
+			@include sp {
+				font-size: 80px;
+				height: 85px;
+			}
+			
+			transition: 1s;
+			
+			[data-info='true'] &{
+				transform: translateY( 0px );
+				opacity: 1;
+			}
+		}
+		&-description {
+			font-size: 14px;
+			font-family: 'Roboto';
+			margin-bottom: 2px;
+			opacity: 0;
+			transform: translateY( 20px );
+
+			transition: 1s;
+
+			@include sp {
+				font-size: 12px;
+			}
+			
+			[data-info='true'] &{
+				opacity: 1;
+				transition-delay: .2s;
+				transform: translateY( 0px );
+			}
+		}
+		&-date{
+			font-family: 'Roboto';
+			font-size: 14px;
+			opacity: 0;
+
+			transform: translateY( 20px );
+			transition: 1s;
+			
+			@include sp {
+				font-size: 12px;
+			}
+			
+			[data-info='true'] &{
+				transform: translateY( 0px );
+				opacity: 1;
+				transition: 1s;
+				transition-delay: .4s;
+			}
+		}
+		
+	}
+
+	&-back {
+		position: absolute;
+		display: inline-block;
+		right: 20px; bottom: 25px;
+		
+		opacity: 0;
+		transition: 1s;
+		
+		[data-info='true'] & {
+			opacity: 1;
+		}
+		
+		a {
+			padding: 0 3px;
+			padding-left: 30px;
+			font-size: 16px;
+			font-family: 'Noto Serif JP', sans-serif;
+			text-decoration: none;
+			
+			&::after{
+				content: "";
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				width: 70px;
+				height: 1px;
+				background: #ccc;
+				transform: scaleX(0.6);
+				transform-origin: right;
+
+				transition: transform 1s;
+				[data-info='true'] & {
+					opacity: 1;
+					transform: scaleX(1.0);
+				}
+			}
+		}
+	}
+}
+
+.ui {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0; top: 0;
+	pointer-events: none;
+
+	&-scroll {
+		position: absolute;
+		display: flex;
+		width: 90%;
+		left: 50%; top: 50%;
+		transform: translate(-50%, -50%);
+		bottom: 30px;
+		align-items: center;
+		justify-content: space-between;
+
+		@include sp{
+			width: 90%;
+		}
+
+		opacity: 0;
+		transition: 1s;
+
+		[data-info='true'] &{
+			opacity: 1;
+		}
+
+		&-item {
+			left: 25px;
+			width: 25px;
+			height: 25px;
+			border-top: 2px solid rgba($color: #FFF, $alpha: 0.4);
+			border-left: 2px solid rgba($color: #FFF, $alpha: 0.4);
+			transform: translateX(10px) rotate(-45deg);
+			opacity: 0;
+			transition: .4s;
+			pointer-events: none;
+			cursor: pointer;
+
+			@include sp {
+				left: 20px;
+				width: 20px;
+				height: 20px;
+			}
+
+			&[data-active="true"]{
+				opacity: 1;
+				pointer-events: auto;
+				transform: rotate(-45deg);
+			}
+
+			&.next {
+				transform: translateX(-10px) rotate(135deg);
+				
+				&[data-active="true"]{
+					transform: rotate(135deg);
+				}
+			}
+		}
+
+	}
+}
+
+.about-link {
+	position: absolute;
+	bottom: 0px;
+	left: 30px;
+	transform-origin: right bottom;
+	transform: translateX( -100% ) rotate(90deg) translateX(100%) ;
+	
+	padding: 0px 2px;
+	padding-right: 20px;
+	border-bottom: 1px solid #999;
+
+	@include sp {
+		left: 20px;
+	}
+
+	opacity: 0;
+	transition: 1s;
+	
+	[data-info='true'] & {
+		opacity: 1;
+		transform: translate(-100%, 0) rotate(90deg);
+	}
+	
+	a {
+		position: relative;
+		font-size: 15px;
+		font-family: 'Noto Serif JP', sans-serif;
+		text-decoration: none;
+
+		color: #ddd;
+
+		opacity: 0;
+		transition: .5s;
+		transition-delay: .5s;
+		
+		[data-info='true'] & {
+			opacity: 1;
+		}
+		
+		@include sp {
+			font-size: 15px;
+		}
+	}
+}
+
+.about {
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	left: 0;
+	top: 0;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+
+	background: rgba($color: #000, $alpha: 0.4);
+	opacity: 0;
+	transition: opacity 1.0s;
+
+	[data-about='true'] & {
+
+		opacity: 1;
+		
+	}
+	
+	&-inner{
+		width: 90%;
+		p {
+			text-align: center;
+			letter-spacing: 5px;
+			font-family: 'Noto Serif JP', serif;
+			width: 100%;
+			margin: 0 auto;
+
+			@include sp{
+				letter-spacing: 4px;
+				line-height: 28px;
+			}
+			
+			@include pc {
+
+				br {
+					display: none;
+				}
+			}
+		}
+	}
+	
+
+	&-sns {
+		position: absolute;
+		right: 20px;
+		bottom: 20px;
+
+		a {
+			font-family:'Bebas Neue', serif;
+			text-decoration: none;
+			margin-bottom: 10px;
+			font-weight: normal;
+			margin-right: 10px;
+
+			font-size: 20px;
+			color: #ccc;
+
+			@include sp {
+				font-size: 16px;
+			}
+		}
+
+		@include sp {
+			right: 10px;
+			bottom: 25px;
+			transform-origin: right bottom;
+			transform: rotate(-90deg) translateX(100%);
+		}
+		
+		opacity: 0;
+		transition: opacity 1s;
+
+		[data-about='true'] & {
+			opacity: 1;
+		}
+	}
+
+	&-back {
+		position: absolute;
+		display: inline-block;
+		left: 50%; bottom: 80px;
+		transform: translateX(-20%);
+		
+		opacity: 0;
+		transition: 1s;
+
+		@include sp{
+			bottom: 40px;
+		}
+		
+		[data-about='true'] & {
+			opacity: 1;
+			transform: translateX(-50%);
+		}
+		
+		a {
+			padding: 0 3px;
+			padding-left: 30px;
+			font-size: 16px;
+			font-family: 'Noto Serif JP', sans-serif;
+			text-decoration: none;
+			
+			&::after{
+				content: "";
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				width: 70px;
+				height: 1px;
+				background: #ccc;
+				transform: scaleX(0.6);
+				transform-origin: right;
+
+				transition: transform 1s;
+				[data-about='true'] & {
+					opacity: 1;
+					transform: scaleX(1.0);
+				}
+			}
+		}
+	}
+	
+}

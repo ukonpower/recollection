@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"strict": false,
 		"sourceMap": true,
 		"target": "es6",
 		"module": "es2020",
@@ -16,6 +17,7 @@
 		"paths": {
 			"@ore-three-ts" : ["src/common/ts/ore-three-ts/src"],
 			"@gl/*" : ["src/ts/gl/*"],
+			"@common/*" : ["src/ts/common/*"],
 		}
 	},
   	"include": [

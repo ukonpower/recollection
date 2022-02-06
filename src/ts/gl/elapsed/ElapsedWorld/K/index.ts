@@ -35,6 +35,7 @@ export class K extends THREE.Mesh {
 			vertexShader: kVert,
 			fragmentShader: kFrag,
 			uniforms: commonUniforms,
+			lights: true,
 			transparent: true
 		} );
 
@@ -48,7 +49,6 @@ export class K extends THREE.Mesh {
 			fragmentShader: kFrag,
 			side: THREE.DoubleSide,
 			uniforms: commonUniforms,
-			lights: true,
 			defines: {
 				'DEPTH': "",
 			},

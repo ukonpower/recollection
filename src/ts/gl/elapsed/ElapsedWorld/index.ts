@@ -1,14 +1,14 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { PowerMesh } from './PowerMesh';
-import { ShadowMapper } from './ShadowMapper';
-import { PowerReflectionMesh } from './PowerMesh/PowerReflectMesh';
+import { ShadowMapper } from '@common/ShadowMapper';
 import { ElapsedGlobalManager } from '../ElapsedGlobalManager';
 
 import groundFrag from './shaders/ground.fs';
 import sceneFrag from './shaders/scene.fs';
 import { K } from './K';
+import { PowerMesh } from '@common/PowerMesh';
+import { PowerReflectionMesh } from '@common/PowerMesh/PowerReflectMesh';
 
 export class ElapsedWorld extends THREE.Object3D {
 
@@ -56,7 +56,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			ShadowMapper
 		-------------------------------*/
 
-		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), 2.0, light );
+		this.shadowMapper = new ShadowMapper( this.renderer, new THREE.Vector2( 1024, 1024 ), new THREE.Vector2( 2.0, 2.0 ), light );
 
 		/*-------------------------------
 			Meshes
@@ -110,19 +110,19 @@ export class ElapsedWorld extends THREE.Object3D {
 
 		let cubemapLoader = new THREE.CubeTextureLoader();
 		cubemapLoader.load( [
-			'/assets/gl/elapsed/scene/env/pz.jpg',
-			'/assets/gl/elapsed/scene/env/nz.jpg',
-			'/assets/gl/elapsed/scene/env/py.jpg',
-			'/assets/gl/elapsed/scene/env/ny.jpg',
-			'/assets/gl/elapsed/scene/env/px.jpg',
-			'/assets/gl/elapsed/scene/env/nx.jpg',
+			'/elapsed/assets/scene/env/pz.jpg',
+			'/elapsed/assets/scene/env/nz.jpg',
+			'/elapsed/assets/scene/env/py.jpg',
+			'/elapsed/assets/scene/env/ny.jpg',
+			'/elapsed/assets/scene/env/px.jpg',
+			'/elapsed/assets/scene/env/nx.jpg',
 		], ( tex ) => {
 
 			this.scene.background = tex;
 
 			meshes.forEach( item=>{
 
-				item.envMapUpdate = true;
+				item.updateEnvMap( tex );
 
 			} );
 
@@ -147,6 +147,7 @@ export class ElapsedWorld extends THREE.Object3D {
 			let t = time * 0.5 + 0.0;
 			let p = item.position;
 			p.set( Math.sin( - t ) * 3.0, 1.5 + Math.sin( - t + Math.PI ) * 0.8, Math.cos( - t ) * 3.0 );
+			p.multiplyScalar( 5 );
 
 		} );
 

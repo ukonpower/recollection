@@ -27,8 +27,8 @@ export default class ElapsedScene extends BaseGL {
 		this.gManager = new ElapsedGlobalManager();
 
 		this.gManager.assetManager.load( { assets: [
-			{ name: 'scene', path: '../assets/gl/elapsed/scene/elapsed.glb', type: 'gltf' },
-			{ name: 'waterRoughness', path: '../assets/gl/elapsed/scene/ground/Metal002_1K_Roughness.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
+			{ name: 'scene', path: '/elapsed/assets/scene/elapsed.glb', type: 'gltf' },
+			{ name: 'waterRoughness', path: '/elapsed/assets/scene/ground/Metal002_1K_Roughness.jpg', type: 'tex', onLoad: ( tex: THREE.Texture ) => {
 
 				tex.wrapS = THREE.RepeatWrapping;
 				tex.wrapT = THREE.RepeatWrapping;
@@ -40,7 +40,7 @@ export default class ElapsedScene extends BaseGL {
 				tex.wrapT = THREE.RepeatWrapping;
 
 			} },
-			{ name: 'sky', path: '../assets/gl/elapsed/scene/sky.png', type: 'tex' },
+			{ name: 'sky', path: '/elapsed/assets/scene/sky.png', type: 'tex' },
 		] } );
 
 		this.gManager.assetManager.addEventListener( 'loadMustAssets', () => {
@@ -63,6 +63,7 @@ export default class ElapsedScene extends BaseGL {
 			CameraController
 		------------------------*/
 		this.cameraController = new ElapsedCameraController( this.camera, this.scene );
+		this.camera.userData.mainCamera = true;
 
 		/*------------------------
 			World

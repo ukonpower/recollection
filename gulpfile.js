@@ -5,7 +5,7 @@ const rename = require( 'gulp-rename' );
 const pug = require( 'gulp-pug' );
 const autoprefixer = require( 'gulp-autoprefixer' );
 const plumber = require( 'gulp-plumber' );
-const sass = require( 'gulp-sass' );
+const sass = require( 'gulp-sass' )( require( 'sass' ) );
 const cssmin = require( 'gulp-cssmin' );
 
 const webpackStream = require( 'webpack-stream' );
@@ -29,7 +29,7 @@ const options = minimist( process.argv.slice( 2 ), {
 
 const srcPath = './src';
 const glPath = './src/ts/gl';
-const publicPath = './public';
+const publicPath = './public/';
 var webpackMode = 'development';
 
 function isFixed( file ) {
@@ -86,7 +86,7 @@ function cleanAllFiles( cb ) {
 
 function copyFiles( cb ) {
 
-	gulp.src( srcPath + '/ts/top/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/' ) );
+	gulp.src( srcPath + '/ts/top/assets/**/*' ).pipe( gulp.dest( publicPath + 'assets/' ) );
 	gulp.src( './src/conf/**/*' ).pipe( gulp.dest( publicPath ) );
 
 	let glList = require( './src/ts/gl/gl.json' );
@@ -95,7 +95,7 @@ function copyFiles( cb ) {
 		
 		let glName = glList[i].fileName;
 
-		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + '/assets/gl/' + glName + '/' ) );
+		gulp.src( glPath + '/'+ glName + '/assets/**/*' ).pipe( gulp.dest( publicPath + glName + '/assets/' ) );
 		
 	}
 		
@@ -144,10 +144,9 @@ function webpackDev( cb ) {
 		}
 
 		reload();
-		
 	})
 		.on( 'error', function() { this.emit( 'end' ) } )
-		.pipe( gulp.dest( publicPath + "/js/" ) );
+		.pipe( gulp.dest( publicPath + "js/" ) );
 
 	cb();
 
@@ -160,6 +159,7 @@ function pugDev( cb ) {
 		.pipe(pug({
 			pretty: true,
 		}))
+		.pipe( rename( (path) => { path.basename = 'index' }) )
 		.pipe( gulp.dest( publicPath ) )
 		.unpipe( browserSync.reload() );
 
@@ -185,8 +185,8 @@ function pugDev( cb ) {
 					glDescription: glDescription
 				}
 			} ) )
-			.pipe( rename( (path) => { path.basename = gl.fileName }) )
-			.pipe( gulp.dest( publicPath + '/gl/' ) )
+			.pipe( rename( (path) => { path.basename = 'index' }) )
+			.pipe( gulp.dest( publicPath + gl.fileName + '/' ) )
 		
 	}
 
@@ -197,11 +197,17 @@ function pugDev( cb ) {
 function sassDev() {
 
 	return gulp.src( srcPath + "/scss/style.scss" )
-		.pipe( plumber() )
+		.pipe(  plumber( {
+
+			errorHandler: ( err ) => {
+			console.log( err.messageFormatted );
+			this.emit('end');
+			
+		} } )  )
 		.pipe( sass() )
 		.pipe( autoprefixer() )
 		.pipe( cssmin() )
-		.pipe( gulp.dest( publicPath + "/css/" ) )
+		.pipe( gulp.dest( publicPath + "css/" ) )
 		.pipe( browserSync.stream() )
 
 }

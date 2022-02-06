@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VideoTextureCreator } from './VideoTextureCreator';
 
 declare interface TextureParam {
@@ -28,7 +28,7 @@ declare interface TextureInfo {
 
 export class AssetManager extends ORE.EventDispatcher {
 
-	private basePath = '../assets/gl/warmth/scene/';
+	private basePath = '/warmth/assets/scene/';
 
 	public preLoadingManager: THREE.LoadingManager;
 	public mustLoadingManager: THREE.LoadingManager;

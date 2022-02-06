@@ -101,7 +101,7 @@ export class ReflectionPlane extends THREE.Mesh {
 
 
 		let loader = new THREE.TextureLoader();
-		loader.load( '../assets/gl/complex/img/Metal003_2K_Roughness.jpg', ( tex ) => {
+		loader.load( '/complex/assets/img/Metal003_2K_Roughness.jpg', ( tex ) => {
 
 			tex.wrapS = THREE.RepeatWrapping;
 			tex.wrapT = THREE.RepeatWrapping;
