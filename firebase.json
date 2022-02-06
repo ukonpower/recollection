@@ -11,6 +11,16 @@
 			"source": "/gl/elapsed.html",
 			"destination": "/elapsed",
 			"type": 301
+		},
+		{
+			"source": "/gl/warmth.html",
+			"destination": "/warmth",
+			"type": 301
+		},
+		{
+			"source": "/gl/extraneous.html",
+			"destination": "/extraneous",
+			"type": 301
 		}
 	]
   }
