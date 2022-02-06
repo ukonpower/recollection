@@ -5,6 +5,13 @@
       "firebase.json",
       "**/.*",
       "**/node_modules/**"
-    ]
+    ],
+	"redirects": [
+		{
+			"source": "/gl/elapsed.html",
+			"destination": "/elapsed",
+			"type": 301
+		}
+	]
   }
 }
