@@ -144,7 +144,6 @@ function webpackDev( cb ) {
 		}
 
 		reload();
-		
 	})
 		.on( 'error', function() { this.emit( 'end' ) } )
 		.pipe( gulp.dest( publicPath + "js/" ) );

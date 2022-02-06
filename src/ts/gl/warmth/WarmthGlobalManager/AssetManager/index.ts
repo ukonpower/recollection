@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VideoTextureCreator } from './VideoTextureCreator';
 
 declare interface TextureParam {

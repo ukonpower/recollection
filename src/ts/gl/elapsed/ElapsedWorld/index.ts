@@ -122,7 +122,7 @@ export class ElapsedWorld extends THREE.Object3D {
 
 			meshes.forEach( item=>{
 
-				item.envMapUpdate = true;
+				item.updateEnvMap( tex );
 
 			} );
 

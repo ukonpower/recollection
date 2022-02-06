@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
 
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { VideoTextureCreator } from './VideoTextureCreator';
 import { GLList } from '../../MainVisualWorld/Contents';
 
@@ -59,7 +59,7 @@ export class AssetManager extends ORE.EventDispatcher {
 		this.mustLoadTexturesInfo = [
 			{ path: this.basePath + '/scene/img/lens.jpg', name: 'lensDirt', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
 			{ path: this.basePath + '/scene/img/noise.jpg', name: 'noise', param: { wrapS: THREE.RepeatWrapping, wrapT: THREE.RepeatWrapping } },
-			{ path: this.basePath + '/smaa/smaa-area.png', name: 'smaaArea', param: { flipY: false, minFilter: THREE.LinearFilter, generateMipmaps: false, format: THREE.RGBFormat } },
+			{ path: this.basePath + '/smaa/smaa-area.png', name: 'smaaArea', param: { flipY: false, minFilter: THREE.LinearFilter, generateMipmaps: false, format: THREE.RGBAFormat } },
 			{ path: this.basePath + '/smaa/smaa-search.png', name: 'smaaSearch', param: { flipY: false, minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, generateMipmaps: false } },
 		];
 

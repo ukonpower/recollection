@@ -41,8 +41,6 @@ export class FocusedWorld extends THREE.Object3D {
 		light.position.set( - 10, 10, 5.0 );
 		// this.scene.add( light );
 
-
-
 		this.light = light;
 
 		let pLight = new THREE.PointLight();
@@ -81,26 +79,36 @@ export class FocusedWorld extends THREE.Object3D {
 
 		} );
 
-		let cubemapLoader = new THREE.CubeTextureLoader();
-		cubemapLoader.load( [
-			'/assets/scene/img/env/px.jpg',
-			'/assets/scene/img/env/nx.jpg',
-			'/assets/scene/img/env/py.jpg',
-			'/assets/scene/img/env/ny.jpg',
-			'/assets/scene/img/env/pz.jpg',
-			'/assets/scene/img/env/nz.jpg',
-		], ( tex ) => {
+		// let cubemapLoader = new THREE.CubeTextureLoader();
+		// cubemapLoader.load( [
+		// 	'/assets/scene/img/env/px.jpg',
+		// 	'/assets/scene/img/env/nx.jpg',
+		// 	'/assets/scene/img/env/py.jpg',
+		// 	'/assets/scene/img/env/ny.jpg',
+		// 	'/assets/scene/img/env/pz.jpg',
+		// 	'/assets/scene/img/env/nz.jpg',
+		// ], ( tex ) => {
 
-			this.scene.background = tex;
-			this.scene.background.encoding = THREE.sRGBEncoding;
+		// 	this.scene.background = tex;
+		// 	this.scene.background.encoding = THREE.sRGBEncoding;
+
+		// 	meshes.forEach( item=>{
+
+		// 		item.updateEnvMap( tex );
+
+		// 	} );
+
+		// 	this.commonUniforms.globalEnvMap.value = tex;
+
+		// } );
+
+		new THREE.TextureLoader().load( '/focused/assets/scene/env.png', ( tex ) => {
 
 			meshes.forEach( item=>{
 
-				// item.envMapUpdate = true;
+				item.updateEnvMap( tex );
 
 			} );
-
-			this.commonUniforms.globalEnvMap.value = tex;
 
 		} );
 

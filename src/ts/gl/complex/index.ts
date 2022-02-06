@@ -2,7 +2,7 @@ import * as ORE from '@ore-three-ts';
 import * as THREE from 'three';
 
 import { BaseGL } from '../BaseGL';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { SmoothCameraMover } from './SmoothCameraMover';
 import { ReflectionPlane } from './ReflectionPlane';
 import { Emotion } from './Emotion';

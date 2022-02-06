@@ -266,7 +266,7 @@ export class FocusedRenderPipeline {
 
 			tex.minFilter = THREE.LinearFilter;
 			tex.generateMipmaps = false;
-			tex.format = THREE.RGBFormat;
+			tex.format = THREE.RGBAFormat;
 			tex.flipY = false;
 			this.inputTextures.areaTex.value = tex;
 

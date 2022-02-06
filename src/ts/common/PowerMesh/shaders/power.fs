@@ -1,4 +1,6 @@
 varying vec2 vUv;
+varying vec3 vTangent;
+varying vec3 vBitangent;
 
 /*-------------------------------
 	Require
@@ -154,7 +156,6 @@ uniform sampler2D envMap;
 uniform float maxLodLevel;
 
 #define ENVMAP_TYPE_CUBE_UV
-vec4 envMapTexelToLinear( vec4 value ) { return sRGBToLinear( value ); }
 #include <cube_uv_reflection_fragment>
 
 /*-------------------------------
@@ -436,7 +437,7 @@ void main( void ) {
 
 	#ifdef USE_METALNESS_MAP
 
-		mat.metalness = texture2D( roughnessMap, vUv ).z;
+		mat.metalness = texture2D( metalnessMap, vUv ).z;
 
 	#else
 
@@ -479,47 +480,29 @@ void main( void ) {
 		Geometry
 	-------------------------------*/
 
+	float faceDirection = gl_FrontFacing ? 1.0 : 1.0;
+
 	Geometry geo;
 	geo.pos = -vViewPos;
 	geo.posWorld = vWorldPos;
 	geo.viewDir = normalize( vViewPos );
 	geo.viewDirWorld = normalize( geo.posWorld - cameraPosition );
-	geo.normal = normalize( vNormal );
+	geo.normal = normalize( vNormal ) * faceDirection;
 
 	#ifdef USE_NORMAL_MAP
-
-		vec2 nUV = vUv;
+		
+		vec3 tangent = normalize( vTangent ) * faceDirection;
+		vec3 bitangent = normalize( vBitangent ) * faceDirection;
+		mat3 vTBN = mat3( tangent, bitangent, geo.normal );
+		
 		vec3 mapN = texture2D( normalMap, vUv ).xyz;
-		mapN.xy = 1.0 - mapN.xy;
 		mapN = mapN * 2.0 - 1.0;
-
-		// https://stackoverflow.com/Questions/5255806/how-to-calculate-tangent-and-binormal
-		// compute derivations of the world position
-		vec3 p_dx = dFdx(vWorldPos);
-		vec3 p_dy = dFdy(vWorldPos);
-		// compute derivations of the texture coordinate
-		vec2 tc_dx = dFdx(vUv);
-		vec2 tc_dy = dFdy(vUv);
-		// compute initial tangent and bi-tangent
-		vec3 t = normalize( tc_dy.y * p_dx - tc_dx.y * p_dy );
-		vec3 b = normalize( tc_dy.x * p_dx - tc_dx.x * p_dy ); // sign inversion
-		// get new tangent from a given mesh normal
-		vec3 n = normalize(geo.normal);
-		vec3 x = cross(n, t);
-		t = cross(x, n);
-		t = normalize(t);
-		// get updated bi-tangent
-		x = cross(b, n);
-		b = cross(n, x);
-		b = normalize(b);
-
-		mat3 tbn = mat3(t, b, n);
-		geo.normal = normalize( tbn * mapN );
-
+		geo.normal = normalize( vTBN * mapN );
+		
 	#endif
-
+	
 	geo.normalWorld = normalize( ( vec4( geo.normal, 0.0 ) * viewMatrix ).xyz );
-
+	
 	/*-------------------------------
 		Lighting
 	-------------------------------*/
@@ -588,7 +571,7 @@ void main( void ) {
 	vec3 refDir = reflect( geo.viewDirWorld, geo.normalWorld );
 	refDir.x *= -1.0;
 
-	vec4 envMapColor = sRGBToLinear( textureCubeUV( envMap, geo.normalWorld, 1.0 ) );
+	vec4 envMapColor = textureCubeUV( envMap, geo.normalWorld, 1.0 );
 	outColor += mat.diffuseColor * envMapColor.xyz * ( 1.0 - mat.metalness );
 
 	/*-------------------------------
@@ -624,4 +607,5 @@ void main( void ) {
 	#endif
 
 	gl_FragColor = vec4( outColor, outOpacity );
+	gl_FragColor = linearToOutputTexel( gl_FragColor );
 }

@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import * as ORE from '@ore-three-ts';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export class FocusedCameraController {
 
@@ -59,7 +59,7 @@ export class FocusedCameraController {
 	public update( deltaTime: number, time: number ) {
 
 		this.updateOrbitControls();
-		this.updateSceneControls( deltaTime, time );
+		// this.updateSceneControls( deltaTime, time );
 
 	}
 
@@ -80,7 +80,6 @@ export class FocusedCameraController {
 			this.camera.userData.focusLength = this.camera.position.distanceTo( this.cameraTargetPos );
 			// this.camera.userData.focalLength = this.camera.userData.focusLength - 1.0;
 
-
 		}
 
 		this.camera.applyQuaternion( new THREE.Quaternion().setFromEuler( new THREE.Euler( Math.sin( time * 1.6 ) * Math.sin( time * 1.0 ) * 0.002, Math.sin( time * 2.0 ) * 0.002 ) ) );
@@ -96,6 +95,9 @@ export class FocusedCameraController {
 	public resize( layerInfo: ORE.LayerInfo ) {
 
 		this.camera.fov = this.baseCamera.fov + layerInfo.size.portraitWeight * 10.0;
+
+		// this.camera.fov = 50;
+
 		this.camera.updateProjectionMatrix();
 
 	}

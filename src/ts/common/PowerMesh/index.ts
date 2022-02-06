@@ -12,7 +12,8 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 	// envMap
 	protected envMapRenderTarget: THREE.WebGLCubeRenderTarget;
 	protected envMapCamera: THREE.CubeCamera;
-	public envMapUpdate: boolean;
+	protected envMapUpdate: boolean;
+	protected envMapSrc: THREE.CubeTexture | THREE.Texture;
 
 	constructor( geometry: THREE.BufferGeometry, materialOption?: THREE.ShaderMaterialParameters );
 
@@ -149,6 +150,14 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 
 		}
 
+		// tangents
+
+		if ( ! geo.getAttribute( 'tangent' ) ) {
+
+			geo.computeTangents();
+
+		}
+
 		/*-------------------------------
 			Material
 		-------------------------------*/
@@ -162,7 +171,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			transparent: true,
 			side: THREE.DoubleSide,
 			extensions: {
-				derivatives: true
+				derivatives: true,
 			},
 			defines: {
 			},
@@ -241,7 +250,7 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 		let envMapResolution = 256;
 
 		this.envMapRenderTarget = new THREE.WebGLCubeRenderTarget( envMapResolution, {
-			format: THREE.RGBFormat,
+			format: THREE.RGBAFormat,
 			generateMipmaps: true,
 			magFilter: THREE.LinearFilter,
 			minFilter: THREE.LinearFilter
@@ -273,20 +282,37 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 				EnvMap
 			-------------------------------*/
 
-			if ( this.envMapUpdate && ! camera.userData.shadowCamera ) {
+			if ( ! camera.userData.shadowCamera && ( this.envMapUpdate || this.envMapUpdate ) ) {
 
-				this.visible = false;
-
-				this.envMapCamera.update( renderer, scene );
-
-				this.visible = true;
+				let envMapRT: THREE.WebGLRenderTarget | null = null;
 
 				let pmremGenerator = new THREE.PMREMGenerator( renderer );
 				pmremGenerator.compileEquirectangularShader();
-				let envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
+
+				if ( this.envMapSrc ) {
+
+					if ( 'isCubeTexture' in this.envMapSrc ) {
+
+						envMapRT = pmremGenerator.fromCubemap( this.envMapSrc );
+
+					} else {
+
+						envMapRT = pmremGenerator.fromEquirectangular( this.envMapSrc );
+
+					}
+
+				} else {
+
+					this.visible = false;
+
+					this.envMapCamera.update( renderer, scene );
+					envMapRT = pmremGenerator.fromCubemap( this.envMapRenderTarget.texture );
+
+					this.visible = true;
+
+				}
 
 				this.commonUniforms.envMap.value = envMapRT.texture;
-
 				this.envMapUpdate = false;
 
 			}
@@ -328,6 +354,13 @@ export class PowerMesh extends THREE.Mesh<THREE.BufferGeometry, THREE.ShaderMate
 			}
 
 		} );
+
+	}
+
+	public updateEnvMap( envMap: THREE.CubeTexture | THREE.Texture | null = null ) {
+
+		this.envMapSrc = envMap;
+		this.envMapUpdate = true;
 
 	}
 
